@@ -47,48 +47,6 @@ The `serve/` directory contains scripts for serving models with vLLM:
 - **`serving.sh`** - Generic serving script
 - **`test_api.py`** - Test API connectivity
 
-## Key Improvements
-
-### 1. Enhanced Documentation
-All modules now include comprehensive docstrings explaining:
-- Module purpose
-- Function parameters and return values
-- Usage examples
-
-### 2. Type Hints
-Added type hints to improve code clarity and enable better IDE support:
-```python
-def process_dataset(
-    dataset: List[Dict[str, Any]], 
-    base_url: str, 
-    model: str, 
-    max_workers: int
-) -> List[Dict[str, Any]]:
-```
-
-### 3. Better Error Handling
-Improved error handling with more informative error messages:
-```python
-try:
-    completion = client.chat.completions.create(...)
-except Exception as e:
-    print(f'Retry attempt {attempt+1} failed: {str(e)}')
-    if attempt == max_retries:
-        print("Max retries exceeded")
-        return sample
-```
-
-### 4. Modular Design
-Refactored code into logical functions with single responsibilities:
-- Data loading and saving functions
-- Data processing functions
-- Model interaction functions
-- Evaluation functions
-
-### 5. Fixed Bugs
-- Fixed string literal bug in `format_bmark.py`
-- Corrected syntax issues in `obtain_think.py`
-
 ## Dependencies
 
 The code requires the following Python packages:
@@ -134,12 +92,3 @@ Use the scripts in the `serve/` directory to serve models with vLLM:
 # Serve a Qwen model
 ./src/serve/llm.sh
 ```
-
-## Testing
-
-All refactored code has been tested for:
-- Syntax errors
-- Module imports
-- Basic functionality
-
-For detailed information about the refactoring changes, see `REFACTORED_CHANGES.md`.
