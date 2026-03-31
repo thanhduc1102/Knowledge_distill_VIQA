@@ -1,1 +1,33 @@
-/data
+# Data
+/data/
+data/vinumqa_raw/
+
+# Outputs
+outputs/
+checkpoints/
+logs/
+
+# Kaggle offline package
+kaggle_offline_package/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environments
+.venv/
+venv/
+*.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

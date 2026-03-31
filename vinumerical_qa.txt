@@ -1,0 +1,134 @@
+I. Phân tích Chi tiết Tập dữ liệu ViNumQA
+Tập dữ liệu ViNumQA được thiết kế chuyên biệt cho tác vụ suy luận số học tài chính tiếng Việt, với định dạng JSON tiêu chuẩn hóa. Mỗi mẫu dữ liệu (sample) đại diện cho một bài toán trọn vẹn và bao gồm các trường thông tin sau :
+pre_text: Danh sách các chuỗi văn bản (đoạn văn) xuất hiện trước bảng dữ liệu trong báo cáo gốc.
+post_text: Danh sách các chuỗi văn bản (đoạn văn) xuất hiện sau bảng dữ liệu.
+table: Mảng 2 chiều (danh sách của danh sách) chứa dữ liệu tài chính dạng bảng, trong đó mảng con đầu tiên luôn là hàng tiêu đề (header).
+id: Chuỗi định danh duy nhất cho từng bài toán.
+qa: Đối tượng JSON chứa bộ ba lõi của tác vụ QA:
+question: Câu hỏi bằng tiếng Việt.
+program: Chương trình suy luận toán học chuẩn (Gold-standard program) dưới dạng chuỗi phép toán (ví dụ: divide(914, 391)).
+exe_ans: Đáp án bằng số cuối cùng thu được khi thực thi chương trình trên.
+VLSP 2025 challenge on Numerical Reasoning QA | Association for Vietnamese Language and Speech Processing
+Quy trình xây dựng dữ liệu diễn ra qua 3 giai đoạn paper của Vietnam Finance :
+Giai đoạn 1 (Dịch thuật và Xác minh FinQA): Tiền xử lý tập dữ liệu FinQA tiếng Anh, sử dụng Gemini Pro để dịch toàn bộ (văn bản, bảng, câu hỏi) sang tiếng Việt. Các chuyên gia tài chính sau đó kiểm tra thủ công để đảm bảo thuật ngữ chính xác và bảo toàn độ chính xác của số liệu.
+Giai đoạn 2 (Xây dựng dữ liệu gốc VN): Thu thập báo cáo tài chính của các công ty Việt Nam (2020–2025) từ các nguồn như MBS, SSI, MASVN. PDF được chuyển đổi và chuẩn hóa thành văn bản/bảng. Các mô hình LLM (như Gemini Pro và GPT-4o) được dùng để sinh câu hỏi và chương trình toán học dựa trên báo cáo. Con người sẽ kiểm duyệt và dán nhãn lại lần cuối để loại bỏ các mẫu sai lệch.
+Giai đoạn 3 (Hợp nhất): Hợp nhất nhánh FinQA dịch thuật và nhánh dữ liệu gốc Việt Nam để tạo ra bộ ViNumQA với cấu trúc JSON đồng nhất.
+paper của HUSTUET  thì kết hợp sử dụng cho multilingual chứ không dịch bộ tiếng anh sang tiếng việt. Tích hợp dữ liệu Đa ngôn ngữ và Đa dạng hóa (Multilingual Data Integration): Thay vì dịch FinQA sang tiếng Việt gây rủi ro sai lệch ngữ nghĩa, đội dùng trực tiếp tập FinQA gốc (tiếng Anh) trộn với tập dữ liệu của ban tổ chức. Điểm độc đáo: Họ tận dụng trường program_re (các chương trình tính toán thay thế có cùng đáp án) của tập FinQA để nhân đôi lượng dữ liệu huấn luyện, giúp mô hình học tính bất biến của toán học (mathematical equivalence)
+
+→ định hướng sử dụng data dạng multilingual 
+
+Các bộ dataset:
+Vi_numerical QA: (bộ chính) https://drive.google.com/drive/folders/1ZFtIF88ZJzubbkB0pIJA_rxz3NrzC8gG?usp=sharing
+FinQA-English: 
+https://github.com/czyssrs/FinQA/tree/main/dataset
+https://huggingface.co/datasets/TheFinAI/FINQA_test_test
+https://huggingface.co/datasets/yale-nlp/DocMath-Eval
+https://huggingface.co/datasets/TheFinAI/FinCoT
+https://huggingface.co/datasets/kensho/DocFinQA
+https://huggingface.co/datasets/FinanceMTEB/TATQA
+https://huggingface.co/datasets/ucinlp/drop
+https://huggingface.co/datasets/allenai/math_qa
+
+Các trang có thể crawl data:
+https://www.mbs.com.vn/bao-cao-phan-tich-nganh/
+https://www.ssi.com.vn/khach-hang-ca-nhan/bao-cao-chien-luoc
+https://www.masvn.com/
+https://finance.vietstock.vn/du-lieu-nganh.htm
+https://vn.tradingview.com/
+https://fiintrade.vn/
+https://www.vndirect.com.vn/category/bao-cao-nganh/
+https://fireant.vn/analysis
+
+
+
+
+II. Bài báo liên quan
+ https://aclanthology.org/2025.vlsp-1.26.pdf
+ https://aclanthology.org/2025.vlsp-1.25.pdf 
+1. Bài báo Tổng quan (VLSP 2025 Overview - Phân tích các hướng tiếp cận cốt lõi) Bài báo tổng quan phác họa hai trường phái kỹ thuật chính đã được các đội áp dụng:
+Quy trình huấn luyện chuyên sâu (Đại diện: HUSTUET, Vietnam Finance, UIT_BlackCoffee):
+Xử lý dữ liệu: Dịch thuật FinQA sang tiếng Việt qua GPT-o3 (Vietnam Finance) hoặc chuyển đổi định dạng bảng sang Markdown để LLM dễ hấp thụ (UIT_BlackCoffee).
+Mô hình hóa: Tinh chỉnh (SFT) các mô hình mã nguồn mở như Qwen3 (kể cả bản lượng tử hóa 8.7B) kết hợp với LoRA để tối ưu chi phí. Sử dụng học tăng cường (GRPO) dựa trên tính hợp lệ của chương trình.
+Suy luận đa luồng: Bỏ phiếu theo số đông (Majority Voting) bằng cách sinh 10 ứng viên và chọn kết quả xuất hiện nhiều nhất.
+Quy trình Đại lý AI phi tinh chỉnh (Inference-only Agent - Đại diện: Innovation-LLM): Đi ngược với xu hướng Fine-tune, hệ thống chia nhỏ bài toán thành 4 bước: (1) Phân rã câu hỏi, (2) Trích xuất dữ liệu, (3) Sinh chương trình đa luồng ($n=15$), (4) Bỏ phiếu số đông. Phương pháp này đặc biệt xuất sắc với câu hỏi phức tạp (Table & Text) và đạt EA cao nhất (84.0%).
+2. Bài báo của đội HUSTUET (Winning Team - Program-Centric Policy Optimization) Đây là quy trình bài bản nhất, giúp đội đạt giải Nhất với chiến lược Giữ nguyên ngôn ngữ - Chưng cất tri thức - Tối ưu hóa hàm phần thưởng.
+Pha 1: Tích hợp dữ liệu Đa ngôn ngữ và Đa dạng hóa (Multilingual Data Integration): Thay vì dịch FinQA sang tiếng Việt gây rủi ro sai lệch ngữ nghĩa, đội dùng trực tiếp tập FinQA gốc (tiếng Anh) trộn với tập dữ liệu của ban tổ chức. Điểm độc đáo: Họ tận dụng trường program_re (các chương trình tính toán thay thế có cùng đáp án) của tập FinQA để nhân đôi lượng dữ liệu huấn luyện, giúp mô hình học tính bất biến của toán học (mathematical equivalence).
+Pha 2: Chuẩn hóa không gian toán tử (Operation Set Formalization): Họ định nghĩa một tập hợp các toán tử toán học nghiêm ngặt: $O_{add}, O_{sub}, O_{mul}, O_{div}, O_{exp}, O_{gt}$ cùng các toán tử cấp bảng (table-level) như $O_{sum}, O_{avg}, O_{max}, O_{min}$ giúp thao tác trực tiếp trên hàng/cột mà không cần trích xuất giá trị thủ công.
+Pha 3: Chưng cất tri thức (Reasoning Distillation qua SFT):
+Thiết kế prompt "Chain of Numerical Reasoning" (CoNR) dựa trên cấu trúc Program-of-Thought.
+Dùng "Giáo viên" là Qwen3-235B-Thinking (trên 8 GPU H100) để sinh ra các "bản ghi tư duy" (structured reasoning traces) chất lượng cao cho toàn bộ 14.661 mẫu huấn luyện.
+Huấn luyện "Học sinh" (Qwen3-8B và Gemma-3-12b) bằng phương pháp SFT (Supervised Fine-Tuning) trên các traces này, sử dụng DeepSpeed Stage 3 và FlashAttention 2 (Learning rate $5 \times 10^{-5}$, BF16).
+Pha 4: Học tăng cường với PCPO (Program-Centric Policy Optimization qua GRPO): Họ áp dụng thuật toán GRPO (Group Relative Policy Optimization) để căn chỉnh (align) mô hình. Điểm cốt lõi là Công thức Toán học của Hàm Phần thưởng (Reward Function): R(p, x) = R_valid * (0.7 + 0.2 * R_exec(p, x) + 0.1 * R_bonus)
+R_valid \in {0, 1}: Nhận 1 nếu chương trình không lỗi cú pháp (Valid), 0 nếu lỗi. Làm màng lọc tuyệt đối.
+R_exec \in {0, 1}: Nhận 1 nếu đáp án cuối cùng bằng đáp án chuẩn ($a^*$).
+R_bonus: Thưởng độ ngắn gọn. Nhận 1 nếu ngắn hơn chương trình chuẩn ($|p| < |p^|$), 0.5 nếu bằng, và 0.1 nếu dài hơn ($|p| > |p^|$).
+Bộ trọng số $\alpha=0.7, \beta=0.2, \gamma=0.1$: Ưu tiên tối đa cho tính hợp lệ logic của code (0.7) thay vì chỉ tính ra kết quả đúng (0.2). Thuật toán lấy mẫu 5 rollout mỗi prompt, dùng bộ tối ưu AdamW (KL loss coeff 0.001). Kết quả: PA tăng từ 73.84% lên 77.87%.
+3. Phân tích Kỹ thuật Sâu sắc và Các Điểm Mới Độc Đáo
+Chuyển dịch trọng tâm sang Cấu trúc Logic (PCPO vs Standard RL): Thông thường RL trong NLP thưởng cho đáp án cuối cùng. Thiết kế PCPO là một bước đột phá học thuật vì nó đặt tính "auditability" (khả năng kiểm toán) lên hàng đầu bằng cách phạt nặng các chương trình sai cú pháp (nhân với 0 từ $R_{valid}$) và thưởng cho sự tối ưu mã ($R_{bonus}$). Trong tài chính, một đáp án đúng đi kèm quy trình sai hoàn toàn vô giá trị.
+Chuyển giao tri thức Đa ngôn ngữ (Cross-lingual Knowledge Transfer) không qua dịch thuật: Khảo sát (Ablation study) chứng minh việc thêm thẳng dữ liệu tiếng Anh giúp mô hình Qwen3-8B tăng PA từ 66.23% lên 73.84%. Điều này chứng tỏ LLM có thể học "logic toán học" ở không gian biểu diễn chung đa ngôn ngữ mà không cần dịch, giúp triệt tiêu nhiễu do lỗi dịch thuật (translation noise).
+Kiến trúc Agent phân rã (Decomposition Agent): Tiếp cận của Innovation-LLM là điểm sáng kỹ thuật phi-tham-số. Khi đối mặt với dữ liệu đa phương thức (Text & Table), các mô hình Fine-tune nguyên khối (Monolithic) bị quá tải thông tin và sụt giảm hiệu suất, nhưng quy trình chia nhỏ (Subqueries → Extract → N-paths → Vote) giúp kiểm soát nhiễu rất tốt.
+
+III. Hạn chế, Định hướng phát triển 
+1. Hạn chế hiện tại của các nghiên cứu
+Hạn chế về Dữ liệu: ViNumQA bị giới hạn ở khoảng thời gian 2020-2025 và định dạng báo cáo doanh nghiệp chuẩn. Khi gặp dữ liệu thực tế nhiễu (Lỗi OCR, định dạng phi tiêu chuẩn), các mô hình rất dễ thất bại.
+Hạn chế về Thuật toán: Quá trình chạy GRPO cực kỳ tốn kém tài nguyên tính toán (do cần chạy rollout nhiều mẫu và inference mô hình liên tục). Hơn nữa, mét đo PA quá nghiêm ngặt, có thể tạo ra "âm tính giả" nếu mô hình tìm ra một chương trình hoàn toàn mới chưa được con người định nghĩa.
+2. Quy trình đề xuất để triển khai thực tế Dựa trên sự tương phản giữa khả năng giải Table & Text của Agentic Workflow (Innovation-LLM) và độ chính xác suy luận logic của PCPO Distillation (HUSTUET), mô hình tối ưu nhất để triển khai công nghiệp nên là một Hệ thống lai (Hybrid System):
+Bước 1 - Lọc và Phân rã (Agentic Router - Dùng LLM nhỏ hoặc Heuristic): Chuyển đổi toàn bộ Bảng sang định dạng Markdown (kinh nghiệm từ UIT). Hệ thống phân rã câu hỏi phức tạp thành nhiều câu hỏi con đơn giản (Decomposition).
+Bước 2 - Trích xuất dữ liệu (Retrieval/Extraction Module): Định vị chính xác các hàng/cột trong bảng hoặc đoạn text có liên quan để giảm kích thước bối cảnh đưa vào mô hình, loại bỏ nhiễu.
+Bước 3 - Lập trình suy luận cốt lõi (Core Reasoning - Dùng Qwen3-8B SFT+GRPO): Đưa các dữ kiện đã làm sạch vào mô hình đã được huấn luyện bằng hàm phần thưởng PCPO (như của HUSTUET) để sinh ra cấu trúc toán học minh bạch với độ tin cậy và khả năng kiểm toán cao.
+Bước 4 - Kiểm chứng chéo (Self-Consistency): Sinh ra khoảng 5-10 ứng viên chương trình và sử dụng Majority Voting để chốt đáp án, tối đa hóa EA.
+3. Định hướng khai thác và phát triển tương lai
+Nghiên cứu hàm phần thưởng giảm thiểu chi phí (Cost-efficient RL): Tối ưu hóa thuật toán GRPO hoặc thay thế bằng các phương pháp DPO (Direct Preference Optimization) trên dữ liệu suy luận tài chính để giảm thiểu việc phải chạy rollout liên tục trong quá trình huấn luyện.
+Mở rộng Không gian Toán tử (Operator Expansion): Bổ sung các hàm tài chính chuyên sâu (VD: tính NPV, IRR, khấu hao) vào tập toán tử cơ sở thay vì chỉ dùng phép tính số học cơ bản, giúp mô hình phục vụ trực tiếp cho chuyên viên phân tích tài chính.
+Khả năng đa phương thức (Multimodal Reasoning): Kết hợp khả năng xử lý biểu đồ (charts) thay vì chỉ bảng và văn bản, bởi báo cáo tài chính thực tế chứa lượng lớn thông tin dưới dạng đồ thị (Pie chart, Bar chart).
+
+IV. Đề xuất hệ thống lai
+1. Cấu trúc Hệ thống Lai 4 Bước (Hybrid Pipeline)
+Bước 1: Tiền xử lý dữ liệu đầu vào (Định dạng Markdown) Trước khi đưa vào hệ thống, toàn bộ dữ liệu bảng biểu tài chính (dạng danh sách nguyên thủy) cần được chuyển đổi sang định dạng Markdown. Điều này giúp các tác tử và mô hình nhận diện tốt hơn cấu trúc không gian (hàng, cột) của dữ liệu tài chính.
+
+
+Bước 2: Tác tử Phân rã và Trích xuất (Decomposition & Extraction Agent) Thay vì bắt mô hình tính toán ngay lập tức, chúng ta sử dụng một Tác tử (Agent - có thể dùng LLM lớn hoặc heuristic) để đóng vai trò "người điều hướng" và làm sạch dữ liệu.
+
+
+Phân rã câu hỏi (Question Decomposition): Tác tử chia nhỏ một câu hỏi phức tạp thành nhiều câu hỏi phụ (subqueries) dễ xử lý hơn.
+Trích xuất dữ liệu có căn cứ (Grounded Data Extraction): Đối với mỗi câu hỏi phụ, Tác tử sẽ tìm kiếm và trích xuất đúng các giá trị, hàng hoặc cột cần thiết từ cả Văn bản và Bảng. Việc này giúp giảm tải độ dài ngữ cảnh (context length) và loại bỏ nhiễu trước khi đưa cho mô hình tính toán cốt lõi.
+Bước 3: Lõi Suy luận Toán học bằng mô hình PCPO (Core Reasoning Engine) Dữ liệu đã được trích xuất làm sạch và các câu hỏi phụ sẽ được đưa vào mô hình chuyên trách suy luận toán học. Mô hình này (ví dụ: Qwen3.5-9B) đã được tinh chỉnh bài bản thông qua hàm phần thưởng PCPO nhằm đảm bảo tính hợp lệ của cấu trúc code.
+
+
+Mô hình sẽ sinh ra các chương trình tính toán thông qua một tập toán tử được chuẩn hóa (như $O_{add}, O_{sub}, O_{table_sum}, O_{table_max}$, v.v.).
+Vì dữ liệu đầu vào lúc này đã được Tác tử làm sạch ở Bước 2, mô hình PCPO có thể phát huy tối đa thế mạnh tạo logic (Program Accuracy - PA) mà không bị "ngợp" thông tin.
+Bước 4: Sinh đa luồng và Bỏ phiếu số đông (Multi-Path Generation & Majority Voting) Để tối đa hóa tỷ lệ ra đáp án đúng (Execution Accuracy - EA), hệ thống sẽ không chỉ sinh ra một chương trình duy nhất. Ở lõi suy luận, chúng ta lấy mẫu sinh ra khoảng 10 đến 15 chương trình ứng viên cho mỗi truy vấn (kết hợp kinh nghiệm từ cả Innovation-LLM và Vietnam Finance). Sau đó, hệ thống thực thi tất cả các chương trình này và chọn ra đáp án cuối cùng xuất hiện nhiều nhất (Majority Voting).
+
+
+2. Quy trình Huấn luyện Mô hình Lõi PCPO cho Hệ thống
+Để Module lõi ở Bước 3 hoạt động hoàn hảo, bạn cần xây dựng nó qua các giai đoạn sau:
+Pha 1: Tăng cường Dữ liệu Đa ngôn ngữ (Multilingual Data Integration): Sử dụng kết hợp dữ liệu tiếng Việt (ViNumQA) và dữ liệu tiếng Anh gốc (FinQA). Cực kỳ chú trọng vào việc tận dụng trường program_re (các chương trình toán học khác nhau nhưng tương đương kết quả) để nhân đôi lượng dữ liệu, giúp mô hình học được tính bất biến của logic tài chính.
+Pha 2: Chưng cất tri thức (Knowledge Distillation qua SFT): Dùng một "Giáo viên" khổng lồ (VD: Qwen3.5-27B) để sinh ra các "bản ghi suy luận cấu trúc" (structured reasoning traces) chất lượng cao. Sau đó, dùng dữ liệu này để tinh chỉnh (Supervised Fine-Tuning - SFT) cho mô hình "Học sinh" nhỏ hơn (VD: Qwen3-4B).
+Pha 3: Áp dụng Học tăng cường GRPO với hàm mục tiêu PCPO: Chạy thuật toán GRPO (Group Relative Policy Optimization) để căn chỉnh mô hình. Hàm phần thưởng PCPO được thiết kế cẩn trọng:
+ R(p, x) = R_valid * (0.7 + 0.2 * R_exec(p, x) + 0.1 * R_bonus)
+Nếu code lỗi cú pháp → Điểm bằng 0 (R_valid).
+Nếu code chuẩn → Thưởng cơ sở 0.7.
+Nếu kết quả thực thi đúng →  Thưởng thêm 0.2 (R_exec).
+Nếu code ngắn gọn, tối ưu → Thưởng thêm tối đa 0.1 (R_bonus).
+Có thể thử nghiệm thay thế DPO cho GRPO
+3. Lợi ích đột phá của Kiến trúc Lai
+Kiến trúc này giải quyết triệt để vấn đề "nút thắt cổ chai" của bài toán lý luận tài chính đa phương thức:
+Chinh phục dữ liệu phức tạp (Table & Text): Các mô hình fine-tune nguyên khối (Monolithic) thường thất bại thảm hại khi phải tự tìm kiếm thông tin chéo giữa bảng và chữ. Tác tử phân rã ở Bước 2 sẽ xử lý triệt để gánh nặng này.
+Đảm bảo tính kiểm toán (Auditability): Trong lĩnh vực tài chính, kết quả đúng không có ý nghĩa nếu công thức tính toán sai. Lõi PCPO đảm bảo mọi chương trình sinh ra ở Bước 3 đều có logic hợp lệ, trong suốt và tuân thủ nguyên tắc kế toán.
+Bù đắp sai số: Việc sinh n-ứng viên và bỏ phiếu số đông ở Bước 4 sẽ trung hòa các lỗi ngẫu nhiên trong quá trình nội suy của mô hình.
+
+Đánh giá và Kiểm thử
+Execution Accuracy (EA) và Program Accuracy (PA) là hai thang đo đánh giá mô hình với những mục đích và mức độ khắt khe khác nhau, cụ thể như sau:
+1. Execution Accuracy (EA - Độ chính xác khi thực thi)
+Định nghĩa: EA đo lường phần trăm các câu hỏi mà chương trình do mô hình sinh ra, khi được chạy thực tế, cho ra kết quả bằng số cuối cùng chính xác so với đáp án chuẩn
+Bản chất: Đây là thước đo đánh giá khả năng "tìm ra câu trả lời đúng"
+Hạn chế: EA có thể đánh giá quá cao khả năng suy luận thực sự của mô hình, bởi vì đôi khi một chương trình có logic sai hoặc các bước tính toán không chuẩn xác vẫn có thể tình cờ cho ra một kết quả cuối cùng đúng. Mặc dù cung cấp thông tin hữu ích, EA không được dùng làm tiêu chí chính để xếp hạng chính thức
+2. Program Accuracy (PA - Độ chính xác của chương trình tính toán)
+Định nghĩa: PA là một thước đo khắt khe hơn, dùng để đánh giá tính chính xác về mặt logic của các bước suy luận được tạo ra. Nó đo lường tỷ lệ các chương trình dự đoán có sự tương đương về mặt toán học với chương trình chuẩn. (Việc đánh giá này được thực hiện thông qua quá trình đánh giá biểu tượng, thay thế các số liệu bằng ký hiệu và rút gọn biểu thức toán học
+).
+Bản chất: PA đánh giá khả năng "suy luận đúng cách" của mô hình.
+Vai trò: PA là tiêu chí quan trọng nhất và được dùng làm tiêu chí chính để xếp hạng các đội thi.
+Sự khác biệt cốt lõi: Sự khác biệt lớn nhất giữa hai thước đo này nằm ở sự đánh đổi giữa kết quả và tính minh bạch. EA chỉ quan tâm xem đáp án cuối cùng có khớp hay không, trong khi PA đòi hỏi toàn bộ quy trình cấu trúc logic phải chuẩn xác.
+Trong các ứng dụng thực tế của lĩnh vực tài chính, một câu trả lời đúng sẽ không có ý nghĩa hay giá trị gì nếu chương trình tính toán ra nó bị sai lệch. Do các quyết định tài chính đòi hỏi tính minh bạch, độ tin cậy và khả năng kiểm toán cao, một mô hình có điểm PA cao luôn được ưu tiên hơn việc chỉ có điểm EA cao.
+
+

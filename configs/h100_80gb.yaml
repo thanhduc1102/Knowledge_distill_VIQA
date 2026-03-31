@@ -1,0 +1,77 @@
+# VLSP 2025 KD Pipeline - H100 80GB Configuration
+# Maximum performance: large teacher, full fine-tuning option
+
+project_name: vlsp2025-kd-h100
+seed: 42
+
+model:
+  teacher_model: Qwen/Qwen3-235B-A22B
+  student_model: Qwen/Qwen3-8B
+  teacher_quantization: null
+  student_quantization: null
+  use_flash_attention: true
+  torch_dtype: bfloat16
+  max_seq_length: 32768
+
+data:
+  vinumqa_train: data/receive/train.json
+  vinumqa_valid: data/receive/valid.json
+  vinumqa_test: data/receive/test.json
+  finqa_dir: data/finqa
+  output_dir: data/pipeline
+  use_finqa: true
+  use_program_re: true
+  max_samples: null
+
+teacher:
+  use_local: false
+  base_url: "http://localhost:8000/v1"
+  max_workers: 64
+  max_retries: 5
+  temperature: 0.6
+  top_p: 0.95
+
+sft:
+  output_dir: checkpoints/sft
+  num_epochs: 3
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
+  learning_rate: 5.0e-05
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  lr_scheduler_type: cosine
+  use_lora: false
+  gradient_checkpointing: true
+  bf16: true
+  fp16: false
+  logging_steps: 10
+  save_steps: 200
+  eval_steps: 200
+  save_total_limit: 3
+
+grpo:
+  output_dir: checkpoints/grpo
+  num_epochs: 1
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 4
+  learning_rate: 1.0e-06
+  num_generations: 5
+  max_completion_length: 4096
+  kl_coef: 0.001
+  reward_weights:
+    alpha: 0.7
+    beta: 0.2
+    gamma: 0.1
+  use_lora: false
+  gradient_checkpointing: true
+  bf16: true
+  fp16: false
+
+inference:
+  num_candidates: 15
+  temperature: 0.7
+  top_p: 0.95
+  max_new_tokens: 4096
+  use_local: false
+  base_url: "http://localhost:8000/v1"
+  batch_size: 32

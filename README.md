@@ -1,94 +1,87 @@
 # VLSP 2025 Financial Numerical Reasoning
 
-This repository contains code for the VLSP 2025 Financial Numerical Reasoning task.
+Knowledge Distillation pipeline for Vietnamese financial numerical reasoning (VLSP 2025 challenge). Includes baseline zero-shot inference, SFT training, GRPO/PCPO optimization, and majority voting.
+
+## Quick Start
+
+### 1. Download data
+```bash
+bash scripts/download_data.sh
+```
+
+### 2. Run baseline on current GPU
+```bash
+# P100 16GB (pipeline verification)
+python -m baseline.run_baseline --gpu-profile p100_16gb --models qwen3-0.6b --max-samples 5
+
+# RTX 6000 Pro 96GB (full baseline)
+python -m baseline.run_baseline --gpu-profile rtx6000_96gb --models all
+```
+
+### 3. Run KD training pipeline
+```bash
+python -m pipeline.run --gpu-profile p100_16gb --phases all
+```
 
 ## Repository Structure
 
 ```
 .
-├── data/
-│   ├── finqa/           # Original FinQA dataset
-│   ├── process/         # Processed data
-│   └── receive/         # Received data
-├── src/                 # Source code
-│   ├── assets/          # Template files
-│   ├── serve/           # Serving scripts
-│   └── *.py             # Python modules
-└── README.md            # This file
+├── baseline/                # Zero-shot baseline inference
+│   ├── config.py           # Model configs per GPU profile
+│   └── run_baseline.py     # Main baseline runner
+├── pipeline/               # Knowledge Distillation pipeline
+│   ├── config.py           # Pipeline configuration system
+│   ├── data_prep.py        # Data preparation (ViNumQA + FinQA)
+│   ├── teacher_distill.py  # Teacher model reasoning traces
+│   ├── train_sft.py        # Supervised Fine-Tuning
+│   ├── train_grpo.py       # GRPO with PCPO reward
+│   ├── inference.py        # Multi-path inference + majority voting
+│   ├── evaluate.py         # EA/PA evaluation
+│   ├── program_executor.py # Financial DSL executor
+│   ├── reward.py           # PCPO reward function
+│   └── run.py              # Pipeline orchestrator
+├── configs/                # GPU-specific YAML configs
+│   ├── p100_16gb.yaml
+│   ├── rtx6000pro_96gb.yaml
+│   ├── a100_80gb.yaml
+│   └── h100_80gb.yaml
+├── kaggle/                 # Kaggle notebook files
+│   └── kaggle_baseline_notebook.py
+├── scripts/
+│   ├── download_data.sh    # Download ViNumQA + FinQA
+│   ├── prepare_kaggle_offline.sh  # Build offline package
+│   ├── setup.sh            # Install dependencies
+│   └── run_pipeline.sh     # Run pipeline wrapper
+├── src/                    # Original source utilities
+│   ├── assets/template.py  # Prompt template
+│   └── program_tokenizer.py
+├── data/receive/           # ViNumQA dataset
+├── KAGGLE_DEPLOY.md        # Detailed Kaggle deployment guide
+└── requirements.txt
 ```
 
-### Core Modules
+## Baseline Models (RTX 6000 Pro 96GB)
 
-1. **`bmark.py`** - Benchmark evaluation script for financial reasoning models
-2. **`format_bmark.py`** - Format data for benchmark evaluation
-3. **`format_grpo.py`** - Format data for GRPO (Generalized Reward Policy Optimization) training
-4. **`format_sft.py`** - Format data for SFT (Supervised Fine-Tuning) training
-5. **`format_think.py`** - Format data for thinking process training
-6. **`merge_finqa.py`** - Merge FinQA dataset splits
-7. **`obtain_think.py`** - Generate thinking process data using LLMs
-8. **`program_tokenizer.py`** - Tokenize program strings for evaluation
-9. **`utils.py`** - Utility functions for file I/O operations
+| Model | Quantization | Est. VRAM | Candidates |
+|-------|-------------|-----------|------------|
+| Qwen/Qwen3.5-4B | BF16 | ~9 GB | 15 |
+| Qwen/Qwen3.5-9B | BF16 | ~19 GB | 15 |
+| Qwen/Qwen3.5-27B | BF16 | ~55 GB | 10 |
+| Qwen/Qwen3.5-35B-A3B | BF16 | ~72 GB | 15 |
+| Qwen/Qwen3.5-122B-A10B | 4-bit NF4 | ~70 GB | 10 |
 
-### Assets
+## Kaggle Deployment (Offline)
 
-1. **`assets/template.py`** - Template prompt for financial reasoning tasks
-2. **`assets/think.py`** - Template prompt for thinking process generation
+See [KAGGLE_DEPLOY.md](KAGGLE_DEPLOY.md) for step-by-step guide to run on Kaggle RTX 6000 Pro 96GB without internet.
 
-### Serving Scripts
+## Dataset
 
-The `serve/` directory contains scripts for serving models with vLLM:
+- **ViNumQA**: 2993 train / 584 valid / 497 public test / 1625 private test
+- **FinQA**: English financial QA (used for multilingual augmentation)
 
-- **`deepseek.sh`** - Serve DeepSeek model
-- **`gemma.sh`** - Serve Gemma model
-- **`glm.sh`** - Serve GLM model
-- **`llm.sh`** - Serve Qwen model
-- **`mistral.sh`** - Serve Mistral model
-- **`nvidia.sh`** - Serve NVIDIA model
-- **`serving.sh`** - Generic serving script
-- **`test_api.py`** - Test API connectivity
+## Evaluation Metrics
 
-## Dependencies
-
-The code requires the following Python packages:
-- `openai` - For API interactions
-- `pandas` - For data processing
-- `tqdm` - For progress bars
-- `pyarrow` - For Parquet file support
-
-Install with:
-```bash
-pip install openai pandas tqdm pyarrow
-```
-
-## Usage
-
-### Benchmark Evaluation
-```bash
-python src/bmark.py \
-  --ifp data/process/0802/bmark.json \
-  --ofp_predictions data/process/0802/bmark/predictions.json \
-  --ofp_results data/process/0802/bmark/results.json
-```
-
-### Data Formatting
-```bash
-python src/format_bmark.py
-python src/format_grpo.py
-python src/format_sft.py
-python src/format_think.py
-```
-
-### Data Processing
-```bash
-python src/merge_finqa.py
-python src/obtain_think.py
-```
-
-## Model Serving
-
-Use the scripts in the `serve/` directory to serve models with vLLM:
-
-```bash
-# Serve a Qwen model
-./src/serve/llm.sh
-```
+- **EA** (Execution Accuracy): Is the numerical answer correct?
+- **PA** (Program Accuracy): Is the reasoning program structurally correct?
+- PA is the primary ranking metric (auditability > correct result)
