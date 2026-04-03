@@ -239,7 +239,7 @@ def run_inference(
 
         vote_result = majority_vote(candidates, table)
 
-        results.append({
+        result_entry = {
             "id": sample["id"],
             "predicted_program": vote_result["program"],
             "predicted_answer": vote_result["answer"],
@@ -247,13 +247,21 @@ def run_inference(
             "num_valid": vote_result["num_valid"],
             "gold_program": sample.get("metadata", {}).get("program"),
             "gold_answer": sample.get("metadata", {}).get("answer"),
-        })
+            "all_candidates": candidates,  # Save all raw outputs
+        }
+        results.append(result_entry)
 
-    # Save results
+    # Save full results with candidates
     output_path = str(output_dir / "predictions.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     print(f"Saved {len(results)} predictions → {output_path}")
+
+    # Save compact version without candidates (for evaluation)
+    compact = [{k: v for k, v in r.items() if k != "all_candidates"} for r in results]
+    compact_path = str(output_dir / "predictions_compact.json")
+    with open(compact_path, "w", encoding="utf-8") as f:
+        json.dump(compact, f, ensure_ascii=False, indent=2)
 
     return output_path
 

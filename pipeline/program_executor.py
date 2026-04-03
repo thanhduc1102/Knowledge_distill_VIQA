@@ -28,18 +28,55 @@ def _parse_number(val: str) -> float:
 
 
 def _extract_table_row(table: list, header: str) -> list:
-    """Extract numeric values from a table row by header name."""
-    header_clean = header.strip().lower()
+    """Extract numeric values from a table row by header name.
+    Uses multiple matching strategies for Vietnamese/financial headers."""
+    header_clean = header.strip()
+
+    # Strategy 1: Exact match
     for row in table:
-        if row and str(row[0]).strip().lower() == header_clean:
-            values = []
-            for cell in row[1:]:
-                try:
-                    values.append(_parse_number(str(cell)))
-                except (ValueError, TypeError):
-                    continue
-            return values
+        if row and str(row[0]).strip() == header_clean:
+            return _row_to_numbers(row[1:])
+
+    # Strategy 2: Case-insensitive match
+    header_lower = header_clean.lower()
+    for row in table:
+        if row and str(row[0]).strip().lower() == header_lower:
+            return _row_to_numbers(row[1:])
+
+    # Strategy 3: Stripped parentheses/special chars match
+    header_stripped = re.sub(r'\s*\(.*?\)\s*', '', header_clean).strip().lower()
+    for row in table:
+        if row:
+            row_stripped = re.sub(r'\s*\(.*?\)\s*', '', str(row[0])).strip().lower()
+            if row_stripped == header_stripped and header_stripped:
+                return _row_to_numbers(row[1:])
+
+    # Strategy 4: Substring match (header contained in row or vice versa)
+    for row in table:
+        if row:
+            row_text = str(row[0]).strip().lower()
+            if header_lower in row_text or row_text in header_lower:
+                if len(header_lower) > 2 and len(row_text) > 2:
+                    return _row_to_numbers(row[1:])
+
     return []
+
+
+def _row_to_numbers(cells: list) -> list:
+    """Convert a list of cells to numbers, skipping non-numeric."""
+    values = []
+    for cell in cells:
+        cell_str = str(cell).strip()
+        if not cell_str or cell_str == '-' or cell_str == 'N/A':
+            continue
+        # Clean financial formatting
+        cell_str = cell_str.replace("$", "").replace("€", "").replace("₫", "")
+        cell_str = cell_str.split("(")[0].strip()  # Remove parenthetical notes
+        try:
+            values.append(_parse_number(cell_str))
+        except (ValueError, TypeError):
+            continue
+    return values
 
 
 def execute_program(program_str: str, table: Optional[list] = None) -> Any:

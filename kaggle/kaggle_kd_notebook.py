@@ -148,12 +148,17 @@ def resolve_model_path(model_id: str) -> str:
     """Resolve model path - check Kaggle input first, then HuggingFace."""
     # Check common Kaggle input patterns
     model_name = model_id.split("/")[-1].lower().replace("-", "_").replace(".", "_")
+    # Also try kebab-case variant (qwen-35-27b style from kagglehub model upload)
+    model_name_kebab = model_id.split("/")[-1].lower().replace("_", "-").replace(".", "-")
 
     # Check various Kaggle input locations
     candidates = [
         Path(f"/kaggle/input/{model_name}"),
+        Path(f"/kaggle/input/{model_name_kebab}"),
         Path(f"/kaggle/input/{model_name}/1"),  # versioned
+        Path(f"/kaggle/input/{model_name_kebab}/1"),
         Path(f"/kaggle/input/{model_name}/pytorch/default/1"),  # Kaggle model format
+        Path(f"/kaggle/input/{model_name_kebab}/pyTorch/default/1"),
     ]
 
     for path in candidates:
