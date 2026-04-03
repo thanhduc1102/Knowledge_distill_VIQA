@@ -1,6 +1,7 @@
 # Data
 /data/
 data/vinumqa_raw/
+dataset/
 
 # Outputs
 outputs/

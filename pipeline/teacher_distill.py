@@ -3,6 +3,11 @@ Teacher model inference for Knowledge Distillation.
 Generates structured reasoning traces (Chain of Numerical Reasoning)
 using a large teacher model, then validates against gold answers.
 Supports both local model loading and API-based inference.
+
+Validation strategy:
+1. Best: exact program match → keep trace as-is (highest quality)
+2. Good: correct execution answer → keep trace (model found alternative solution)
+3. Fallback: use gold SFT data when teacher fails
 """
 
 import re
@@ -13,7 +18,8 @@ from typing import Any, Optional
 from tqdm import tqdm
 
 from pipeline.config import PipelineConfig
-from pipeline.program_executor import execute_program, format_answer
+from pipeline.program_executor import execute_program, format_answer, validate_program
+from pipeline.evaluate import answers_match, programs_match
 
 
 def extract_program_and_answer(text: str) -> tuple[Optional[str], Optional[str]]:
@@ -31,59 +37,40 @@ def extract_program_and_answer(text: str) -> tuple[Optional[str], Optional[str]]
     return program, answer
 
 
-def check_output_matches_gold(output_text: str, gold_program: str, gold_answer: str) -> bool:
-    """Check if model output matches the gold program and answer."""
+def validate_output(output_text: str, gold_program: str, gold_answer: str, table: list = None) -> str:
+    """
+    Validate model output quality.
+    Returns: "exact_match", "answer_match", "program_valid", or "invalid"
+    """
     pred_program, pred_answer = extract_program_and_answer(output_text)
-    if pred_program is None or pred_answer is None:
-        return False
-    # Normalize for comparison
-    pred_prog_norm = re.sub(r'\s+', ' ', pred_program.strip())
-    gold_prog_norm = re.sub(r'\s+', ' ', gold_program.strip())
-    return pred_prog_norm == gold_prog_norm and pred_answer.strip() == gold_answer.strip()
+    if pred_program is None:
+        return "invalid"
 
+    if not validate_program(pred_program):
+        return "invalid"
 
-# ── API-based Teacher Inference ──────────────────────────────────────
+    # Check exact program match
+    if programs_match(pred_program, gold_program):
+        return "exact_match"
 
-class APITeacher:
-    """Teacher that uses an OpenAI-compatible API (e.g., vLLM served model)."""
+    # Check if execution produces correct answer
+    result = execute_program(pred_program, table)
+    if result is not None:
+        formatted = format_answer(result)
+        if answers_match(formatted, gold_answer):
+            return "answer_match"
 
-    def __init__(self, cfg: PipelineConfig):
-        from openai import OpenAI
-        self.client = OpenAI(base_url=cfg.teacher.base_url, api_key=cfg.teacher.api_key)
-        self.model = cfg.model.teacher_model.split("/")[-1]
-        self.temperature = cfg.teacher.temperature
-        self.top_p = cfg.teacher.top_p
-        self.max_retries = cfg.teacher.max_retries
+    # Program is valid but doesn't match
+    if pred_answer and answers_match(pred_answer, gold_answer):
+        return "answer_match"
 
-    def generate(self, sample: dict) -> dict:
-        """Generate reasoning trace for one sample."""
-        for attempt in range(self.max_retries + 1):
-            try:
-                completion = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[{"role": "user", "content": sample["prompt"][0]["content"]}],
-                    temperature=self.temperature,
-                    top_p=self.top_p,
-                )
-                content = completion.choices[0].message.content or ""
-                reasoning = getattr(completion.choices[0].message, "reasoning_content", "") or ""
-
-                if check_output_matches_gold(content, sample["program"], sample["answer"]):
-                    return {**sample, "content": content, "reasoning_content": reasoning, "matched": True}
-
-                if attempt == self.max_retries:
-                    return {**sample, "content": content, "reasoning_content": reasoning, "matched": False}
-
-            except Exception as e:
-                if attempt == self.max_retries:
-                    return {**sample, "content": "", "reasoning_content": "", "matched": False, "error": str(e)}
-        return sample
+    return "program_valid"
 
 
 # ── Local Teacher Inference ──────────────────────────────────────────
 
 class LocalTeacher:
-    """Teacher that loads model locally on GPU (for smaller teacher models)."""
+    """Teacher that loads model locally on GPU."""
 
     def __init__(self, cfg: PipelineConfig):
         import torch
@@ -94,10 +81,9 @@ class LocalTeacher:
         dtype = torch.float16 if cfg.model.torch_dtype == "float16" else torch.bfloat16
 
         print(f"Loading teacher model: {model_name}")
-        tokenizer_kwargs = {"trust_remote_code": cfg.model.trust_remote_code}
         model_kwargs = {
             "trust_remote_code": cfg.model.trust_remote_code,
-            "torch_dtype": dtype,
+            "dtype": dtype,
             "device_map": "auto",
         }
 
@@ -116,7 +102,9 @@ class LocalTeacher:
         if cfg.model.use_flash_attention:
             model_kwargs["attn_implementation"] = "flash_attention_2"
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, **tokenizer_kwargs)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name, trust_remote_code=cfg.model.trust_remote_code
+        )
         self.model = AutoModelForCausalLM.from_pretrained(model_name, **model_kwargs)
         self.model.eval()
 
@@ -132,9 +120,26 @@ class LocalTeacher:
         import torch
 
         messages = [{"role": "user", "content": sample["prompt"][0]["content"]}]
-        input_text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        inputs = self.tokenizer(input_text, return_tensors="pt", truncation=True, max_length=self.max_length)
+
+        # Apply chat template, disable thinking if supported
+        try:
+            input_text = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+                enable_thinking=False
+            )
+        except TypeError:
+            input_text = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+
+        inputs = self.tokenizer(
+            input_text, return_tensors="pt", truncation=True, max_length=self.max_length
+        )
         inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
+
+        best_result = None
+        best_quality = "invalid"
+        quality_order = {"invalid": 0, "program_valid": 1, "answer_match": 2, "exact_match": 3}
 
         for attempt in range(self.max_retries + 1):
             try:
@@ -151,16 +156,90 @@ class LocalTeacher:
                 new_tokens = outputs[0][inputs["input_ids"].shape[-1]:]
                 content = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
 
-                if check_output_matches_gold(content, sample["program"], sample["answer"]):
-                    return {**sample, "content": content, "reasoning_content": "", "matched": True}
+                quality = validate_output(
+                    content, sample["program"], sample["answer"],
+                    sample.get("table")
+                )
 
-                if attempt == self.max_retries:
-                    return {**sample, "content": content, "reasoning_content": "", "matched": False}
+                if quality_order.get(quality, 0) > quality_order.get(best_quality, 0):
+                    best_quality = quality
+                    best_result = content
+
+                if quality == "exact_match":
+                    break  # Perfect match, no need to retry
 
             except Exception as e:
-                if attempt == self.max_retries:
-                    return {**sample, "content": "", "reasoning_content": "", "matched": False, "error": str(e)}
-        return sample
+                if attempt == self.max_retries and best_result is None:
+                    return {
+                        **sample, "content": "", "reasoning_content": "",
+                        "matched": False, "match_type": "error", "error": str(e)
+                    }
+
+        matched = best_quality in ("exact_match", "answer_match")
+        return {
+            **sample,
+            "content": best_result or "",
+            "reasoning_content": "",
+            "matched": matched,
+            "match_type": best_quality,
+        }
+
+
+# ── API-based Teacher Inference ──────────────────────────────────────
+
+class APITeacher:
+    """Teacher that uses an OpenAI-compatible API (e.g., vLLM served model)."""
+
+    def __init__(self, cfg: PipelineConfig):
+        from openai import OpenAI
+        self.client = OpenAI(base_url=cfg.teacher.base_url, api_key=cfg.teacher.api_key)
+        self.model = cfg.model.teacher_model.split("/")[-1]
+        self.temperature = cfg.teacher.temperature
+        self.top_p = cfg.teacher.top_p
+        self.max_retries = cfg.teacher.max_retries
+
+    def generate(self, sample: dict) -> dict:
+        """Generate reasoning trace for one sample."""
+        best_result = None
+        best_quality = "invalid"
+        quality_order = {"invalid": 0, "program_valid": 1, "answer_match": 2, "exact_match": 3}
+
+        for attempt in range(self.max_retries + 1):
+            try:
+                completion = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[{"role": "user", "content": sample["prompt"][0]["content"]}],
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                )
+                content = completion.choices[0].message.content or ""
+                reasoning = getattr(completion.choices[0].message, "reasoning_content", "") or ""
+
+                quality = validate_output(
+                    content, sample["program"], sample["answer"],
+                    sample.get("table")
+                )
+
+                if quality_order.get(quality, 0) > quality_order.get(best_quality, 0):
+                    best_quality = quality
+                    best_result = (content, reasoning)
+
+                if quality == "exact_match":
+                    break
+
+            except Exception as e:
+                if attempt == self.max_retries and best_result is None:
+                    return {
+                        **sample, "content": "", "reasoning_content": "",
+                        "matched": False, "match_type": "error", "error": str(e)
+                    }
+
+        content, reasoning = best_result if best_result else ("", "")
+        matched = best_quality in ("exact_match", "answer_match")
+        return {
+            **sample, "content": content, "reasoning_content": reasoning,
+            "matched": matched, "match_type": best_quality,
+        }
 
 
 # ── Distillation Pipeline ────────────────────────────────────────────
@@ -183,14 +262,12 @@ def run_teacher_distillation(cfg: PipelineConfig, teacher_input_path: Optional[s
     # Initialize teacher
     if cfg.teacher.use_local:
         teacher = LocalTeacher(cfg)
-        # Process sequentially for local model (GPU-bound)
         results = []
         for sample in tqdm(dataset, desc="Teacher distillation"):
             result = teacher.generate(sample)
             results.append(result)
     else:
         teacher = APITeacher(cfg)
-        # Process with thread pool for API (I/O-bound)
         results = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.teacher.max_workers) as executor:
             futures = [executor.submit(teacher.generate, sample) for sample in dataset]
@@ -198,19 +275,26 @@ def run_teacher_distillation(cfg: PipelineConfig, teacher_input_path: Optional[s
                 results.append(future.result())
 
     # Statistics
-    matched = sum(1 for r in results if r.get("matched", False))
-    errors = sum(1 for r in results if "error" in r)
+    exact_matches = sum(1 for r in results if r.get("match_type") == "exact_match")
+    answer_matches = sum(1 for r in results if r.get("match_type") == "answer_match")
+    valid_only = sum(1 for r in results if r.get("match_type") == "program_valid")
+    errors = sum(1 for r in results if r.get("match_type") == "error")
+    invalid = sum(1 for r in results if r.get("match_type") == "invalid")
+
     print(f"\nTeacher distillation results:")
-    print(f"  Matched: {matched}/{len(results)} ({matched/len(results)*100:.1f}%)")
-    print(f"  Errors:  {errors}/{len(results)}")
+    print(f"  Exact match:  {exact_matches}/{len(results)} ({exact_matches/len(results)*100:.1f}%)")
+    print(f"  Answer match: {answer_matches}/{len(results)} ({answer_matches/len(results)*100:.1f}%)")
+    print(f"  Valid only:   {valid_only}/{len(results)}")
+    print(f"  Invalid:      {invalid}/{len(results)}")
+    print(f"  Errors:       {errors}/{len(results)}")
+    print(f"  Total usable: {exact_matches + answer_matches}/{len(results)} ({(exact_matches + answer_matches)/len(results)*100:.1f}%)")
 
     # Convert matched results to SFT format
     sft_distilled = []
     for r in results:
         if r.get("matched", False):
-            # Remove sensitive fields before saving to SFT
             prompt_content = r["prompt"][0]["content"]
-            # Remove the hint suffix if present (for think-style prompts)
+            # Remove hint suffix if present
             hint_kw = "\n\nHãy **SỬ DỤNG CHÍNH XÁC** nội dung dưới đây"
             idx = prompt_content.find(hint_kw)
             if idx != -1:
@@ -226,6 +310,7 @@ def run_teacher_distillation(cfg: PipelineConfig, teacher_input_path: Optional[s
                     "table": r["table"],
                     "program": r["program"],
                     "answer": r["answer"],
+                    "match_type": r.get("match_type", "unknown"),
                 },
             })
 
@@ -234,7 +319,7 @@ def run_teacher_distillation(cfg: PipelineConfig, teacher_input_path: Optional[s
         json.dump(sft_distilled, f, ensure_ascii=False, indent=2)
     print(f"Saved {len(sft_distilled)} distilled samples → {output_path}")
 
-    # Also save raw results for debugging
+    # Save raw results for debugging
     raw_path = str(output_dir / "teacher_raw_output.json")
     with open(raw_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)

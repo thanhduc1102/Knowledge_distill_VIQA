@@ -41,7 +41,7 @@ class LocalInferenceEngine:
         dtype = torch.float16 if cfg.model.torch_dtype == "float16" else torch.bfloat16
         model_kwargs = {
             "trust_remote_code": cfg.model.trust_remote_code,
-            "torch_dtype": dtype,
+            "dtype": dtype,
             "device_map": "auto",
         }
         if cfg.model.student_quantization == "4bit":

@@ -1,87 +1,125 @@
-# VLSP 2025 Financial Numerical Reasoning
+# VLSP 2025 - Knowledge Distillation for Vietnamese Financial Numerical Reasoning
 
-Knowledge Distillation pipeline for Vietnamese financial numerical reasoning (VLSP 2025 challenge). Includes baseline zero-shot inference, SFT training, GRPO/PCPO optimization, and majority voting.
+Knowledge Distillation pipeline for Vietnamese financial numerical reasoning (VLSP 2025 challenge). Implements the full HUSTUET-inspired pipeline: multilingual data integration, teacher reasoning distillation, SFT, GRPO/PCPO optimization, and majority voting inference.
 
 ## Quick Start
 
-### 1. Download data
+### 1. Install dependencies
 ```bash
-bash scripts/download_data.sh
+pip install transformers>=5.0 peft>=0.18 accelerate datasets bitsandbytes trl sympy pyyaml
 ```
 
-### 2. Run baseline on current GPU
+### 2. Run pipeline on P100 (testing)
 ```bash
-# P100 16GB (pipeline verification)
-python -m baseline.run_baseline --gpu-profile p100_16gb --models qwen3-0.6b --max-samples 5
+# Full pipeline with small sample
+python -m pipeline.run --gpu-profile p100_16gb --phases all --max-samples 50
 
-# RTX 6000 Pro 96GB (full baseline)
-python -m baseline.run_baseline --gpu-profile rtx6000_96gb --models all
+# Run specific phases
+python -m pipeline.run --gpu-profile p100_16gb --phases data_prep teacher sft
 ```
 
-### 3. Run KD training pipeline
+### 3. Run on RTX 6000 Pro 96GB (production)
 ```bash
-python -m pipeline.run --gpu-profile p100_16gb --phases all
+python -m pipeline.run --gpu-profile rtx6000_96gb --phases all
 ```
+
+## Architecture
+
+```
+Data Prep → Teacher Distill → SFT → GRPO/PCPO → Inference → Evaluate
+  (14.6K)     (Qwen3.5-27B)   (LoRA)  (Reward)   (N-path)    (EA+PA)
+```
+
+See [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md) for detailed methodology, formulas, and analysis.
 
 ## Repository Structure
 
 ```
 .
-├── baseline/                # Zero-shot baseline inference
-│   ├── config.py           # Model configs per GPU profile
-│   └── run_baseline.py     # Main baseline runner
-├── pipeline/               # Knowledge Distillation pipeline
-│   ├── config.py           # Pipeline configuration system
-│   ├── data_prep.py        # Data preparation (ViNumQA + FinQA)
-│   ├── teacher_distill.py  # Teacher model reasoning traces
-│   ├── train_sft.py        # Supervised Fine-Tuning
-│   ├── train_grpo.py       # GRPO with PCPO reward
-│   ├── inference.py        # Multi-path inference + majority voting
-│   ├── evaluate.py         # EA/PA evaluation
-│   ├── program_executor.py # Financial DSL executor
-│   ├── reward.py           # PCPO reward function
-│   └── run.py              # Pipeline orchestrator
-├── configs/                # GPU-specific YAML configs
+├── pipeline/                    # Core KD pipeline (6 phases)
+│   ├── config.py               # Configuration + GPU profiles
+│   ├── run.py                  # Pipeline orchestrator
+│   ├── data_prep.py            # Data loading, formatting, augmentation
+│   ├── teacher_distill.py      # Teacher reasoning trace generation
+│   ├── train_sft.py            # Supervised Fine-Tuning with LoRA
+│   ├── train_grpo.py           # GRPO with PCPO reward function
+│   ├── inference.py            # Multi-path inference + majority voting
+│   ├── evaluate.py             # EA/PA evaluation (sympy symbolic comparison)
+│   ├── program_executor.py     # Financial DSL executor
+│   └── reward.py               # PCPO reward function
+├── src/                         # Utilities
+│   ├── assets/template.py      # Vietnamese prompt template
+│   └── program_tokenizer.py    # Program tokenization
+├── configs/                     # GPU-specific YAML configs
 │   ├── p100_16gb.yaml
-│   ├── rtx6000pro_96gb.yaml
-│   ├── a100_80gb.yaml
-│   └── h100_80gb.yaml
-├── kaggle/                 # Kaggle notebook files
+│   └── rtx6000pro_96gb.yaml
+├── kaggle/                      # Kaggle notebook files
+│   ├── kaggle_kd_notebook.py   # Full KD pipeline notebook
 │   └── kaggle_baseline_notebook.py
 ├── scripts/
-│   ├── download_data.sh    # Download ViNumQA + FinQA
-│   ├── prepare_kaggle_offline.sh  # Build offline package
-│   ├── setup.sh            # Install dependencies
-│   └── run_pipeline.sh     # Run pipeline wrapper
-├── src/                    # Original source utilities
-│   ├── assets/template.py  # Prompt template
-│   └── program_tokenizer.py
-├── data/receive/           # ViNumQA dataset
-├── KAGGLE_DEPLOY.md        # Detailed Kaggle deployment guide
+│   ├── kaggle_upload.py        # Upload to Kaggle via API
+│   ├── download_data.sh        # Download datasets
+│   └── setup.sh                # Install dependencies
+├── dataset/                     # Datasets
+│   ├── viNumericalQA_private/  # Vietnamese financial QA
+│   └── finqa_en/               # English financial QA
+├── TECHNICAL_REPORT.md         # Detailed technical documentation
 └── requirements.txt
 ```
 
-## Baseline Models (RTX 6000 Pro 96GB)
+## GPU Profiles
 
-| Model | Quantization | Est. VRAM | Candidates |
-|-------|-------------|-----------|------------|
-| Qwen/Qwen3.5-4B | BF16 | ~9 GB | 15 |
-| Qwen/Qwen3.5-9B | BF16 | ~19 GB | 15 |
-| Qwen/Qwen3.5-27B | BF16 | ~55 GB | 10 |
-| Qwen/Qwen3.5-35B-A3B | BF16 | ~72 GB | 15 |
-| Qwen/Qwen3.5-122B-A10B | 4-bit NF4 | ~70 GB | 10 |
-
-## Kaggle Deployment (Offline)
-
-See [KAGGLE_DEPLOY.md](KAGGLE_DEPLOY.md) for step-by-step guide to run on Kaggle RTX 6000 Pro 96GB without internet.
+| Profile | GPU | Teacher | Student | VRAM Usage |
+|---------|-----|---------|---------|------------|
+| `p100_16gb` | Tesla P100 16GB | Qwen3.5-4B (4bit) | Qwen3.5-0.8B | ~12 GB |
+| `rtx6000_96gb` | RTX 6000 Pro 96GB | Qwen3.5-27B | Qwen3.5-4B | ~70 GB |
+| `rtx6000_96gb_35b` | RTX 6000 Pro 96GB | Qwen3.5-35B-A3B | Qwen3.5-4B | ~80 GB |
+| `rtx6000_96gb_122b` | RTX 6000 Pro 96GB | Qwen3.5-122B-A10B (4bit) | Qwen3.5-9B | ~90 GB |
 
 ## Dataset
 
-- **ViNumQA**: 2993 train / 584 valid / 497 public test / 1625 private test
-- **FinQA**: English financial QA (used for multilingual augmentation)
+- **ViNumQA**: 2993 train / 584 valid / 497 test / 1625 private test
+- **FinQA**: 6251 train + 883 dev + 1147 test (English, used for multilingual augmentation)
+- **Total SFT training**: 14,661 samples (with program_re augmentation)
 
 ## Evaluation Metrics
 
-- **EA** (Execution Accuracy): Is the numerical answer correct?
-- **PA** (Program Accuracy): Is the reasoning program structurally correct?
-- PA is the primary ranking metric (auditability > correct result)
+- **EA** (Execution Accuracy): Numerical answer correctness (tolerance: 0.01%)
+- **PA** (Program Accuracy): Symbolic program equivalence via sympy (primary ranking metric)
+
+## Kaggle Deployment (Offline)
+
+### Step 1: Upload assets
+```bash
+# Upload pipeline code to Kaggle
+python scripts/kaggle_upload.py --upload-code
+
+# Upload Python wheels for offline install
+python scripts/kaggle_upload.py --upload-wheels
+```
+
+### Step 2: Kaggle notebook setup
+1. Create notebook → Select GPU RTX 6000 Pro → Internet OFF
+2. Add input datasets:
+   - `thanhduc1108/vlsp2025-kd-pipeline`
+   - `thanhduc1108/vlsp2025-kd-wheels`
+   - `thanhduc1108/finqa-en`
+   - `thanhduc1108/vinumericalqa-private`
+   - `thanhduc1108/qwen_35_27b`
+   - `thanhduc1108/qwen_35_4b`
+3. Copy and run `kaggle/kaggle_kd_notebook.py`
+
+### Step 3: Check outputs
+Results saved to `/kaggle/working/vlsp2025/outputs/`:
+- `final_model/` - Distilled student model
+- `eval_results.json` - EA/PA scores
+- `predictions.json` - All predictions
+- `summary.json` - Comparison with baseline
+
+## Key Technical Features
+
+1. **PCPO Reward**: R = R_valid * (0.7 + 0.2 * R_exec + 0.1 * R_bonus) - prioritizes program validity over correct answer
+2. **Multilingual Data**: English FinQA + Vietnamese ViNumQA without translation
+3. **Symbolic PA**: sympy-based program equivalence (handles commutativity, etc.)
+4. **Multi-level teacher validation**: exact match + answer match + valid-only
+5. **LoRA**: Memory-efficient fine-tuning (5-8% trainable parameters)

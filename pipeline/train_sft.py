@@ -90,7 +90,7 @@ def load_model_and_tokenizer(cfg: PipelineConfig):
 
     model_kwargs = {
         "trust_remote_code": cfg.model.trust_remote_code,
-        "torch_dtype": dtype,
+        "dtype": dtype,
     }
 
     if cfg.model.student_quantization == "4bit":

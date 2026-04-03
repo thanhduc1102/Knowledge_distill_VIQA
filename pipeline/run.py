@@ -127,7 +127,7 @@ GPU profiles: p100_16gb, t4_16gb, a100_40gb, a100_80gb, h100_80gb
     )
     parser.add_argument(
         "--gpu-profile", default="p100_16gb",
-        choices=["p100_16gb", "t4_16gb", "a100_40gb", "a100_80gb", "h100_80gb"],
+        choices=["p100_16gb", "rtx6000_96gb", "rtx6000_96gb_35b", "rtx6000_96gb_122b", "a100_80gb"],
         help="GPU profile to use",
     )
     parser.add_argument("--config", default=None, help="Path to YAML config file")
@@ -136,10 +136,15 @@ GPU profiles: p100_16gb, t4_16gb, a100_40gb, a100_80gb, h100_80gb
         help="Pipeline phases to run",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print config and exit")
+    parser.add_argument("--max-samples", type=int, default=None, help="Limit data samples (for testing)")
 
     args = parser.parse_args()
 
-    cfg = load_config(gpu_profile=args.gpu_profile, config_path=args.config)
+    overrides = {}
+    if args.max_samples:
+        overrides["data"] = {"max_samples": args.max_samples}
+
+    cfg = load_config(gpu_profile=args.gpu_profile, config_path=args.config, overrides=overrides)
 
     print(f"Pipeline: {cfg.project_name}")
     print(f"GPU Profile: {args.gpu_profile}")

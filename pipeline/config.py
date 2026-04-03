@@ -13,8 +13,8 @@ from pathlib import Path
 
 @dataclass
 class ModelConfig:
-    teacher_model: str = "Qwen/Qwen3-1.7B"
-    student_model: str = "Qwen/Qwen3-0.6B"
+    teacher_model: str = "Qwen/Qwen3.5-4B"
+    student_model: str = "Qwen/Qwen3.5-0.8B"
     teacher_quantization: Optional[str] = None  # "4bit", "8bit", None
     student_quantization: Optional[str] = None
     use_flash_attention: bool = False
@@ -25,10 +25,11 @@ class ModelConfig:
 
 @dataclass
 class DataConfig:
-    vinumqa_train: str = "data/receive/train.json"
-    vinumqa_valid: str = "data/receive/valid.json"
-    vinumqa_test: str = "data/receive/test.json"
-    finqa_dir: str = "data/finqa"
+    vinumqa_train: str = "dataset/viNumericalQA_private/train.json"
+    vinumqa_valid: str = "dataset/viNumericalQA_private/valid.json"
+    vinumqa_test: str = "dataset/viNumericalQA_private/test.json"
+    vinumqa_private_test: str = "dataset/viNumericalQA_private/private_test.json"
+    finqa_dir: str = "dataset/finqa_en"
     output_dir: str = "data/pipeline"
     use_finqa: bool = True
     use_program_re: bool = True
@@ -126,10 +127,11 @@ class PipelineConfig:
 # ── GPU Profile Presets ──────────────────────────────────────────────
 
 GPU_PROFILES = {
+    # P100 16GB - Testing profile (Qwen3.5-4B teacher 4bit, Qwen3.5-0.8B student)
     "p100_16gb": {
         "model": {
-            "teacher_model": "Qwen/Qwen3-1.7B",
-            "student_model": "Qwen/Qwen3-0.6B",
+            "teacher_model": "Qwen/Qwen3.5-4B",
+            "student_model": "Qwen/Qwen3.5-0.8B",
             "teacher_quantization": "4bit",
             "student_quantization": None,
             "use_flash_attention": False,
@@ -161,44 +163,25 @@ GPU_PROFILES = {
             "use_local": True,
         },
     },
-    "t4_16gb": {
+    # RTX 6000 Pro 96GB - Production profile (Qwen3.5-27B teacher, Qwen3.5-4B student)
+    "rtx6000_96gb": {
         "model": {
-            "teacher_model": "Qwen/Qwen3-4B",
-            "student_model": "Qwen/Qwen3-1.7B",
-            "teacher_quantization": "4bit",
-            "student_quantization": "4bit",
-            "use_flash_attention": False,
-            "torch_dtype": "float16",
-            "max_seq_length": 4096,
-        },
-        "sft": {
-            "per_device_train_batch_size": 1,
-            "gradient_accumulation_steps": 16,
-            "bf16": False,
-            "fp16": True,
-        },
-        "grpo": {
-            "per_device_train_batch_size": 1,
-            "gradient_accumulation_steps": 8,
-            "num_generations": 3,
-        },
-    },
-    "a100_40gb": {
-        "model": {
-            "teacher_model": "Qwen/Qwen3-14B",
-            "student_model": "Qwen/Qwen3-4B",
-            "teacher_quantization": "4bit",
+            "teacher_model": "Qwen/Qwen3.5-27B",
+            "student_model": "Qwen/Qwen3.5-4B",
+            "teacher_quantization": None,
             "student_quantization": None,
             "use_flash_attention": True,
             "torch_dtype": "bfloat16",
             "max_seq_length": 8192,
         },
         "sft": {
-            "per_device_train_batch_size": 2,
-            "gradient_accumulation_steps": 8,
+            "per_device_train_batch_size": 4,
+            "gradient_accumulation_steps": 4,
             "bf16": True,
             "fp16": False,
+            "use_lora": True,
             "lora_r": 128,
+            "lora_alpha": 256,
         },
         "grpo": {
             "per_device_train_batch_size": 2,
@@ -207,16 +190,95 @@ GPU_PROFILES = {
             "bf16": True,
             "fp16": False,
         },
+        "teacher": {
+            "max_workers": 8,
+            "use_local": True,
+        },
         "inference": {
-            "num_candidates": 10,
+            "num_candidates": 15,
             "batch_size": 8,
+            "use_local": True,
         },
     },
+    # RTX 6000 Pro 96GB with larger teacher models
+    "rtx6000_96gb_35b": {
+        "model": {
+            "teacher_model": "Qwen/Qwen3.5-35B-A3B",
+            "student_model": "Qwen/Qwen3.5-4B",
+            "teacher_quantization": None,
+            "student_quantization": None,
+            "use_flash_attention": True,
+            "torch_dtype": "bfloat16",
+            "max_seq_length": 8192,
+        },
+        "sft": {
+            "per_device_train_batch_size": 4,
+            "gradient_accumulation_steps": 4,
+            "bf16": True,
+            "fp16": False,
+            "use_lora": True,
+            "lora_r": 128,
+            "lora_alpha": 256,
+        },
+        "grpo": {
+            "per_device_train_batch_size": 2,
+            "gradient_accumulation_steps": 4,
+            "num_generations": 5,
+            "bf16": True,
+            "fp16": False,
+        },
+        "teacher": {
+            "max_workers": 8,
+            "use_local": True,
+        },
+        "inference": {
+            "num_candidates": 15,
+            "batch_size": 8,
+            "use_local": True,
+        },
+    },
+    "rtx6000_96gb_122b": {
+        "model": {
+            "teacher_model": "Qwen/Qwen3.5-122B-A10B",
+            "student_model": "Qwen/Qwen3.5-9B",
+            "teacher_quantization": "4bit",
+            "student_quantization": None,
+            "use_flash_attention": True,
+            "torch_dtype": "bfloat16",
+            "max_seq_length": 16384,
+        },
+        "sft": {
+            "per_device_train_batch_size": 2,
+            "gradient_accumulation_steps": 8,
+            "bf16": True,
+            "fp16": False,
+            "use_lora": True,
+            "lora_r": 128,
+            "lora_alpha": 256,
+        },
+        "grpo": {
+            "per_device_train_batch_size": 1,
+            "gradient_accumulation_steps": 8,
+            "num_generations": 5,
+            "bf16": True,
+            "fp16": False,
+        },
+        "teacher": {
+            "max_workers": 4,
+            "use_local": True,
+        },
+        "inference": {
+            "num_candidates": 10,
+            "batch_size": 4,
+            "use_local": True,
+        },
+    },
+    # A100 80GB
     "a100_80gb": {
         "model": {
-            "teacher_model": "Qwen/Qwen3-32B",
-            "student_model": "Qwen/Qwen3-8B",
-            "teacher_quantization": "4bit",
+            "teacher_model": "Qwen/Qwen3.5-27B",
+            "student_model": "Qwen/Qwen3.5-9B",
+            "teacher_quantization": None,
             "student_quantization": None,
             "use_flash_attention": True,
             "torch_dtype": "bfloat16",
@@ -240,35 +302,6 @@ GPU_PROFILES = {
         "inference": {
             "num_candidates": 15,
             "batch_size": 16,
-        },
-    },
-    "h100_80gb": {
-        "model": {
-            "teacher_model": "Qwen/Qwen3-235B-A22B",
-            "student_model": "Qwen/Qwen3-8B",
-            "teacher_quantization": None,
-            "student_quantization": None,
-            "use_flash_attention": True,
-            "torch_dtype": "bfloat16",
-            "max_seq_length": 32768,
-        },
-        "sft": {
-            "per_device_train_batch_size": 4,
-            "gradient_accumulation_steps": 4,
-            "bf16": True,
-            "fp16": False,
-            "use_lora": False,
-        },
-        "grpo": {
-            "per_device_train_batch_size": 2,
-            "gradient_accumulation_steps": 4,
-            "num_generations": 5,
-            "bf16": True,
-            "fp16": False,
-        },
-        "inference": {
-            "num_candidates": 15,
-            "batch_size": 32,
         },
     },
 }

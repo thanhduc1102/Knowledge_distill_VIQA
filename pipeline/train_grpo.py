@@ -43,7 +43,7 @@ def run_grpo_trl(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -> s
     # Load model
     model_kwargs = {
         "trust_remote_code": cfg.model.trust_remote_code,
-        "torch_dtype": dtype,
+        "dtype": dtype,
     }
     if cfg.model.student_quantization == "4bit":
         from transformers import BitsAndBytesConfig
@@ -157,7 +157,7 @@ def run_grpo_manual(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -
 
     model_kwargs = {
         "trust_remote_code": cfg.model.trust_remote_code,
-        "torch_dtype": dtype,
+        "dtype": dtype,
         "device_map": "auto",
     }
     if cfg.model.student_quantization == "4bit":
