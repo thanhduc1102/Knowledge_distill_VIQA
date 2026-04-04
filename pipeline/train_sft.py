@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from pipeline.config import PipelineConfig
+from pipeline import _load_model_robust, _load_tokenizer_robust
 
 
 class SFTDataset(torch.utils.data.Dataset):
@@ -90,7 +91,7 @@ def load_model_and_tokenizer(cfg: PipelineConfig):
 
     model_kwargs = {
         "trust_remote_code": cfg.model.trust_remote_code,
-        "dtype": dtype,
+        "torch_dtype": dtype,
     }
 
     if cfg.model.student_quantization == "4bit":
@@ -108,10 +109,10 @@ def load_model_and_tokenizer(cfg: PipelineConfig):
     if cfg.model.use_flash_attention:
         model_kwargs["attn_implementation"] = "flash_attention_2"
 
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = _load_tokenizer_robust(
         model_name, trust_remote_code=cfg.model.trust_remote_code
     )
-    model = AutoModelForCausalLM.from_pretrained(model_name, **model_kwargs)
+    model = _load_model_robust(model_name, model_kwargs)
 
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -142,9 +143,12 @@ def run_sft_training(
     cfg: PipelineConfig,
     train_path: Optional[str] = None,
     valid_path: Optional[str] = None,
+    resume_from_checkpoint: Optional[str] = None,
 ) -> str:
     """
     Run SFT training on the student model.
+    Args:
+        resume_from_checkpoint: Path to a HuggingFace Trainer checkpoint dir to resume from.
     Returns path to the trained model checkpoint.
     """
     from transformers import TrainingArguments, Trainer
@@ -222,7 +226,7 @@ def run_sft_training(
     print(f"  Epochs: {cfg.sft.num_epochs}")
     print(f"  Effective batch: {cfg.sft.per_device_train_batch_size * cfg.sft.gradient_accumulation_steps}")
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume_from_checkpoint)
 
     # Save final model
     final_dir = str(output_dir / "final")

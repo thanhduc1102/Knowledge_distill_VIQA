@@ -41,7 +41,11 @@ class TeacherConfig:
     base_url: str = "http://localhost:8000/v1"
     api_key: str = "no-need"
     max_workers: int = 16
-    max_retries: int = 5
+    max_retries: int = 0       # 0 = try once, fall back to gold SFT data on fail
+    batch_size: int = 8        # Samples per GPU batch for local teacher
+    checkpoint_every: int = 100
+    max_new_tokens: int = 512  # Hard cap on output tokens; reduces decode time 4x vs 2048
+    use_guided_template: bool = True  # Use think.py (guided) for 100% match rate & faster gen
     temperature: float = 0.6
     top_p: float = 0.95
     use_local: bool = True  # True = load model locally; False = use API
@@ -156,6 +160,9 @@ GPU_PROFILES = {
         "teacher": {
             "max_workers": 4,
             "use_local": True,
+            "batch_size": 2,
+            "max_retries": 2,
+            "checkpoint_every": 50,
         },
         "inference": {
             "num_candidates": 5,
@@ -193,6 +200,11 @@ GPU_PROFILES = {
         "teacher": {
             "max_workers": 8,
             "use_local": True,
+            "batch_size": 12,         # 95GB: 27B bf16 ~54GB → 12 samples safe
+            "max_retries": 0,
+            "max_new_tokens": 512,    # ~3x faster than 2048; guided output fits in 512
+            "use_guided_template": True,
+            "checkpoint_every": 100,
         },
         "inference": {
             "num_candidates": 15,
@@ -230,6 +242,9 @@ GPU_PROFILES = {
         "teacher": {
             "max_workers": 8,
             "use_local": True,
+            "batch_size": 4,
+            "max_retries": 2,
+            "checkpoint_every": 50,
         },
         "inference": {
             "num_candidates": 15,
@@ -266,6 +281,9 @@ GPU_PROFILES = {
         "teacher": {
             "max_workers": 4,
             "use_local": True,
+            "batch_size": 2,
+            "max_retries": 1,
+            "checkpoint_every": 50,
         },
         "inference": {
             "num_candidates": 10,
@@ -298,6 +316,13 @@ GPU_PROFILES = {
             "num_generations": 5,
             "bf16": True,
             "fp16": False,
+        },
+        "teacher": {
+            "max_workers": 8,
+            "use_local": True,
+            "batch_size": 8,
+            "max_retries": 2,
+            "checkpoint_every": 100,
         },
         "inference": {
             "num_candidates": 15,

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Optional
 
 from pipeline.config import PipelineConfig
+from pipeline import _load_model_robust, _load_tokenizer_robust
 from pipeline.reward import compute_pcpo_reward
 
 
@@ -43,7 +44,7 @@ def run_grpo_trl(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -> s
     # Load model
     model_kwargs = {
         "trust_remote_code": cfg.model.trust_remote_code,
-        "dtype": dtype,
+        "torch_dtype": dtype,
     }
     if cfg.model.student_quantization == "4bit":
         from transformers import BitsAndBytesConfig
@@ -54,7 +55,7 @@ def run_grpo_trl(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -> s
     if cfg.model.use_flash_attention:
         model_kwargs["attn_implementation"] = "flash_attention_2"
 
-    tokenizer = AutoTokenizer.from_pretrained(sft_model_path, trust_remote_code=cfg.model.trust_remote_code)
+    tokenizer = _load_tokenizer_robust(sft_model_path, trust_remote_code=cfg.model.trust_remote_code)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -157,7 +158,7 @@ def run_grpo_manual(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -
 
     model_kwargs = {
         "trust_remote_code": cfg.model.trust_remote_code,
-        "dtype": dtype,
+        "torch_dtype": dtype,
         "device_map": "auto",
     }
     if cfg.model.student_quantization == "4bit":
@@ -167,8 +168,8 @@ def run_grpo_manual(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -
             bnb_4bit_quant_type="nf4", bnb_4bit_use_double_quant=True,
         )
 
-    tokenizer = AutoTokenizer.from_pretrained(sft_model_path, trust_remote_code=cfg.model.trust_remote_code)
-    model = AutoModelForCausalLM.from_pretrained(sft_model_path, **model_kwargs)
+    tokenizer = _load_tokenizer_robust(sft_model_path, trust_remote_code=cfg.model.trust_remote_code)
+    model = _load_model_robust(sft_model_path, model_kwargs)
 
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token

@@ -211,16 +211,37 @@ def prepare_grpo_dataset(
 
 
 def prepare_teacher_dataset(
-    samples: list, prompt_template: str
+    samples: list,
+    prompt_template: str,
+    guided: bool = False,
+    guided_template: str = None,
 ) -> list:
     """
     Prepare dataset for teacher inference (knowledge distillation).
-    Returns list of {prompt, ground_truth, id, table}.
+
+    Args:
+        guided: If True, embed gold program+answer into the prompt using guided_template
+                (think.py format). Teacher only generates reasoning, not program/answer.
+                Benefits: ~100% match rate, ~2x faster generation, higher quality traces.
+        guided_template: The think.py prompt string (required when guided=True).
+
+    Returns list of {prompt, ground_truth, id, table, program, answer}.
     """
     dataset = []
     for sample in samples:
         qa = sample["qa"]
-        user_content = build_user_prompt(sample, prompt_template)
+        gold_program = format_comma_spaces(qa["program"])
+        gold_answer = str(qa["exe_ans"])
+
+        if guided and guided_template:
+            # Build prompt with gold program/answer embedded as hints.
+            # Teacher generates reasoning AROUND the correct program.
+            user_content = build_user_prompt(sample, guided_template)
+            user_content = user_content.replace("cttt_placeholder", gold_program)
+            user_content = user_content.replace("dacc_placeholder", gold_answer)
+        else:
+            user_content = build_user_prompt(sample, prompt_template)
+
         ground_truth = build_assistant_response(qa["program"], qa["exe_ans"])
 
         dataset.append({
@@ -228,8 +249,9 @@ def prepare_teacher_dataset(
             "ground_truth": ground_truth,
             "id": sample["id"],
             "table": sample["table"],
-            "program": format_comma_spaces(qa["program"]),
-            "answer": str(qa["exe_ans"]),
+            "program": gold_program,
+            "answer": gold_answer,
+            "_guided": guided and guided_template is not None,
         })
     return dataset
 
@@ -259,9 +281,23 @@ def run_data_prep(cfg: PipelineConfig) -> dict:
     print(f"\nTotal training samples (raw): {len(all_train)}")
     print(f"Validation samples (raw): {len(vi_valid)}")
 
-    # Prepare datasets for each phase
     # Phase 1: Teacher distillation input
-    teacher_data = prepare_teacher_dataset(all_train, prompt_template)
+    use_guided = getattr(cfg.teacher, "use_guided_template", True)
+    guided_tmpl = None
+    if use_guided:
+        try:
+            from src.assets.think import prompt as guided_template
+            guided_tmpl = guided_template
+            print(f"Teacher mode: GUIDED (think.py) — gold program/answer embedded in prompt")
+        except ImportError:
+            print("WARNING: think.py not found, falling back to free-form template")
+            use_guided = False
+    else:
+        print("Teacher mode: FREE-FORM (template.py)")
+
+    teacher_data = prepare_teacher_dataset(
+        all_train, prompt_template, guided=use_guided, guided_template=guided_tmpl
+    )
     teacher_path = str(output_dir / "teacher_input.json")
     save_json(teacher_path, teacher_data)
 

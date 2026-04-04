@@ -12,6 +12,7 @@ from collections import Counter
 from tqdm import tqdm
 
 from pipeline.config import PipelineConfig
+from pipeline import _load_model_robust, _load_tokenizer_robust
 from pipeline.program_executor import execute_program, format_answer, validate_program
 
 
@@ -41,7 +42,7 @@ class LocalInferenceEngine:
         dtype = torch.float16 if cfg.model.torch_dtype == "float16" else torch.bfloat16
         model_kwargs = {
             "trust_remote_code": cfg.model.trust_remote_code,
-            "dtype": dtype,
+            "torch_dtype": dtype,
             "device_map": "auto",
         }
         if cfg.model.student_quantization == "4bit":
@@ -53,19 +54,17 @@ class LocalInferenceEngine:
         if cfg.model.use_flash_attention:
             model_kwargs["attn_implementation"] = "flash_attention_2"
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
+        self.tokenizer = _load_tokenizer_robust(
             model_path, trust_remote_code=cfg.model.trust_remote_code
         )
 
         # Try loading as PEFT model first (LoRA), fall back to full model
         try:
             from peft import PeftModel
-            base_model = AutoModelForCausalLM.from_pretrained(
-                cfg.model.student_model, **model_kwargs
-            )
+            base_model = _load_model_robust(cfg.model.student_model, model_kwargs)
             self.model = PeftModel.from_pretrained(base_model, model_path)
         except Exception:
-            self.model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
+            self.model = _load_model_robust(model_path, model_kwargs)
 
         self.model.eval()
 
