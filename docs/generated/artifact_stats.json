@@ -1,0 +1,355 @@
+{
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/distilled_sft.json": {
+    "records": 1998,
+    "with_qa": 0,
+    "avg_steps": 1.38,
+    "max_steps": 5,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 977,
+      "subtract": 832,
+      "add": 406,
+      "multiply": 161,
+      "table_max": 149,
+      "table_average": 107,
+      "table_min": 85,
+      "table_sum": 42
+    }
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/grpo_train.parquet": {
+    "records": 2993,
+    "columns": [
+      "data_source",
+      "prompt",
+      "reward_model",
+      "id"
+    ]
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/grpo_valid.parquet": {
+    "records": 584,
+    "columns": [
+      "data_source",
+      "prompt",
+      "reward_model",
+      "id"
+    ]
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/sft_train.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 1.56,
+    "max_steps": 7,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 1780,
+      "subtract": 1414,
+      "add": 744,
+      "multiply": 260,
+      "table_max": 178,
+      "table_average": 126,
+      "table_min": 100,
+      "table_sum": 52
+    }
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/sft_valid.json": {
+    "records": 584,
+    "with_qa": 0,
+    "avg_steps": 1.51,
+    "max_steps": 6,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 336,
+      "subtract": 293,
+      "add": 126,
+      "table_max": 40,
+      "multiply": 29,
+      "table_average": 25,
+      "table_min": 21,
+      "table_sum": 13
+    }
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/teacher_input.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/teacher_raw_checkpoint.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/cot_sft/results/vlsp2025/data/pipeline/teacher_raw_output.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/distilled_sft.json": {
+    "records": 2023,
+    "with_qa": 0,
+    "avg_steps": 1.39,
+    "max_steps": 5,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 1002,
+      "subtract": 854,
+      "add": 410,
+      "table_max": 152,
+      "multiply": 149,
+      "table_average": 97,
+      "table_min": 89,
+      "table_sum": 44
+    }
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/grpo_train.parquet": {
+    "records": 2993,
+    "columns": [
+      "data_source",
+      "prompt",
+      "reward_model",
+      "id"
+    ]
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/grpo_valid.parquet": {
+    "records": 584,
+    "columns": [
+      "data_source",
+      "prompt",
+      "reward_model",
+      "id"
+    ]
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/sft_train.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 1.56,
+    "max_steps": 7,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 1780,
+      "subtract": 1414,
+      "add": 744,
+      "multiply": 260,
+      "table_max": 178,
+      "table_average": 126,
+      "table_min": 100,
+      "table_sum": 52
+    }
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/sft_valid.json": {
+    "records": 584,
+    "with_qa": 0,
+    "avg_steps": 1.51,
+    "max_steps": 6,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 336,
+      "subtract": 293,
+      "add": 126,
+      "table_max": 40,
+      "multiply": 29,
+      "table_average": 25,
+      "table_min": 21,
+      "table_sum": 13
+    }
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/teacher_input.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/teacher_raw_checkpoint.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/distill_only/results (1)/vlsp2025/data/pipeline/teacher_raw_output.json": {
+    "records": 2993,
+    "with_qa": 0,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/kaggle_workspace/data_finqa/dataset-metadata.json": {
+    "type": "dict",
+    "keys": [
+      "title",
+      "id",
+      "licenses",
+      "keywords",
+      "subtitle",
+      "description"
+    ]
+  },
+  "kaggle/kaggle_workspace/data_finqa/dev.json": {
+    "records": 883,
+    "with_qa": 883,
+    "avg_steps": 1.54,
+    "max_steps": 5,
+    "program_re": 883,
+    "program_re_diff": 360,
+    "ops": {
+      "divide": 636,
+      "subtract": 416,
+      "add": 180,
+      "multiply": 83,
+      "table_average": 19,
+      "greater": 10,
+      "table_max": 8,
+      "table_min": 5,
+      "table_sum": 4,
+      "exp": 1
+    }
+  },
+  "kaggle/kaggle_workspace/data_finqa/private_test.json": {
+    "records": 919,
+    "with_qa": 919,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/kaggle_workspace/data_finqa/test.json": {
+    "records": 1147,
+    "with_qa": 1147,
+    "avg_steps": 1.54,
+    "max_steps": 5,
+    "program_re": 1147,
+    "program_re_diff": 493,
+    "ops": {
+      "divide": 820,
+      "subtract": 521,
+      "add": 260,
+      "multiply": 109,
+      "greater": 20,
+      "table_average": 15,
+      "table_max": 10,
+      "table_sum": 10,
+      "table_min": 4,
+      "exp": 3
+    }
+  },
+  "kaggle/kaggle_workspace/data_finqa/train.json": {
+    "records": 6251,
+    "with_qa": 6251,
+    "avg_steps": 1.54,
+    "max_steps": 6,
+    "program_re": 6251,
+    "program_re_diff": 2534,
+    "ops": {
+      "divide": 4445,
+      "subtract": 2739,
+      "add": 1512,
+      "multiply": 567,
+      "greater": 124,
+      "table_average": 95,
+      "table_max": 48,
+      "table_sum": 36,
+      "table_min": 27,
+      "exp": 5
+    }
+  },
+  "kaggle/kaggle_workspace/data_vinumqa/dataset-metadata.json": {
+    "type": "dict",
+    "keys": [
+      "title",
+      "id",
+      "licenses",
+      "keywords",
+      "subtitle",
+      "description"
+    ]
+  },
+  "kaggle/kaggle_workspace/data_vinumqa/private_test.json": {
+    "records": 1625,
+    "with_qa": 1625,
+    "avg_steps": 0.0,
+    "max_steps": 0,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {}
+  },
+  "kaggle/kaggle_workspace/data_vinumqa/test.json": {
+    "records": 497,
+    "with_qa": 497,
+    "avg_steps": 1.41,
+    "max_steps": 5,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 274,
+      "subtract": 242,
+      "add": 91,
+      "multiply": 31,
+      "table_max": 22,
+      "table_average": 21,
+      "table_min": 14,
+      "table_sum": 6,
+      "greater": 1
+    }
+  },
+  "kaggle/kaggle_workspace/data_vinumqa/train.json": {
+    "records": 2993,
+    "with_qa": 2993,
+    "avg_steps": 1.56,
+    "max_steps": 7,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 1780,
+      "subtract": 1414,
+      "add": 744,
+      "multiply": 260,
+      "table_max": 178,
+      "table_average": 126,
+      "table_min": 100,
+      "table_sum": 52
+    }
+  },
+  "kaggle/kaggle_workspace/data_vinumqa/valid.json": {
+    "records": 584,
+    "with_qa": 584,
+    "avg_steps": 1.51,
+    "max_steps": 6,
+    "program_re": 0,
+    "program_re_diff": 0,
+    "ops": {
+      "divide": 336,
+      "subtract": 293,
+      "add": 126,
+      "table_max": 40,
+      "multiply": 29,
+      "table_average": 25,
+      "table_min": 21,
+      "table_sum": 13
+    }
+  }
+}

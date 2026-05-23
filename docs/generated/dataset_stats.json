@@ -1,0 +1,152 @@
+{
+  "vinumqa_train": {
+    "exists": true,
+    "path": "dataset\\viNumericalQA_private\\train.json",
+    "samples": 2993,
+    "avg_question_words": 20.65,
+    "avg_pre_words": 420.65,
+    "avg_post_words": 232.78,
+    "avg_table_rows": 8.15,
+    "avg_table_cols": 5.29,
+    "avg_program_steps": 1.56,
+    "max_program_steps": 7,
+    "program_re_count": 0,
+    "program_re_different": 0,
+    "ops": {
+      "divide": 1780,
+      "subtract": 1414,
+      "add": 744,
+      "multiply": 260,
+      "table_max": 178,
+      "table_average": 126,
+      "table_min": 100,
+      "table_sum": 52
+    }
+  },
+  "vinumqa_valid": {
+    "exists": true,
+    "path": "dataset\\viNumericalQA_private\\valid.json",
+    "samples": 584,
+    "avg_question_words": 20.34,
+    "avg_pre_words": 399.31,
+    "avg_post_words": 206.52,
+    "avg_table_rows": 8.25,
+    "avg_table_cols": 5.46,
+    "avg_program_steps": 1.51,
+    "max_program_steps": 6,
+    "program_re_count": 0,
+    "program_re_different": 0,
+    "ops": {
+      "divide": 336,
+      "subtract": 293,
+      "add": 126,
+      "table_max": 40,
+      "multiply": 29,
+      "table_average": 25,
+      "table_min": 21,
+      "table_sum": 13
+    }
+  },
+  "vinumqa_test": {
+    "exists": true,
+    "path": "dataset\\viNumericalQA_private\\test.json",
+    "samples": 497,
+    "avg_question_words": 20.82,
+    "avg_pre_words": 432.94,
+    "avg_post_words": 172.82,
+    "avg_table_rows": 8.58,
+    "avg_table_cols": 5.19,
+    "avg_program_steps": 1.41,
+    "max_program_steps": 5,
+    "program_re_count": 0,
+    "program_re_different": 0,
+    "ops": {
+      "divide": 274,
+      "subtract": 242,
+      "add": 91,
+      "multiply": 31,
+      "table_max": 22,
+      "table_average": 21,
+      "table_min": 14,
+      "table_sum": 6,
+      "greater": 1
+    }
+  },
+  "vinumqa_private_test": {
+    "exists": true,
+    "path": "dataset\\viNumericalQA_private\\private_test.json",
+    "samples": 1625,
+    "avg_question_words": 19.46,
+    "avg_pre_words": 388.83,
+    "avg_post_words": 116.26,
+    "avg_table_rows": 9.12,
+    "avg_table_cols": 6.22,
+    "avg_program_steps": 0.0,
+    "max_program_steps": 0,
+    "program_re_count": 0,
+    "program_re_different": 0,
+    "ops": {}
+  },
+  "kaggle_vinumqa_train": {
+    "exists": true,
+    "path": "kaggle\\kaggle_workspace\\data_vinumqa\\train.json",
+    "samples": 2993,
+    "avg_question_words": 20.65,
+    "avg_pre_words": 420.65,
+    "avg_post_words": 232.78,
+    "avg_table_rows": 8.15,
+    "avg_table_cols": 5.29,
+    "avg_program_steps": 1.56,
+    "max_program_steps": 7,
+    "program_re_count": 0,
+    "program_re_different": 0,
+    "ops": {
+      "divide": 1780,
+      "subtract": 1414,
+      "add": 744,
+      "multiply": 260,
+      "table_max": 178,
+      "table_average": 126,
+      "table_min": 100,
+      "table_sum": 52
+    }
+  },
+  "finqa_train": {
+    "exists": false,
+    "path": "dataset\\finqa_en\\train.json"
+  },
+  "finqa_dev": {
+    "exists": false,
+    "path": "dataset\\finqa_en\\dev.json"
+  },
+  "finqa_test": {
+    "exists": false,
+    "path": "dataset\\finqa_en\\test.json"
+  },
+  "kaggle_finqa_train": {
+    "exists": true,
+    "path": "kaggle\\kaggle_workspace\\data_finqa\\train.json",
+    "samples": 6251,
+    "avg_question_words": 16.65,
+    "avg_pre_words": 301.99,
+    "avg_post_words": 329.67,
+    "avg_table_rows": 6.34,
+    "avg_table_cols": 3.84,
+    "avg_program_steps": 1.54,
+    "max_program_steps": 6,
+    "program_re_count": 6251,
+    "program_re_different": 2534,
+    "ops": {
+      "divide": 4445,
+      "subtract": 2739,
+      "add": 1512,
+      "multiply": 567,
+      "greater": 124,
+      "table_average": 95,
+      "table_max": 48,
+      "table_sum": 36,
+      "table_min": 27,
+      "exp": 5
+    }
+  }
+}
