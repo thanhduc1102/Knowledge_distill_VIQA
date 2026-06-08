@@ -53,6 +53,7 @@ sft:
 
 grpo:
   output_dir: checkpoints/grpo
+  reward_type: pcpo
   num_epochs: 1
   per_device_train_batch_size: 1
   gradient_accumulation_steps: 8
@@ -64,6 +65,12 @@ grpo:
     alpha: 0.7
     beta: 0.2
     gamma: 0.1
+    valid: 0.20
+    execution: 0.25
+    program_equiv: 0.25
+    step: 0.15
+    answer: 0.10
+    brevity: 0.05
   use_lora: true
   lora_r: 32
   lora_alpha: 64

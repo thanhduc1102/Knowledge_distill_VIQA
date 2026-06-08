@@ -21,6 +21,8 @@ Các bộ dataset:
 Vi_numerical QA: (bộ chính) https://drive.google.com/drive/folders/1ZFtIF88ZJzubbkB0pIJA_rxz3NrzC8gG?usp=sharing
 FinQA-English: 
 https://github.com/czyssrs/FinQA/tree/main/dataset
+
+Tham khảo:
 https://huggingface.co/datasets/TheFinAI/FINQA_test_test
 https://huggingface.co/datasets/yale-nlp/DocMath-Eval
 https://huggingface.co/datasets/TheFinAI/FinCoT

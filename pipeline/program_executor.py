@@ -79,16 +79,16 @@ def _row_to_numbers(cells: list) -> list:
     return values
 
 
-def execute_program(program_str: str, table: Optional[list] = None) -> Any:
+def execute_program_steps(program_str: str, table: Optional[list] = None) -> Optional[list]:
     """
-    Execute a program string and return the final result.
+    Execute a program string and return every intermediate step result.
 
     Args:
         program_str: e.g. "divide(914, 391), multiply(#0, const_100)"
         table: 2D list (first row = header) for table_* operations
 
     Returns:
-        Final computed value, or None on error
+        List of step results, or None on error
     """
     steps = _split_steps(program_str)
     results = []
@@ -100,6 +100,21 @@ def execute_program(program_str: str, table: Optional[list] = None) -> Any:
         except Exception:
             return None
 
+    return results
+
+
+def execute_program(program_str: str, table: Optional[list] = None) -> Any:
+    """
+    Execute a program string and return the final result.
+
+    Args:
+        program_str: e.g. "divide(914, 391), multiply(#0, const_100)"
+        table: 2D list (first row = header) for table_* operations
+
+    Returns:
+        Final computed value, or None on error
+    """
+    results = execute_program_steps(program_str, table)
     return results[-1] if results else None
 
 

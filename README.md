@@ -1,6 +1,6 @@
 # VLSP 2025 - Knowledge Distillation for Vietnamese Financial Numerical Reasoning
 
-Knowledge Distillation pipeline for Vietnamese financial numerical reasoning (VLSP 2025 challenge). Implements the full HUSTUET-inspired pipeline: multilingual data integration, teacher reasoning distillation, SFT, GRPO/PCPO optimization, and majority voting inference.
+Knowledge Distillation pipeline for Vietnamese financial numerical reasoning (VLSP 2025 challenge). Implements the full HUSTUET-inspired pipeline: English FinQA integration, teacher reasoning distillation, SFT, GRPO/PCPO optimization, and majority voting inference.
 
 ## Quick Start
 
@@ -31,6 +31,8 @@ Data Prep → Teacher Distill → SFT → GRPO/PCPO → Inference → Evaluate
 ```
 
 See [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md) for detailed methodology, formulas, and analysis.
+
+For the AAAI-27 research blueprint centered on verifier-native financial reasoning, benchmark strategy, ablations, and implementation roadmap, see [docs/AAAI27_RESEARCH_BLUEPRINT.md](docs/AAAI27_RESEARCH_BLUEPRINT.md). For the 2024-2026 SOTA survey, benchmark selection, baseline matrix, and frontier API-model gap analysis, see [docs/AAAI27_SOTA_SURVEY_AND_BENCHMARKS.md](docs/AAAI27_SOTA_SURVEY_AND_BENCHMARKS.md). For the positioning reset and the detailed core research strategy, see [docs/AAAI27_CORE_RESEARCH_DIRECTION_AND_STRATEGY.md](docs/AAAI27_CORE_RESEARCH_DIRECTION_AND_STRATEGY.md).
 
 ## Repository Structure
 
@@ -79,7 +81,7 @@ See [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md) for detailed methodology, formula
 ## Dataset
 
 - **ViNumQA**: 2993 train / 584 valid / 497 test / 1625 private test
-- **FinQA**: 6251 train + 883 dev + 1147 test (English, used for multilingual augmentation)
+- **FinQA**: 6251 train + 883 dev + 1147 test (English, used as a core benchmark anchor and optional augmentation source)
 - **Total SFT training**: 14,661 samples (with program_re augmentation)
 
 ## Evaluation Metrics
@@ -119,7 +121,8 @@ Results saved to `/kaggle/working/vlsp2025/outputs/`:
 ## Key Technical Features
 
 1. **PCPO Reward**: R = R_valid * (0.7 + 0.2 * R_exec + 0.1 * R_bonus) - prioritizes program validity over correct answer
-2. **Multilingual Data**: English FinQA + Vietnamese ViNumQA without translation
-3. **Symbolic PA**: sympy-based program equivalence (handles commutativity, etc.)
-4. **Multi-level teacher validation**: exact match + answer match + valid-only
-5. **LoRA**: Memory-efficient fine-tuning (5-8% trainable parameters)
+2. **ECRL-Fin Reward (experimental)**: set `grpo.reward_type: ecrl` to reward symbolic equivalence, execution, intermediate steps, soft validity, and answer consistency for AAAI ablations
+3. **English Benchmark Integration**: FinQA supports core benchmarking and optional augmentation beside ViNumQA
+4. **Symbolic PA**: sympy-based program equivalence with a structural commutativity fallback
+5. **Multi-level teacher validation**: exact match + answer match + valid-only
+6. **LoRA**: Memory-efficient fine-tuning (5-8% trainable parameters)

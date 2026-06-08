@@ -32,3 +32,20 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Large zip datasets
+dataset.zip
+
+# Claude settings
+.claude/
+
+# Temporary / duplicate presentations
+* (3).pptx
+* 1.pptx
+docs/generated/HUST_PPT_template_2022_RED_4x3.pptx
+
+
+# Kaggle run workspaces and redundant copies
+kaggle/cot_sft/
+kaggle/distill_only/
+kaggle/kaggle_workspace/

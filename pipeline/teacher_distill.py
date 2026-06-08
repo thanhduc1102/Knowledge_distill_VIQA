@@ -94,10 +94,15 @@ class LocalTeacher:
         self.device = "cuda"
 
         print(f"Loading teacher model: {model_name}")
+        # Detect transformers API: >=5.x renamed `torch_dtype` → `dtype`
+        import inspect as _insp
+        from transformers import AutoModelForCausalLM as _ACM_check
+        _dtype_key = "dtype" if "dtype" in _insp.signature(_ACM_check.from_pretrained).parameters else "torch_dtype"
         model_kwargs = {
             "trust_remote_code": cfg.model.trust_remote_code,
-            "torch_dtype": dtype,
+            _dtype_key: dtype,
             "device_map": "auto",
+            "low_cpu_mem_usage": True,
         }
 
         if cfg.model.teacher_quantization == "4bit":
@@ -113,12 +118,26 @@ class LocalTeacher:
             model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
 
         if cfg.model.use_flash_attention:
-            model_kwargs["attn_implementation"] = "flash_attention_2"
+            try:
+                import flash_attn  # noqa: F401
+                model_kwargs["attn_implementation"] = "flash_attention_2"
+                print("  flash_attention_2 available — enabled")
+            except Exception as _e:
+                print(f"  flash_attention_2 not importable ({_e}); falling back to sdpa")
+                model_kwargs["attn_implementation"] = "sdpa"
 
         self.tokenizer = _load_tokenizer_robust(
             model_name, trust_remote_code=cfg.model.trust_remote_code
         )
-        self.model = _load_model_robust(model_name, model_kwargs)
+        try:
+            self.model = _load_model_robust(model_name, model_kwargs)
+        except Exception as _e:
+            if "flash_attention" in str(_e).lower() or "flash_attn" in str(_e).lower():
+                print(f"  Teacher load failed with flash-attn ({_e}); retrying with sdpa")
+                model_kwargs["attn_implementation"] = "sdpa"
+                self.model = _load_model_robust(model_name, model_kwargs)
+            else:
+                raise
         self.model.eval()
 
         # Left-pad for batched generation (causal LM requirement)
@@ -229,7 +248,9 @@ class LocalTeacher:
         results = []
         for idx, s in enumerate(samples):
             quality = best_qualities[idx]
-            matched = quality in ("exact_match", "answer_match")
+            # Guided samples: include "program_valid" too — teacher proved format compliance
+            is_guided = s.get("_guided", False)
+            matched = quality in ("exact_match", "answer_match") or (is_guided and quality == "program_valid")
             results.append({
                 **s,
                 "content": best_results[idx] or "",
@@ -334,6 +355,7 @@ def run_teacher_distillation(
     batch_size: int = 8,
     checkpoint_every: int = 50,
     resume: bool = True,
+    max_runtime_hours: Optional[float] = None,
 ) -> str:
     """
     Run teacher inference to generate reasoning traces.
@@ -357,6 +379,15 @@ def run_teacher_distillation(
         dataset = json.load(f)
     print(f"Loaded {len(dataset)} samples for teacher distillation")
 
+    if len(dataset) == 0:
+        raise RuntimeError(
+            f"teacher_input.json at {teacher_input_path} is empty.\n"
+            "This means the data-prep step did not produce any teacher input.\n"
+            "Fix: re-run the data-prep cell (Cell 6) before the teacher cell, "
+            "ensure the ViNumQA / FinQA dataset inputs are mounted, and that "
+            "data/pipeline/teacher_input.json contains non-empty JSON list."
+        )
+
     checkpoint_path = str(output_dir / "teacher_raw_checkpoint.json")
     raw_path = str(output_dir / "teacher_raw_output.json")
 
@@ -369,6 +400,9 @@ def run_teacher_distillation(
         effective_ckpt = checkpoint_every
     batch_size = effective_batch
     checkpoint_every = effective_ckpt
+    # Watchdog: arg wins over config; cfg.teacher.max_runtime_hours is the default.
+    if max_runtime_hours is None:
+        max_runtime_hours = getattr(cfg.teacher, "max_runtime_hours", None)
 
     # Resume: skip already-processed samples
     if resume:
@@ -390,17 +424,31 @@ def run_teacher_distillation(
         t_start = time.time()
         processed = 0
 
-        # Process in batches
-        batches = [remaining[i:i+batch_size] for i in range(0, len(remaining), batch_size)]
+        # Length-sorted batching: bucket samples by prompt length so each batch
+        # has minimal padding. Cuts wasted compute on a 27B teacher significantly
+        # (1.3–1.7x throughput depending on length variance). Indexing keeps the
+        # original order in the saved checkpoint.
+        def _approx_len(s):
+            try:
+                return len(s["prompt"][0]["content"])
+            except Exception:
+                return 0
+        sorted_remaining = sorted(remaining, key=_approx_len)
+        batches = [sorted_remaining[i:i+batch_size] for i in range(0, len(sorted_remaining), batch_size)]
         pbar = tqdm(total=len(remaining), desc="Teacher distillation (batched)", initial=0)
 
+        # Watchdog: stop cleanly before Kaggle 12h cap so SFT phase still has time.
+        _watchdog_s = (max_runtime_hours * 3600) if max_runtime_hours else None
+        if _watchdog_s:
+            print(f"  [Distill watchdog] hard cap: {max_runtime_hours:.2f}h")
+
+        watchdog_hit = False
         for batch in batches:
             batch_results = teacher.generate_batch(batch)
             results.extend(batch_results)
             processed += len(batch)
             pbar.update(len(batch))
 
-            # ETA logging
             elapsed = time.time() - t_start
             rate = processed / elapsed if elapsed > 0 else 0
             remaining_count = len(remaining) - processed
@@ -408,7 +456,6 @@ def run_teacher_distillation(
             eta_h = eta_sec / 3600
             pbar.set_postfix({"rate": f"{rate:.1f}s/s", "ETA": f"{eta_h:.1f}h"})
 
-            # Checkpoint
             if processed % checkpoint_every < batch_size:
                 _save_checkpoint(results, checkpoint_path)
                 matched_so_far = sum(1 for r in results if r.get("matched", False))
@@ -417,8 +464,19 @@ def run_teacher_distillation(
                     f"{matched_so_far} matched ({matched_so_far/len(results)*100:.1f}%)"
                 )
 
+            if _watchdog_s and elapsed >= _watchdog_s:
+                pbar.write(
+                    f"  [Distill watchdog] elapsed {elapsed/3600:.2f}h ≥ "
+                    f"{max_runtime_hours:.2f}h — stopping early. "
+                    f"Resume next session via checkpoint."
+                )
+                watchdog_hit = True
+                break
+
         pbar.close()
         _save_checkpoint(results, checkpoint_path)
+        if watchdog_hit:
+            print(f"  [Distill watchdog] partial: {processed}/{len(remaining)} samples this session.")
 
     else:
         teacher = APITeacher(cfg)
@@ -434,21 +492,28 @@ def run_teacher_distillation(
                     _save_checkpoint(results, checkpoint_path)
         _save_checkpoint(results, checkpoint_path)
 
-    # Statistics
+    # Statistics (guard against empty results to avoid ZeroDivisionError)
     exact_matches  = sum(1 for r in results if r.get("match_type") == "exact_match")
     answer_matches = sum(1 for r in results if r.get("match_type") == "answer_match")
     valid_only     = sum(1 for r in results if r.get("match_type") == "program_valid")
     errors         = sum(1 for r in results if r.get("match_type") == "error")
     invalid        = sum(1 for r in results if r.get("match_type") == "invalid")
+    _n = max(len(results), 1)  # avoid div/0 — prints will read 0.0% on empty
 
     print(f"\nTeacher distillation results:")
-    print(f"  Exact match:  {exact_matches}/{len(results)} ({exact_matches/len(results)*100:.1f}%)")
-    print(f"  Answer match: {answer_matches}/{len(results)} ({answer_matches/len(results)*100:.1f}%)")
+    print(f"  Exact match:  {exact_matches}/{len(results)} ({exact_matches/_n*100:.1f}%)")
+    print(f"  Answer match: {answer_matches}/{len(results)} ({answer_matches/_n*100:.1f}%)")
     print(f"  Valid only:   {valid_only}/{len(results)}")
     print(f"  Invalid:      {invalid}/{len(results)}")
     print(f"  Errors:       {errors}/{len(results)}")
-    print(f"  Total usable: {exact_matches + answer_matches}/{len(results)} "
-          f"({(exact_matches + answer_matches)/len(results)*100:.1f}%)")
+    guided_valid  = sum(1 for r in results if r.get("match_type") == "program_valid" and r.get("_guided", False))
+    total_usable  = exact_matches + answer_matches + guided_valid
+    print(f"  Guided valid: {guided_valid}/{len(results)}  (valid program, guided template)")
+    print(f"  Total usable: {total_usable}/{len(results)} "
+          f"({total_usable/_n*100:.1f}%)")
+    if len(results) == 0:
+        print("  WARNING: no results — teacher produced nothing. "
+              "Check teacher_input.json and run data-prep again if needed.")
 
     # Convert matched results to SFT format
     sft_distilled = []
@@ -482,6 +547,35 @@ def run_teacher_distillation(
     # Also save full raw output
     with open(raw_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
+
+    # Explicit GPU cleanup: the teacher is a LocalTeacher with device_map="auto"
+    # which creates accelerate hooks that prevent Python GC from releasing the
+    # model. We must manually drop every reference before empty_cache().
+    try:
+        import gc as _gc
+        if "teacher" in locals() and hasattr(locals().get("teacher"), "model"):
+            _t = locals()["teacher"]
+            try:
+                _t.model.cpu()
+            except Exception:
+                pass
+            try:
+                del _t.model
+            except Exception:
+                pass
+            try:
+                del _t.tokenizer
+            except Exception:
+                pass
+        _gc.collect()
+        import torch as _torch
+        if _torch.cuda.is_available():
+            _torch.cuda.empty_cache()
+            _torch.cuda.synchronize()
+            _free, _total = _torch.cuda.mem_get_info()
+            print(f"[teacher-cleanup] GPU free={_free/2**30:.1f}GB / {_total/2**30:.1f}GB")
+    except Exception as _e:
+        print(f"[teacher-cleanup] non-fatal: {_e}")
 
     return output_path
 

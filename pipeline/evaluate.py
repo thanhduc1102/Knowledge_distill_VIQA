@@ -197,10 +197,10 @@ def equal_program(program1: list, program2: list) -> bool:
     program2: predicted program (tokenized)
     """
     try:
-        from sympy import simplify
+        from sympy import simplify, sympify
     except ImportError:
-        # Fallback to token comparison if sympy not available
-        return program1 == program2
+        simplify = None
+        sympify = None
 
     sym_map = {}
 
@@ -317,14 +317,48 @@ def equal_program(program1: list, program2: list) -> bool:
         elif op == "greater":
             return "( " + arg1_part + " > " + arg2_part + " )"
 
+    def canonical_recur(step, step_dict):
+        step = step.strip()
+        op = step.split("(")[0].strip("|").strip()
+        args = step.split("(")[1].strip("|").strip()
+        arg1 = args.split("|")[0].strip()
+        arg2 = args.split("|")[1].strip()
+
+        if "table" in op:
+            return ("table", sym_map[step])
+
+        if "#" in arg1:
+            arg1_part = canonical_recur(step_dict[int(arg1.replace("#", ""))], step_dict)
+        else:
+            arg1_part = ("arg", sym_map[arg1])
+
+        if "#" in arg2:
+            arg2_part = canonical_recur(step_dict[int(arg2.replace("#", ""))], step_dict)
+        else:
+            arg2_part = ("arg", sym_map[arg2])
+
+        if op in {"add", "multiply"}:
+            ordered_args = tuple(sorted((arg1_part, arg2_part), key=repr))
+            return (op, ordered_args)
+        return (op, arg1_part, arg2_part)
+
     try:
-        sym_prog1 = symbol_recur(steps1[-1], step_dict_1)
-        sym_prog1 = simplify(sym_prog1, evaluate=False)
+        if canonical_recur(steps1[-1], step_dict_1) == canonical_recur(steps2[-1], step_dict_2):
+            return True
 
-        sym_prog2 = symbol_recur(steps2[-1], step_dict_2)
-        sym_prog2 = simplify(sym_prog2, evaluate=False)
+        if simplify is None or sympify is None:
+            return False
 
-        return sym_prog1 == sym_prog2
+        sym_prog1 = simplify(sympify(symbol_recur(steps1[-1], step_dict_1)))
+        sym_prog2 = simplify(sympify(symbol_recur(steps2[-1], step_dict_2)))
+
+        if sym_prog1 == sym_prog2:
+            return True
+
+        try:
+            return simplify(sym_prog1 - sym_prog2) == 0
+        except TypeError:
+            return False
     except Exception:
         return False
 

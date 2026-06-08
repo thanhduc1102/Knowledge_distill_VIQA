@@ -13,7 +13,7 @@ from typing import Optional
 
 from pipeline.config import PipelineConfig
 from pipeline import _load_model_robust, _load_tokenizer_robust
-from pipeline.reward import compute_pcpo_reward
+from pipeline.reward import compute_grpo_reward
 
 
 # ── TRL-based GRPO Training ─────────────────────────────────────────
@@ -78,9 +78,10 @@ def run_grpo_trl(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -> s
         rewards = []
         for completion, gt in zip(completions, ground_truths):
             text = completion[0]["content"] if isinstance(completion, list) else str(completion)
-            r = compute_pcpo_reward(
+            r = compute_grpo_reward(
                 text, gt,
-                alpha=weights["alpha"], beta=weights["beta"], gamma=weights["gamma"],
+                reward_type=cfg.grpo.reward_type,
+                reward_weights=weights,
             )
             rewards.append(r)
         return rewards
@@ -248,20 +249,20 @@ def run_grpo_manual(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -
                 gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
 
                 # Compute reward
-                reward = compute_pcpo_reward(
+                reward = compute_grpo_reward(
                     gen_text, gt,
-                    alpha=weights["alpha"], beta=weights["beta"], gamma=weights["gamma"],
+                    reward_type=cfg.grpo.reward_type,
+                    reward_weights=weights,
                 )
                 all_rewards.append(reward)
 
-                # Compute log probability of generated sequence
-                with torch.no_grad():
-                    full_ids = outputs.sequences[:, :inputs["input_ids"].shape[-1] + len(gen_ids)]
-                    model_out = model(full_ids)
-                    logits = model_out.logits[:, inputs["input_ids"].shape[-1]-1:-1, :]
-                    log_probs = torch.nn.functional.log_softmax(logits, dim=-1)
-                    token_log_probs = log_probs.gather(2, gen_ids.unsqueeze(0).unsqueeze(-1)).squeeze(-1)
-                    seq_log_prob = token_log_probs.sum()
+                # Compute log probability of generated sequence (grad enabled for REINFORCE)
+                full_ids = outputs.sequences[:, :inputs["input_ids"].shape[-1] + len(gen_ids)]
+                model_out = model(full_ids)
+                logits = model_out.logits[:, inputs["input_ids"].shape[-1]-1:-1, :]
+                log_probs = torch.nn.functional.log_softmax(logits, dim=-1)
+                token_log_probs = log_probs.gather(2, gen_ids.unsqueeze(0).unsqueeze(-1)).squeeze(-1)
+                seq_log_prob = token_log_probs.sum()
                 all_log_probs.append(seq_log_prob)
 
             # Group Relative: normalize rewards within group
@@ -272,10 +273,8 @@ def run_grpo_manual(cfg: PipelineConfig, sft_model_path: Optional[str] = None) -
                 advantages = rewards_tensor - rewards_tensor.mean()
 
             # REINFORCE loss: -advantage * log_prob
-            loss = torch.tensor(0.0, device=model.device, requires_grad=True)
-            for adv, lp in zip(advantages, all_log_probs):
-                loss = loss + (-adv.to(model.device) * lp)
-            loss = loss / num_generations / grad_accum
+            losses = [-adv.to(model.device) * lp for adv, lp in zip(advantages, all_log_probs)]
+            loss = sum(losses) / num_generations / grad_accum
 
             loss.backward()
             total_reward += rewards_tensor.mean().item()

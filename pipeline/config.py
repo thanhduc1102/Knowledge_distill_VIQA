@@ -49,6 +49,8 @@ class TeacherConfig:
     temperature: float = 0.6
     top_p: float = 0.95
     use_local: bool = True  # True = load model locally; False = use API
+    # Stops the distill loop cleanly before Kaggle 12h cap. None = no limit.
+    max_runtime_hours: Optional[float] = None
 
 
 @dataclass
@@ -74,11 +76,23 @@ class SFTConfig:
     max_grad_norm: float = 1.0
     bf16: bool = False
     fp16: bool = True
+    # Separate from ModelConfig.max_seq_length (teacher/inference may need longer context).
+    # Distilled guided outputs are ~280 tokens + prompt ~800 tokens → 2048 is sufficient.
+    max_seq_length: int = 2048
+    # Cap dataset to N samples (None = use all). Used to fit a Kaggle 12h session.
+    max_train_samples: Optional[int] = None
+    max_valid_samples: Optional[int] = None
+    # Hard wall-clock limit; watchdog stops cleanly and saves before Kaggle kills the kernel.
+    max_runtime_hours: Optional[float] = None
+    # Mirror each HF checkpoint into this dir (e.g. /kaggle/working/outputs/...) so the
+    # adapter survives even if the session is killed mid-epoch.
+    mirror_save_dir: Optional[str] = None
 
 
 @dataclass
 class GRPOConfig:
     output_dir: str = "checkpoints/grpo"
+    reward_type: str = "pcpo"  # pcpo | ecrl
     num_epochs: int = 1
     per_device_train_batch_size: int = 1
     gradient_accumulation_steps: int = 8
@@ -90,6 +104,12 @@ class GRPOConfig:
         "alpha": 0.7,   # R_valid base
         "beta": 0.2,    # R_exec weight
         "gamma": 0.1,   # R_bonus weight
+        "valid": 0.20,  # ECRL syntax validity
+        "execution": 0.25,
+        "program_equiv": 0.25,
+        "step": 0.15,
+        "answer": 0.10,
+        "brevity": 0.05,
     })
     use_lora: bool = True
     lora_r: int = 32
@@ -182,13 +202,16 @@ GPU_PROFILES = {
             "max_seq_length": 8192,
         },
         "sft": {
-            "per_device_train_batch_size": 4,
-            "gradient_accumulation_steps": 4,
+            "per_device_train_batch_size": 1,
+            "gradient_accumulation_steps": 16,
             "bf16": True,
             "fp16": False,
             "use_lora": True,
             "lora_r": 128,
             "lora_alpha": 256,
+            "max_seq_length": 1536,
+            # Kaggle 12h cap: 2 epochs is enough (loss converges by step ~2000 → overfitting).
+            "num_epochs": 2,
         },
         "grpo": {
             "per_device_train_batch_size": 2,
