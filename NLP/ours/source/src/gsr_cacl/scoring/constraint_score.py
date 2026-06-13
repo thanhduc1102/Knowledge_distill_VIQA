@@ -123,6 +123,63 @@ def compute_entity_score(
     return score / n_checks
 
 
+def compute_row_major_constraint_score(
+    table_md: str,
+    epsilon: float = 1.0,
+    min_rows: int = 3,
+) -> ConstraintScoringResult:
+    """Row-major accounting consistency (the REAL GSR signal for these tables).
+
+    FinQA/ConvFinQA tables are *row-major*: line-items are rows, periods are columns, so the
+    column-template KG almost never fires (templates expect line-items as column headers).
+    This detector works directly on the data orientation: for every numeric COLUMN with at
+    least ``min_rows`` values, it tests whether some cell equals the sum of the other cells in
+    that column — which captures BOTH pure totals (Total = Σ components) AND walk-forward /
+    reconciliation tables (End = Start + Σ changes, since then End = Σ of all other rows).
+
+        residual_c = | v_c − (S − v_c) | / max(|v_c|, ε),   S = Σ column values
+        col_score  = exp( − min_c residual_c )
+
+    Returns the mean column score (∈ (0,1]); empty/degenerate tables → 1.0 (neutral).
+    """
+    from gsr_cacl.kg.parser import parse_markdown_rows
+    from gsr_cacl.ledger.numeric import parse_financial_number
+    from gsr_cacl.ledger.extract import _is_index_column
+
+    rows = parse_markdown_rows(table_md)
+    if len(rows) < min_rows + 1:
+        return ConstraintScoringResult(1.0, 0, 0, [])
+    data = rows[1:]
+    ncol = max((len(r) for r in data), default=0)
+
+    scores: list[float] = []
+    violated = 0
+    for c in range(ncol):
+        col_cells = [r[c] if c < len(r) else "" for r in data]
+        if _is_index_column(col_cells):   # skip the pandas row-index column (0,1,2,…)
+            continue
+        vals = [parse_financial_number(x) for x in col_cells]
+        vals = [v for v in vals if v is not None]
+        if len(vals) < min_rows:
+            continue
+        S = sum(vals)
+        # best (smallest-residual) "this cell == sum of the others" hypothesis
+        best = min(abs(v - (S - v)) / max(abs(v), epsilon) for v in vals)
+        sc = math.exp(-best)
+        scores.append(sc)
+        if sc < 0.5:
+            violated += 1
+
+    if not scores:
+        return ConstraintScoringResult(1.0, 0, 0, [])
+    return ConstraintScoringResult(
+        constraint_score=sum(scores) / len(scores),
+        violated_count=violated,
+        total_count=len(scores),
+        per_constraint_scores=scores,
+    )
+
+
 def compute_equation_constraint_score(
     kg: ConstraintKG,
     epsilon: float = 1e-4,
