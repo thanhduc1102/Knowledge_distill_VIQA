@@ -1,0 +1,19 @@
+{
+  "dataset": "finqa",
+  "split": null,
+  "sample": null,
+  "stage": "generation",
+  "top_k": 3,
+  "fact_top_n": 12,
+  "embed_model": "intfloat/multilingual-e5-large-instruct",
+  "alpha": 1.0,
+  "beta": 0.6,
+  "gamma": 0.2,
+  "use_entity": true,
+  "entity_epochs": 12,
+  "metadata_filter": true,
+  "generator": "hf",
+  "gen_model": "Qwen/Qwen3.5-4B",
+  "out_dir": "outputs/qwen_eval/finqa_faiss_smoke",
+  "retrieval_jsonl": "outputs/checks/finqa_faiss_smoke/retrieval_top3.jsonl"
+}

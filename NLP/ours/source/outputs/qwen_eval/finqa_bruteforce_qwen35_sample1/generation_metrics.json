@@ -1,0 +1,9 @@
+{
+  "number_match": 0.0,
+  "correct": 0,
+  "total": 1,
+  "mean_verifier_reward": 0.0,
+  "grounded_rate": 0.0,
+  "generator": "hf",
+  "seconds": 45.7
+}

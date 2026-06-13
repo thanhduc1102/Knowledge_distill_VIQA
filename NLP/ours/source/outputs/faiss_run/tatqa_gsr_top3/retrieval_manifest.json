@@ -1,0 +1,5 @@
+{
+  "artifact_file": "retrieval_top3.jsonl",
+  "record_count": 1144,
+  "save_top_k": 3
+}

@@ -146,7 +146,7 @@ def stage_retrieval(data, args, out_dir: Path) -> list[list]:
 
 def stage_generation(retrieval_jsonl: str, args, out_dir: Path) -> dict:
     records = [json.loads(l) for l in open(retrieval_jsonl)]
-    gen_kwargs = {"model_name": args.gen_model} if args.generator == "hf" else {}
+    gen_kwargs = {"model_name": args.gen_model, "device": "cpu", "dtype": "float32", "max_new_tokens": 16} if args.generator == "hf" else {}
     generator = build_generator(args.generator, **gen_kwargs)
     logger.info("Generator: %s", generator.name)
 

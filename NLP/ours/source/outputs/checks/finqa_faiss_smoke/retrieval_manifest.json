@@ -1,0 +1,10 @@
+{
+  "artifact_file": "retrieval_top3.jsonl",
+  "record_count": 10,
+  "save_top_k": 3,
+  "mode": "gsr",
+  "candidate_mode": "faiss",
+  "embedding_model": "intfloat/multilingual-e5-large-instruct",
+  "config_name": "FinQA",
+  "eval_split": "test"
+}
