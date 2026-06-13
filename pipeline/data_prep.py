@@ -7,10 +7,12 @@ table→markdown conversion, and train/val splitting.
 import re
 import json
 import random
+import copy
 from pathlib import Path
 from typing import Any
 
 from pipeline.config import PipelineConfig
+from pipeline.benchmarks import load_benchmark_split
 
 
 # ── Table Formatting ─────────────────────────────────────────────────
@@ -44,6 +46,9 @@ def format_comma_spaces(s: str) -> str:
 
 def build_user_prompt(sample: dict, prompt_template: str) -> str:
     """Build the user prompt from a raw sample and template."""
+    if sample.get("prompt_override"):
+        return sample["prompt_override"]
+
     pre_text = " ".join(sample["pre_text"])
     table_md = table_to_markdown(sample["table"])
     post_text = " ".join(sample["post_text"])
@@ -130,6 +135,8 @@ def prepare_sft_dataset(
     dataset = []
     for sample in samples:
         qa = sample["qa"]
+        if not qa.get("program"):
+            continue
         user_content = build_user_prompt(sample, prompt_template)
         assistant_content = build_assistant_response(qa["program"], qa["exe_ans"])
 
@@ -177,6 +184,8 @@ def prepare_grpo_dataset(
     dataset = []
     for sample in samples:
         qa = sample["qa"]
+        if not qa.get("program"):
+            continue
         user_content = build_user_prompt(sample, prompt_template)
 
         ground_truth = {
@@ -230,6 +239,8 @@ def prepare_teacher_dataset(
     dataset = []
     for sample in samples:
         qa = sample["qa"]
+        if not qa.get("program"):
+            continue
         gold_program = format_comma_spaces(qa["program"])
         gold_answer = str(qa["exe_ans"])
 
@@ -256,6 +267,40 @@ def prepare_teacher_dataset(
     return dataset
 
 
+def annotate_program_samples(samples: list, benchmark: str) -> list:
+    annotated = []
+    for sample in samples:
+        clone = copy.deepcopy(sample)
+        clone["benchmark"] = benchmark
+        clone.setdefault("eval", {"metric_family": "program"})
+        annotated.append(clone)
+    return annotated
+
+
+def prepare_inference_dataset(samples: list, prompt_template: str) -> list:
+    dataset = []
+    for sample in samples:
+        qa = sample.get("qa", {})
+        user_content = build_user_prompt(sample, prompt_template)
+        dataset.append({
+            "id": sample["id"],
+            "benchmark": sample.get("benchmark", "unknown"),
+            "messages": [{"role": "user", "content": user_content}],
+            "metadata": {
+                "table": sample.get("table", []),
+                "program": format_comma_spaces(qa.get("program", "")) if qa.get("program") else "",
+                "answer": str(qa.get("exe_ans", "")),
+                "answer_raw": sample.get("eval", {}).get("raw_answer", qa.get("exe_ans")),
+                "metric_family": sample.get("eval", {}).get("metric_family", "program"),
+                "answer_type": sample.get("eval", {}).get("answer_type", ""),
+                "scale": sample.get("eval", {}).get("scale", ""),
+                "python_solution": sample.get("eval", {}).get("python_solution"),
+                "gold_steps": sample.get("eval", {}).get("gold_steps", []),
+            },
+        })
+    return dataset
+
+
 # ── Main Entry Point ─────────────────────────────────────────────────
 
 def run_data_prep(cfg: PipelineConfig) -> dict:
@@ -269,17 +314,52 @@ def run_data_prep(cfg: PipelineConfig) -> dict:
     output_dir = Path(cfg.project_root) / cfg.data.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load all data
-    vi_train, vi_valid = load_vinumqa(cfg)
-    finqa_data = load_finqa(cfg) if cfg.data.use_finqa else []
+    vi_train, vi_valid = [], []
+    if cfg.data.include_vinumqa_in_training:
+        vi_train, vi_valid = load_vinumqa(cfg)
+        vi_train = annotate_program_samples(vi_train, "vinumqa")
+        vi_valid = annotate_program_samples(vi_valid, "vinumqa")
+
+    # Load benchmark-aligned supervised training data
+    supervised_train = []
+    supervised_valid = []
+    benchmark_manifest = {"train": {}, "eval": {}, "skipped": {}}
+
+    for benchmark in cfg.data.train_benchmarks:
+        try:
+            train_samples = load_benchmark_split(cfg, benchmark, "train")
+            valid_samples = load_benchmark_split(cfg, benchmark, "valid")
+        except Exception as exc:
+            if cfg.data.skip_missing_benchmarks:
+                print(f"WARNING: skipping train benchmark {benchmark}: {exc}")
+                benchmark_manifest["skipped"][benchmark] = {"phase": "train", "reason": str(exc)}
+                continue
+            raise
+
+        train_with_program = [sample for sample in train_samples if sample.get("qa", {}).get("program")]
+        valid_with_program = [sample for sample in valid_samples if sample.get("qa", {}).get("program")]
+        if not train_with_program:
+            print(f"WARNING: skipping train benchmark {benchmark}: no program supervision found")
+            benchmark_manifest["skipped"][benchmark] = {
+                "phase": "train",
+                "reason": "no program supervision found",
+            }
+            continue
+
+        supervised_train.extend(train_with_program)
+        supervised_valid.extend(valid_with_program)
+        benchmark_manifest["train"][benchmark] = {
+            "train_samples": len(train_with_program),
+            "valid_samples": len(valid_with_program),
+        }
 
     # Combine for training
-    all_train = vi_train + finqa_data
+    all_train = vi_train + supervised_train
     if cfg.data.max_samples:
         all_train = all_train[:cfg.data.max_samples]
 
     print(f"\nTotal training samples (raw): {len(all_train)}")
-    print(f"Validation samples (raw): {len(vi_valid)}")
+    print(f"Validation samples (raw): {len(vi_valid) + len(supervised_valid)}")
 
     # Phase 1: Teacher distillation input
     use_guided = getattr(cfg.teacher, "use_guided_template", True)
@@ -303,7 +383,8 @@ def run_data_prep(cfg: PipelineConfig) -> dict:
 
     # Phase 2: SFT dataset (will be used with teacher output, but also as baseline)
     sft_train = prepare_sft_dataset(all_train, prompt_template, cfg.data.use_program_re)
-    sft_valid = prepare_sft_dataset(vi_valid, prompt_template, use_program_re=False)
+    sft_valid_raw = vi_valid + supervised_valid
+    sft_valid = prepare_sft_dataset(sft_valid_raw, prompt_template, use_program_re=False)
     random.shuffle(sft_train)
 
     sft_train_path = str(output_dir / "sft_train.json")
@@ -313,7 +394,7 @@ def run_data_prep(cfg: PipelineConfig) -> dict:
 
     # Phase 3: GRPO dataset
     grpo_train = prepare_grpo_dataset(all_train, prompt_template, cfg.data.use_program_re)
-    grpo_valid = prepare_grpo_dataset(vi_valid, prompt_template, use_program_re=False)
+    grpo_valid = prepare_grpo_dataset(sft_valid_raw, prompt_template, use_program_re=False)
     random.shuffle(grpo_train)
 
     grpo_train_path = str(output_dir / "grpo_train.parquet")
@@ -325,12 +406,47 @@ def run_data_prep(cfg: PipelineConfig) -> dict:
     print(f"Saved {len(grpo_train)} GRPO train → {grpo_train_path}")
     print(f"Saved {len(grpo_valid)} GRPO valid → {grpo_valid_path}")
 
+    # Benchmark evaluation datasets
+    benchmark_eval_dir = output_dir / "benchmarks"
+    benchmark_eval_dir.mkdir(parents=True, exist_ok=True)
+    benchmark_eval_paths = {}
+    split_override = {"vinumqa": "valid", "docmath_eval": "eval", "finchain": "test"}
+    for benchmark in cfg.data.eval_benchmarks:
+        purpose = split_override.get(benchmark, "test")
+        try:
+            samples = load_benchmark_split(cfg, benchmark, purpose)
+        except Exception as exc:
+            if cfg.data.skip_missing_benchmarks:
+                print(f"WARNING: skipping eval benchmark {benchmark}: {exc}")
+                benchmark_manifest["skipped"][benchmark] = {"phase": "eval", "reason": str(exc)}
+                continue
+            raise
+
+        inference_dataset = prepare_inference_dataset(samples, prompt_template)
+        bench_dir = benchmark_eval_dir / benchmark
+        bench_dir.mkdir(parents=True, exist_ok=True)
+        eval_path = str(bench_dir / f"{purpose}.json")
+        save_json(eval_path, inference_dataset)
+        benchmark_eval_paths[benchmark] = eval_path
+        benchmark_manifest["eval"][benchmark] = {
+            "split": purpose,
+            "samples": len(inference_dataset),
+            "path": eval_path,
+        }
+
+    benchmark_manifest_path = output_dir / "benchmark_manifest.json"
+    with open(benchmark_manifest_path, "w", encoding="utf-8") as f:
+        json.dump(benchmark_manifest, f, ensure_ascii=False, indent=2)
+    print(f"Saved benchmark manifest → {benchmark_manifest_path}")
+
     paths = {
         "teacher_input": teacher_path,
         "sft_train": sft_train_path,
         "sft_valid": sft_valid_path,
         "grpo_train": grpo_train_path,
         "grpo_valid": grpo_valid_path,
+        "benchmark_manifest": str(benchmark_manifest_path),
+        "eval_datasets": benchmark_eval_paths,
     }
 
     print(f"\n{'='*60}")
@@ -340,6 +456,7 @@ def run_data_prep(cfg: PipelineConfig) -> dict:
     print(f"  GRPO train: {len(grpo_train)} samples")
     print(f"  GRPO valid: {len(grpo_valid)} samples")
     print(f"  Teacher:    {len(teacher_data)} samples")
+    print(f"  Eval suite: {len(benchmark_eval_paths)} benchmarks")
     print(f"{'='*60}\n")
 
     return paths

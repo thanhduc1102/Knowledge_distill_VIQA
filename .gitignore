@@ -48,4 +48,9 @@ docs/generated/HUST_PPT_template_2022_RED_4x3.pptx
 # Kaggle run workspaces and redundant copies
 kaggle/cot_sft/
 kaggle/distill_only/
-kaggle/kaggle_workspace/
+kaggle/kaggle_workspace/
+# From NLP
+human_chat/
+draft/
+
+~$*

@@ -190,6 +190,7 @@ def run_inference(
     cfg: PipelineConfig,
     model_path: Optional[str] = None,
     test_data_path: Optional[str] = None,
+    output_path: Optional[str] = None,
 ) -> str:
     """
     Run multi-path inference with majority voting on test data.
@@ -240,25 +241,33 @@ def run_inference(
 
         result_entry = {
             "id": sample["id"],
+            "benchmark": sample.get("benchmark", "unknown"),
+            "metric_family": sample.get("metadata", {}).get("metric_family", "program"),
             "predicted_program": vote_result["program"],
             "predicted_answer": vote_result["answer"],
             "confidence": vote_result["confidence"],
             "num_valid": vote_result["num_valid"],
             "gold_program": sample.get("metadata", {}).get("program"),
             "gold_answer": sample.get("metadata", {}).get("answer"),
+            "gold_answer_raw": sample.get("metadata", {}).get("answer_raw"),
+            "gold_steps": sample.get("metadata", {}).get("gold_steps", []),
+            "answer_type": sample.get("metadata", {}).get("answer_type", ""),
+            "scale": sample.get("metadata", {}).get("scale", ""),
+            "python_solution": sample.get("metadata", {}).get("python_solution"),
             "all_candidates": candidates,  # Save all raw outputs
         }
         results.append(result_entry)
 
     # Save full results with candidates
-    output_path = str(output_dir / "predictions.json")
+    if output_path is None:
+        output_path = str(output_dir / "predictions.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     print(f"Saved {len(results)} predictions → {output_path}")
 
     # Save compact version without candidates (for evaluation)
     compact = [{k: v for k, v in r.items() if k != "all_candidates"} for r in results]
-    compact_path = str(output_dir / "predictions_compact.json")
+    compact_path = str(Path(output_path).with_name(Path(output_path).stem + "_compact.json"))
     with open(compact_path, "w", encoding="utf-8") as f:
         json.dump(compact, f, ensure_ascii=False, indent=2)
 

@@ -14,6 +14,7 @@ Usage:
 import json
 import re
 import sys
+import uuid
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -152,6 +153,8 @@ def _make_code_cell(source: str) -> dict:
         "execution_count": None,
         "metadata": {
             "trusted": True,
+            "id": uuid.uuid4().hex[:8],
+            "language": "python",
         },
         "outputs": [],
         "source": source.split("\n") if "\n" in source else [source],
@@ -161,7 +164,10 @@ def _make_code_cell(source: str) -> dict:
 def _make_markdown_cell(source: str) -> dict:
     return {
         "cell_type": "markdown",
-        "metadata": {},
+        "metadata": {
+            "id": uuid.uuid4().hex[:8],
+            "language": "markdown",
+        },
         "source": source.split("\n") if "\n" in source else [source],
     }
 

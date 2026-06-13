@@ -29,11 +29,111 @@ class DataConfig:
     vinumqa_valid: str = "dataset/viNumericalQA_private/valid.json"
     vinumqa_test: str = "dataset/viNumericalQA_private/test.json"
     vinumqa_private_test: str = "dataset/viNumericalQA_private/private_test.json"
-    finqa_dir: str = "dataset/finqa_en"
+    finqa_dir: str = "dataset/dataset_finqa_en"
     output_dir: str = "data/pipeline"
     use_finqa: bool = True
     use_program_re: bool = True
+    include_vinumqa_in_training: bool = False
     max_samples: Optional[int] = None  # None = use all
+    benchmark_suite: list[str] = field(default_factory=lambda: [
+        "finqa", "tatqa", "convfinqa", "docmath_eval", "finchain",
+    ])
+    train_benchmarks: list[str] = field(default_factory=lambda: [
+        "finqa",
+    ])
+    eval_benchmarks: list[str] = field(default_factory=lambda: [
+        "finqa", "tatqa", "convfinqa", "docmath_eval", "finchain", "vinumqa",
+    ])
+    skip_missing_benchmarks: bool = True
+    benchmark_sources: dict = field(default_factory=lambda: {
+        "vinumqa": {
+            "kind": "local_pair",
+            "train_path": "dataset/viNumericalQA_private/train.json",
+            "valid_path": "dataset/viNumericalQA_private/valid.json",
+            "test_path": "dataset/viNumericalQA_private/test.json",
+            "private_test_path": "dataset/viNumericalQA_private/private_test.json",
+            "trainable": True,
+            "program_supervision": True,
+            "metric_family": "program",
+        },
+        "finqa": {
+            "kind": "local_dir",
+            "dir": "dataset/dataset_finqa_en",
+            "splits": {
+                "train": "train.json",
+                "valid": "dev.json",
+                "test": "test.json",
+            },
+            "trainable": True,
+            "program_supervision": True,
+            "metric_family": "program",
+        },
+        "tatqa": {
+            "kind": "hf",
+            "dataset_name": "next-tat/tat-qa",
+            "config_name": None,
+            "cache_dir": "dataset/benchmark_cache/tatqa",
+            "local_splits": {
+                "train": "train.json",
+                "valid": "validation.json",
+                "test": "test.json",
+            },
+            "split_map": {
+                "train": "train",
+                "valid": "validation",
+                "test": "test",
+            },
+            "trainable": True,
+            "program_supervision": False,
+            "metric_family": "answer_only",
+        },
+        "convfinqa": {
+            "kind": "hf",
+            "dataset_name": "gagan3012/convfinqa-updated",
+            "config_name": None,
+            "cache_dir": "dataset/benchmark_cache/convfinqa",
+            "local_splits": {
+                "train": "train.json",
+                "valid": "valid.json",
+                "test": "test.json",
+            },
+            "split_map": {
+                "train": "train",
+                "valid": "valid",
+                "test": "test",
+            },
+            "trainable": True,
+            "program_supervision": False,
+            "metric_family": "answer_only",
+        },
+        "docmath_eval": {
+            "kind": "hf_gated",
+            "dataset_name": "yale-nlp/DocMath-Eval",
+            "config_name": None,
+            "cache_dir": "dataset/benchmark_cache/docmath_eval",
+            "local_splits": {
+                "eval": "complong-testmini.json",
+            },
+            "split_map": {
+                "eval": "complong-testmini",
+            },
+            "trainable": False,
+            "program_supervision": False,
+            "metric_family": "answer_only",
+        },
+        "finchain": {
+            "kind": "local_dir",
+            "dir": "dataset/finchain",
+            "splits": {
+                "train": "train.json",
+                "valid": "valid.json",
+                "test": "test.json",
+            },
+            "trainable": False,
+            "program_supervision": True,
+            "metric_family": "step",
+        },
+    })
 
 
 @dataclass

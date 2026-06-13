@@ -1,6 +1,6 @@
-# VLSP 2025 - Knowledge Distillation for Vietnamese Financial Numerical Reasoning
+# VLSP 2025 - Verifier-Native Financial Reasoning Suite
 
-Knowledge Distillation pipeline for Vietnamese financial numerical reasoning (VLSP 2025 challenge). Implements the full HUSTUET-inspired pipeline: English FinQA integration, teacher reasoning distillation, SFT, GRPO/PCPO optimization, and majority voting inference.
+Verifier-native financial numerical reasoning pipeline centered on executable programs, symbolic evaluation, and benchmark-suite comparison. The repo now supports a shared reasoning stack over FinQA, TAT-QA, ConvFinQA, DocMath-Eval, and FinChain, with ViNumQA kept as an external portability probe by default.
 
 ## Quick Start
 
@@ -11,10 +11,10 @@ pip install transformers>=5.0 peft>=0.18 accelerate datasets bitsandbytes trl sy
 
 ### 2. Run pipeline on P100 (testing)
 ```bash
-# Full pipeline with small sample
-python -m pipeline.run --gpu-profile p100_16gb --phases all --max-samples 50
+# Run the main benchmark suite with small samples
+python -m pipeline.benchmark_suite --gpu-profile p100_16gb --max-samples 50
 
-# Run specific phases
+# Legacy single-run pipeline entrypoint
 python -m pipeline.run --gpu-profile p100_16gb --phases data_prep teacher sft
 ```
 
@@ -26,8 +26,8 @@ python -m pipeline.run --gpu-profile rtx6000_96gb --phases all
 ## Architecture
 
 ```
-Data Prep → Teacher Distill → SFT → GRPO/PCPO → Inference → Evaluate
-  (14.6K)     (Qwen3.5-27B)   (LoRA)  (Reward)   (N-path)    (EA+PA)
+Data Prep → Teacher Distill → SFT → GRPO/PCPO or GRPO/ECRL → Inference → Evaluate
+  (suite)      (Qwen3.5-27B)   (LoRA)       (reward)          (per benchmark)
 ```
 
 See [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md) for detailed methodology, formulas, and analysis.
@@ -40,15 +40,17 @@ For the AAAI-27 research blueprint centered on verifier-native financial reasoni
 .
 ├── pipeline/                    # Core KD pipeline (6 phases)
 │   ├── config.py               # Configuration + GPU profiles
+│   ├── benchmarks.py           # Benchmark registry + loaders
+│   ├── benchmark_suite.py      # SFT vs GRPO-PCPO vs GRPO-ECRL suite runner
 │   ├── run.py                  # Pipeline orchestrator
 │   ├── data_prep.py            # Data loading, formatting, augmentation
 │   ├── teacher_distill.py      # Teacher reasoning trace generation
 │   ├── train_sft.py            # Supervised Fine-Tuning with LoRA
-│   ├── train_grpo.py           # GRPO with PCPO reward function
+│   ├── train_grpo.py           # GRPO with PCPO or ECRL-Fin rewards
 │   ├── inference.py            # Multi-path inference + majority voting
-│   ├── evaluate.py             # EA/PA evaluation (sympy symbolic comparison)
+│   ├── evaluate.py             # Answer / program / step evaluation
 │   ├── program_executor.py     # Financial DSL executor
-│   └── reward.py               # PCPO reward function
+│   └── reward.py               # PCPO + ECRL-Fin reward functions
 ├── src/                         # Utilities
 │   ├── assets/template.py      # Vietnamese prompt template
 │   └── program_tokenizer.py    # Program tokenization
@@ -59,12 +61,14 @@ For the AAAI-27 research blueprint centered on verifier-native financial reasoni
 │   ├── kaggle_kd_notebook.py   # Full KD pipeline notebook
 │   └── kaggle_baseline_notebook.py
 ├── scripts/
+│   ├── build_benchmark_cache.py # Mirror public benchmarks for offline Kaggle use
 │   ├── kaggle_upload.py        # Upload to Kaggle via API
 │   ├── download_data.sh        # Download datasets
 │   └── setup.sh                # Install dependencies
 ├── dataset/                     # Datasets
 │   ├── viNumericalQA_private/  # Vietnamese financial QA
-│   └── finqa_en/               # English financial QA
+│   ├── dataset_finqa_en/       # FinQA benchmark anchor
+│   └── benchmark_cache/        # Offline mirrors for public benchmarks
 ├── TECHNICAL_REPORT.md         # Detailed technical documentation
 └── requirements.txt
 ```
@@ -78,26 +82,31 @@ For the AAAI-27 research blueprint centered on verifier-native financial reasoni
 | `rtx6000_96gb_35b` | RTX 6000 Pro 96GB | Qwen3.5-35B-A3B | Qwen3.5-4B | ~80 GB |
 | `rtx6000_96gb_122b` | RTX 6000 Pro 96GB | Qwen3.5-122B-A10B (4bit) | Qwen3.5-9B | ~90 GB |
 
-## Dataset
+## Benchmarks
 
-- **ViNumQA**: 2993 train / 584 valid / 497 test / 1625 private test
-- **FinQA**: 6251 train + 883 dev + 1147 test (English, used as a core benchmark anchor and optional augmentation source)
-- **Total SFT training**: 14,661 samples (with program_re augmentation)
+- **FinQA**: core program-supervised benchmark and default train anchor
+- **TAT-QA**: answer-only benchmark with table and paragraph evidence
+- **ConvFinQA**: conversational financial QA benchmark, currently treated as answer-only in the public mirror
+- **DocMath-Eval**: optional gated benchmark, loaded when a local mirror is available
+- **FinChain**: optional local-first chain/step benchmark
+- **ViNumQA**: external portability probe; excluded from default training
 
 ## Evaluation Metrics
 
-- **EA** (Execution Accuracy): Numerical answer correctness (tolerance: 0.01%)
-- **PA** (Program Accuracy): Symbolic program equivalence via sympy (primary ranking metric)
+- **Answer Accuracy**: answer match with numeric tolerance and list-aware normalization
+- **Program Accuracy (PA)**: symbolic program equivalence via sympy / structural fallback
+- **Step Accuracy**: intermediate-step agreement for step-supervised benchmarks such as FinChain
+- **Valid Program Rate**: fraction of generations that compile under the financial DSL
 
 ## Kaggle Deployment (Offline)
 
 ### Step 1: Upload assets
 ```bash
-# Upload pipeline code to Kaggle
-python scripts/kaggle_upload.py --upload-code
+# Build public benchmark cache for offline execution
+python scripts/build_benchmark_cache.py --benchmarks tatqa convfinqa
 
-# Upload Python wheels for offline install
-python scripts/kaggle_upload.py --upload-wheels
+# Upload pipeline code, wheels, bundled benchmarks, and push the notebook
+python scripts/kaggle_upload.py --all --push-notebook
 ```
 
 ### Step 2: Kaggle notebook setup
@@ -105,24 +114,23 @@ python scripts/kaggle_upload.py --upload-wheels
 2. Add input datasets:
    - `thanhduc1108/vlsp2025-kd-pipeline`
    - `thanhduc1108/vlsp2025-kd-wheels`
-   - `thanhduc1108/finqa-en`
-   - `thanhduc1108/vinumericalqa-private`
+  - `thanhduc1108/financial-reasoning-benchmarks`
    - `thanhduc1108/qwen_35_27b`
    - `thanhduc1108/qwen_35_4b`
 3. Copy and run `kaggle/kaggle_kd_notebook.py`
 
 ### Step 3: Check outputs
 Results saved to `/kaggle/working/vlsp2025/outputs/`:
-- `final_model/` - Distilled student model
-- `eval_results.json` - EA/PA scores
-- `predictions.json` - All predictions
-- `summary.json` - Comparison with baseline
+- `benchmark_suite/` - per-variant, per-benchmark predictions and metrics
+- `suite_results.json` - aggregated variant summary
+- `checkpoints_benchmark_suite/` - LoRA adapters / checkpoints for the suite run
+- `artifact_summary.json` - run metadata and output pointers
 
 ## Key Technical Features
 
-1. **PCPO Reward**: R = R_valid * (0.7 + 0.2 * R_exec + 0.1 * R_bonus) - prioritizes program validity over correct answer
-2. **ECRL-Fin Reward (experimental)**: set `grpo.reward_type: ecrl` to reward symbolic equivalence, execution, intermediate steps, soft validity, and answer consistency for AAAI ablations
-3. **English Benchmark Integration**: FinQA supports core benchmarking and optional augmentation beside ViNumQA
-4. **Symbolic PA**: sympy-based program equivalence with a structural commutativity fallback
-5. **Multi-level teacher validation**: exact match + answer match + valid-only
-6. **LoRA**: Memory-efficient fine-tuning (5-8% trainable parameters)
+1. **PCPO Reward**: $R = R_{valid} \times (0.7 + 0.2R_{exec} + 0.1R_{bonus})$ prioritizes valid executable reasoning.
+2. **ECRL-Fin Reward**: set `grpo.reward_type: ecrl` to reward syntax validity, execution, symbolic equivalence, intermediate steps, answer match, and brevity.
+3. **Benchmark-aware data prep**: training and evaluation are routed through a benchmark registry rather than hardcoded dataset paths.
+4. **Program/answer/step evaluation**: the evaluator handles mixed supervision families in one suite summary.
+5. **Offline Kaggle execution**: public benchmarks can be mirrored into `dataset/benchmark_cache/` and shipped as a single benchmark bundle.
+6. **LoRA-based training**: memory-efficient SFT and GRPO remain the default adaptation path.

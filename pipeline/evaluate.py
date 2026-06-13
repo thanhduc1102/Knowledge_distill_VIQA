@@ -4,12 +4,12 @@ PA uses symbolic evaluation via sympy (following FinQA methodology).
 EA uses numeric comparison with floating-point tolerance.
 """
 
-import re
 import json
+import re
 from pathlib import Path
 from typing import Optional
 
-from pipeline.program_executor import execute_program, format_answer, validate_program
+from pipeline.program_executor import execute_program, execute_program_steps, format_answer, validate_program
 
 
 # ── Program Tokenization (FinQA-compatible) ─────────────────────────
@@ -420,10 +420,63 @@ def programs_match(pred_program: str, gold_program: str) -> bool:
         return False
 
 
-def answers_match(pred_answer: str, gold_answer: str) -> bool:
+def _clean_answer_token(value: str) -> str:
+    return re.sub(r"\s+", " ", str(value).strip().lower())
+
+
+def _to_number(text: str) -> Optional[float]:
+    cleaned = str(text).strip().lower().replace(",", "")
+    if not cleaned:
+        return None
+    multiplier = 1.0
+    for suffix, factor in ((" thousand", 1e3), (" million", 1e6), (" billion", 1e9)):
+        if cleaned.endswith(suffix):
+            cleaned = cleaned[: -len(suffix)].strip()
+            multiplier = factor
+            break
+    if cleaned.endswith("%"):
+        cleaned = cleaned[:-1].strip()
+    try:
+        return float(cleaned) * multiplier
+    except ValueError:
+        match = re.search(r"-?\d+(?:\.\d+)?", cleaned)
+        if not match:
+            return None
+        try:
+            return float(match.group(0)) * multiplier
+        except ValueError:
+            return None
+
+
+def _sequence_answer_match(pred_answer: str, gold_answer_raw: list) -> bool:
+    gold_parts = [_clean_answer_token(part) for part in gold_answer_raw]
+    pred_candidates = [part for part in re.split(r"\s*\|\s*|\s*;\s*", pred_answer) if part.strip()]
+    pred_parts = [_clean_answer_token(part) for part in pred_candidates]
+    if len(pred_parts) != len(gold_parts):
+        return False
+    return sorted(pred_parts) == sorted(gold_parts)
+
+
+def steps_match(pred_steps: list, gold_steps: list) -> bool:
+    if not gold_steps:
+        return False
+    if len(pred_steps) != len(gold_steps):
+        return False
+    for pred_step, gold_step in zip(pred_steps, gold_steps):
+        pred_value = str(pred_step)
+        gold_value = str(gold_step)
+        if not answers_match(pred_value, gold_value, gold_step):
+            return False
+    return True
+
+
+def answers_match(pred_answer: str, gold_answer: str, gold_answer_raw=None) -> bool:
     """Check if two answers match (with numeric tolerance)."""
     if not pred_answer or not gold_answer:
         return False
+
+    if isinstance(gold_answer_raw, list):
+        return _sequence_answer_match(pred_answer, gold_answer_raw)
 
     # Handle yes/no boolean answers
     pred_clean = pred_answer.strip().lower()
@@ -431,14 +484,14 @@ def answers_match(pred_answer: str, gold_answer: str) -> bool:
     if gold_clean in ("yes", "no"):
         return pred_clean == gold_clean
 
-    try:
-        p = float(pred_clean)
-        g = float(gold_clean)
+    p = _to_number(pred_clean)
+    g = _to_number(gold_clean)
+    if p is not None and g is not None:
         if g == 0:
             return abs(p - g) < 1e-5
         return abs(p - g) / max(abs(g), 1e-10) < 1e-4
-    except (ValueError, TypeError):
-        return pred_clean == gold_clean
+
+    return pred_clean == gold_clean
 
 
 def evaluate_predictions(predictions_path: str) -> dict:
@@ -450,33 +503,77 @@ def evaluate_predictions(predictions_path: str) -> dict:
         predictions = json.load(f)
 
     total = len(predictions)
-    ea_correct = 0
+    answer_correct = 0
     pa_correct = 0
+    step_correct = 0
     valid_programs = 0
+    program_total = 0
+    step_total = 0
     details = []
+    benchmark_breakdown = {}
 
     for pred in predictions:
+        benchmark = pred.get("benchmark", "unknown")
+        metric_family = pred.get("metric_family", "program")
         pred_prog = pred.get("predicted_program") or ""
         pred_ans = pred.get("predicted_answer") or ""
         gold_prog = pred.get("gold_program") or ""
         gold_ans = pred.get("gold_answer") or ""
+        gold_answer_raw = pred.get("gold_answer_raw")
+        gold_steps = pred.get("gold_steps") or []
 
         is_valid = validate_program(pred_prog) if pred_prog else False
-        ea_match = answers_match(pred_ans, gold_ans)
-        pa_match = programs_match(pred_prog, gold_prog)
+        answer_match = answers_match(pred_ans, gold_ans, gold_answer_raw)
+        pa_match = False
+        step_match = False
+
+        if gold_prog:
+            program_total += 1
+            pa_match = programs_match(pred_prog, gold_prog)
+
+        if gold_steps:
+            step_total += 1
+            try:
+                pred_steps = execute_program_steps(pred_prog) if pred_prog and is_valid else []
+            except Exception:
+                pred_steps = []
+            step_match = steps_match(pred_steps, gold_steps)
 
         if is_valid:
             valid_programs += 1
-        if ea_match:
-            ea_correct += 1
+        if answer_match:
+            answer_correct += 1
         if pa_match:
             pa_correct += 1
+        if step_match:
+            step_correct += 1
+
+        stats = benchmark_breakdown.setdefault(benchmark, {
+            "total": 0,
+            "answer_correct": 0,
+            "program_total": 0,
+            "program_correct": 0,
+            "step_total": 0,
+            "step_correct": 0,
+            "valid_programs": 0,
+            "metric_family": metric_family,
+        })
+        stats["total"] += 1
+        stats["valid_programs"] += int(is_valid)
+        stats["answer_correct"] += int(answer_match)
+        stats["program_total"] += int(bool(gold_prog))
+        stats["program_correct"] += int(pa_match)
+        stats["step_total"] += int(bool(gold_steps))
+        stats["step_correct"] += int(step_match)
 
         details.append({
             "id": pred.get("id"),
-            "ea_match": ea_match,
+            "answer_match": answer_match,
             "pa_match": pa_match,
+            "step_match": step_match,
             "valid_program": is_valid,
+            "benchmark": benchmark,
+            "metric_family": metric_family,
             "confidence": pred.get("confidence", 0),
             "predicted_program": pred_prog,
             "predicted_answer": pred_ans,
@@ -484,22 +581,42 @@ def evaluate_predictions(predictions_path: str) -> dict:
             "gold_answer": gold_ans,
         })
 
+    for stats in benchmark_breakdown.values():
+        total_b = max(stats["total"], 1)
+        stats["answer_accuracy"] = stats["answer_correct"] / total_b
+        stats["program_accuracy"] = (
+            stats["program_correct"] / stats["program_total"] if stats["program_total"] else None
+        )
+        stats["step_accuracy"] = (
+            stats["step_correct"] / stats["step_total"] if stats["step_total"] else None
+        )
+        stats["valid_rate"] = stats["valid_programs"] / total_b
+
     results = {
         "total": total,
-        "ea_correct": ea_correct,
+        "answer_correct": answer_correct,
         "pa_correct": pa_correct,
+        "step_correct": step_correct,
         "valid_programs": valid_programs,
-        "execution_accuracy": ea_correct / total if total else 0,
-        "program_accuracy": pa_correct / total if total else 0,
+        "execution_accuracy": answer_correct / total if total else 0,
+        "answer_accuracy": answer_correct / total if total else 0,
+        "program_accuracy": pa_correct / program_total if program_total else 0,
+        "step_accuracy": step_correct / step_total if step_total else 0,
         "valid_rate": valid_programs / total if total else 0,
+        "program_total": program_total,
+        "step_total": step_total,
+        "benchmark_breakdown": benchmark_breakdown,
         "details": details,
     }
 
     print(f"\n{'='*60}")
     print(f"Evaluation Results ({total} samples)")
     print(f"{'='*60}")
-    print(f"  Execution Accuracy (EA): {results['execution_accuracy']:.2%} ({ea_correct}/{total})")
-    print(f"  Program Accuracy (PA):   {results['program_accuracy']:.2%} ({pa_correct}/{total})")
+    print(f"  Answer Accuracy:         {results['answer_accuracy']:.2%} ({answer_correct}/{total})")
+    if program_total:
+        print(f"  Program Accuracy (PA):   {results['program_accuracy']:.2%} ({pa_correct}/{program_total})")
+    if step_total:
+        print(f"  Step Accuracy:           {results['step_accuracy']:.2%} ({step_correct}/{step_total})")
     print(f"  Valid Program Rate:      {results['valid_rate']:.2%} ({valid_programs}/{total})")
     print(f"{'='*60}\n")
 

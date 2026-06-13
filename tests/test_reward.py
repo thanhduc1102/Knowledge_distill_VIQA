@@ -1,6 +1,9 @@
 import unittest
+import json
+import os
+import tempfile
 
-from pipeline.evaluate import programs_match
+from pipeline.evaluate import evaluate_predictions, programs_match
 from pipeline.program_executor import execute_program_steps
 from pipeline.reward import compute_ecrl_reward, compute_grpo_reward, compute_pcpo_reward
 
@@ -46,6 +49,47 @@ class RewardTests(unittest.TestCase):
         reward = compute_ecrl_reward(formatted("add(1, unknown)", "3.0"), ground_truth)
         self.assertGreater(reward, 0.0)
         self.assertLess(reward, 0.50)
+
+    def test_evaluate_predictions_supports_mixed_benchmark_families(self):
+        payload = [
+            {
+                "id": "finqa-1",
+                "benchmark": "finqa",
+                "metric_family": "program",
+                "predicted_program": "add(1, 2)",
+                "predicted_answer": "3.0",
+                "gold_program": "add(1, 2)",
+                "gold_answer": "3.0",
+                "gold_answer_raw": "3.0",
+                "gold_steps": [],
+            },
+            {
+                "id": "tatqa-1",
+                "benchmark": "tatqa",
+                "metric_family": "answer_only",
+                "predicted_program": "",
+                "predicted_answer": "A | B",
+                "gold_program": "",
+                "gold_answer": "A | B",
+                "gold_answer_raw": ["A", "B"],
+                "gold_steps": [],
+            },
+        ]
+
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            json.dump(payload, handle)
+            temp_path = handle.name
+
+        try:
+            results = evaluate_predictions(temp_path)
+        finally:
+            os.unlink(temp_path)
+
+        self.assertEqual(results["total"], 2)
+        self.assertAlmostEqual(results["answer_accuracy"], 1.0)
+        self.assertAlmostEqual(results["program_accuracy"], 1.0)
+        self.assertIn("finqa", results["benchmark_breakdown"])
+        self.assertIn("tatqa", results["benchmark_breakdown"])
 
 
 if __name__ == "__main__":

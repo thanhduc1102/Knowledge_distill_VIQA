@@ -1,5 +1,5 @@
 """
-Upload pipeline code and dependencies to Kaggle as datasets for offline execution.
+Upload pipeline code and dependencies to Kaggle for direct benchmark-suite execution.
 Uses kagglehub API for reliable uploads.
 
 Usage:
@@ -14,6 +14,7 @@ Usage:
 import os
 import sys
 import json
+import re
 import shutil
 import subprocess
 import argparse
@@ -50,34 +51,135 @@ def _parse_env_line(line: str):
             bracket_start = line.index('[')
             bracket_end = line.index(']')
             key = line[bracket_start + 1:bracket_end].strip("'\"")
-            val = line.split('=', 1)[1].strip().strip('"').strip("'")
-            val = _strip_inline_comment(val)
+            val = line.split('=', 1)[1].strip()
+            val = _strip_inline_comment(val).strip().strip('"').strip("'")
             return key, val
         except (ValueError, IndexError):
             return None
 
     key, val = line.split('=', 1)
     key = key.strip()
-    val = val.strip().strip('"').strip("'")
-    val = _strip_inline_comment(val)
+    val = _strip_inline_comment(val).strip().strip('"').strip("'")
     return key, val
 
 
-def load_credentials():
+def _extract_profile_name(raw_line: str) -> str | None:
+    """Best-effort extraction of a Kaggle username from an inline comment."""
+    if "//" in raw_line:
+        tail = raw_line.rsplit("//", 1)[1].strip()
+        if tail:
+            return tail.split()[0]
+
+    if raw_line.lstrip().startswith("#") and "#" in raw_line[1:]:
+        tail = raw_line.rsplit("#", 1)[1].strip()
+        match = re.search(r"([A-Za-z0-9_-]{3,})$", tail)
+        if match:
+            return match.group(1)
+    return None
+
+
+def discover_kaggle_profiles(env_path: Path | None = None) -> dict[str, dict[str, str]]:
+    """Discover active and commented Kaggle profiles from .env.
+
+    Expected patterns include:
+      KAGGLE_USERNAME = "user"
+      KAGGLE_KEY = "..."  # ... // user
+      # KAGGLE_KEY = "..."  # ... // alt-user
+    """
+    if env_path is None:
+        env_path = Path(__file__).parent.parent / ".env"
+
+    profiles: dict[str, dict[str, str]] = {}
+    active_username = os.environ.get("KAGGLE_USERNAME")
+    active_key = os.environ.get("KAGGLE_KEY")
+    hf_token = os.environ.get("HF_TOKEN")
+
+    if env_path.exists():
+        with open(env_path, encoding="utf-8") as f:
+            for raw_line in f:
+                parsed = _parse_env_line(raw_line)
+                if parsed is not None:
+                    key, val = parsed
+                    if key == "HF_TOKEN":
+                        hf_token = val
+                    elif key == "KAGGLE_USERNAME":
+                        active_username = val
+                        profiles.setdefault(val, {"username": val})
+                    elif key == "KAGGLE_KEY" and active_username:
+                        profiles.setdefault(active_username, {"username": active_username})["key"] = val
+
+                stripped = raw_line.lstrip()
+                if not stripped.startswith("#"):
+                    continue
+
+                commented = _parse_env_line(stripped[1:].lstrip())
+                if commented is None:
+                    continue
+                key, val = commented
+                if key != "KAGGLE_KEY":
+                    continue
+
+                profile_name = _extract_profile_name(raw_line)
+                if not profile_name:
+                    continue
+
+                profile = profiles.setdefault(profile_name, {"username": profile_name})
+                profile["key"] = val
+
+    if active_username and active_key:
+        profiles.setdefault(active_username, {"username": active_username})["key"] = active_key
+
+    if hf_token:
+        for profile in profiles.values():
+            profile.setdefault("HF_TOKEN", hf_token)
+
+    return {name: data for name, data in profiles.items() if data.get("key")}
+
+
+def configure_kaggle_credentials(username: str, key: str):
+    """Configure Kaggle CLI credentials for the current process."""
+    os.environ["KAGGLE_USERNAME"] = username
+    os.environ["KAGGLE_KEY"] = key
+
+    kaggle_dir = Path.home() / ".kaggle"
+    kaggle_dir.mkdir(exist_ok=True)
+    kaggle_json = kaggle_dir / "kaggle.json"
+    with open(kaggle_json, "w", encoding="utf-8") as f:
+        json.dump({"username": username, "key": key}, f)
+    os.chmod(kaggle_json, 0o600)
+
+
+def load_credentials(profile: str | None = None):
     """Load Kaggle credentials from .env or environment."""
     env_path = Path(__file__).parent.parent / ".env"
-    if env_path.exists():
-        with open(env_path) as f:
-            for line in f:
-                result = _parse_env_line(line)
-                if result is None:
-                    continue
-                key, val = result
-                if key in ('KAGGLE_USERNAME', 'KAGGLE_KEY', 'HF_TOKEN'):
-                    os.environ[key] = val
+    profiles = discover_kaggle_profiles(env_path)
 
-    username = os.environ.get('KAGGLE_USERNAME')
-    key = os.environ.get('KAGGLE_KEY')
+    if profile is not None:
+        selected = profiles.get(profile)
+        if selected is None:
+            print(f"ERROR: Kaggle profile '{profile}' not found in .env")
+            if profiles:
+                print(f"  Available profiles: {', '.join(sorted(profiles))}")
+            sys.exit(1)
+
+        username = selected["username"]
+        key = selected["key"]
+        if selected.get("HF_TOKEN"):
+            os.environ["HF_TOKEN"] = selected["HF_TOKEN"]
+    else:
+        if env_path.exists():
+            with open(env_path, encoding="utf-8") as f:
+                for line in f:
+                    result = _parse_env_line(line)
+                    if result is None:
+                        continue
+                    key_name, val = result
+                    if key_name in ('KAGGLE_USERNAME', 'KAGGLE_KEY', 'HF_TOKEN'):
+                        os.environ[key_name] = val
+
+        username = os.environ.get('KAGGLE_USERNAME')
+        key = os.environ.get('KAGGLE_KEY')
+
     if not username or not key:
         print("ERROR: Set KAGGLE_USERNAME and KAGGLE_KEY in .env or environment")
         sys.exit(1)
@@ -100,13 +202,7 @@ def load_credentials():
         print("  5. Update KAGGLE_KEY in your .env file")
         sys.exit(1)
 
-    # Set up kaggle credentials
-    kaggle_dir = Path.home() / ".kaggle"
-    kaggle_dir.mkdir(exist_ok=True)
-    kaggle_json = kaggle_dir / "kaggle.json"
-    with open(kaggle_json, "w") as f:
-        json.dump({"username": username, "key": key}, f)
-    os.chmod(kaggle_json, 0o600)
+    configure_kaggle_credentials(username, key)
 
     print(f"Kaggle credentials loaded for user: {username}")
     return username
@@ -147,6 +243,82 @@ def prepare_code_package(output_dir: Path):
     return output_dir
 
 
+def _copy_dir(src_dir: Path, dst_dir: Path):
+    if dst_dir.exists():
+        shutil.rmtree(dst_dir)
+    shutil.copytree(src_dir, dst_dir)
+
+
+def ensure_public_benchmark_cache(project_root: Path):
+    """Populate local caches for public HF benchmarks used in offline Kaggle runs."""
+    cache_root = project_root / "dataset" / "benchmark_cache"
+    required_dirs = [cache_root / "tatqa", cache_root / "convfinqa"]
+    if all(path.exists() for path in required_dirs):
+        print("  Public benchmark cache already present.")
+        return True
+
+    build_script = project_root / "scripts" / "build_benchmark_cache.py"
+    if not build_script.exists():
+        print(f"  WARNING: cache build script not found: {build_script}")
+        return False
+
+    print("  Building public benchmark cache for offline Kaggle runs...")
+    result = subprocess.run(
+        [sys.executable, str(build_script), "--benchmarks", "tatqa", "convfinqa"],
+        capture_output=True,
+        text=True,
+        cwd=str(project_root),
+    )
+    if result.returncode != 0:
+        print(f"  WARNING: failed to build benchmark cache: {result.stderr.strip() or result.stdout.strip()}")
+        return False
+
+    print(result.stdout.strip())
+    return True
+
+
+def prepare_reasoning_benchmark_bundle(output_dir: Path):
+    """Bundle the reasoning-suite datasets into a single Kaggle dataset."""
+    project_root = Path(__file__).parent.parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    bundle_dir = output_dir / "financial-reasoning-benchmarks"
+
+    if bundle_dir.exists():
+        shutil.rmtree(bundle_dir)
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+
+    ensure_public_benchmark_cache(project_root)
+
+    manifest = {"included": {}, "missing_optional": []}
+    components = [
+        (project_root / "dataset" / "dataset_finqa_en", "dataset_finqa_en", True),
+        (project_root / "dataset" / "viNumericalQA_private", "viNumericalQA_private", True),
+        (project_root / "dataset" / "benchmark_cache", "benchmark_cache", False),
+        (project_root / "dataset" / "finchain", "finchain", False),
+    ]
+
+    for src_dir, dest_name, required in components:
+        if src_dir.exists():
+            _copy_dir(src_dir, bundle_dir / dest_name)
+            file_count = sum(1 for _ in (bundle_dir / dest_name).rglob("*") if _.is_file())
+            manifest["included"][dest_name] = {
+                "source": str(src_dir),
+                "files": file_count,
+                "required": required,
+            }
+            print(f"  Bundled {dest_name}: {file_count} files")
+        elif required:
+            raise FileNotFoundError(f"Required dataset component missing: {src_dir}")
+        else:
+            manifest["missing_optional"].append(dest_name)
+            print(f"  Optional component missing: {src_dir}")
+
+    with open(bundle_dir / "bundle_manifest.json", "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+    return bundle_dir
+
+
 def download_wheels(output_dir: Path):
     """Download Python wheels for offline installation."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -168,6 +340,7 @@ def download_wheels(output_dir: Path):
         "pandas",
         "huggingface_hub>=1.0",
         "tokenizers",
+        "kagglehub",
     ]
 
     print(f"Downloading wheels to {output_dir}...")
@@ -244,14 +417,7 @@ def check_uploads(username: str):
     datasets_to_check = [
         f"{username}/vlsp2025-kd-pipeline",
         f"{username}/vlsp2025-kd-wheels",
-        f"{username}/finqa-en",
-        f"{username}/vinumericalqa-private",
-    ]
-
-    # kagglehub model handles require 4 parts: owner/model/framework/variation
-    models_to_check = [
-        f"{username}/qwen-35-27b/pyTorch/default",
-        f"{username}/qwen-35-4b/pyTorch/default",
+        f"{username}/financial-reasoning-benchmarks",
     ]
 
     print("\n=== Checking Dataset Availability ===")
@@ -262,13 +428,9 @@ def check_uploads(username: str):
         except Exception as e:
             print(f"  [MISSING] {ds}: {e}")
 
-    print("\n=== Checking Model Availability ===")
-    for model in models_to_check:
-        try:
-            path = kagglehub.model_download(model)
-            print(f"  [OK] {model} → {path}")
-        except Exception as e:
-            print(f"  [MISSING] {model}: {e}")
+    print("\n=== Model Availability ===")
+    print("  NOTE: The default Kaggle execution path now uses HuggingFace Qwen/Qwen3.5-4B directly.")
+    print("  Kaggle model uploads remain optional and are only needed for a fully offline model path.")
 
 
 def prepare_dataset_package(output_dir: Path, dataset_name: str, src_dir: Path):
@@ -294,11 +456,11 @@ def prepare_dataset_package(output_dir: Path, dataset_name: str, src_dir: Path):
 def generate_and_push_notebook(username: str, output_base: Path):
     """Generate .ipynb from .py source, then push to Kaggle as a notebook (kernel).
 
-    This creates a notebook on Kaggle with:
-      - All required dataset inputs pre-configured
-      - GPU enabled
-      - Internet disabled (offline mode)
-      - Proper cell separation (no copy-paste needed!)
+        This creates a notebook on Kaggle with:
+            - Preferred dataset inputs pre-configured
+            - GPU enabled
+            - Internet enabled for automatic bootstrap and HuggingFace model download
+            - Proper cell separation (no copy-paste needed!)
     """
     project_root = Path(__file__).parent.parent
     py_source = project_root / "kaggle" / "kaggle_kd_notebook.py"
@@ -334,25 +496,26 @@ def generate_and_push_notebook(username: str, output_base: Path):
     shutil.copy2(ipynb_file, dest_ipynb)
 
     # Step 3: Create kernel-metadata.json
-    kernel_slug = f"{username}/vlsp2025-kd-pipeline-notebook"
+    kernel_slug = f"{username}/vlsp-2025-qwen3-5-4b-stability-run"
     metadata = {
         "id": kernel_slug,
-        "title": "VLSP 2025 - Knowledge Distillation Pipeline",
+        "title": "VLSP 2025 Qwen3 5 4B Stability Run",
         "code_file": "kaggle-kd-notebook.ipynb",
         "language": "python",
         "kernel_type": "notebook",
         "is_private": "true",
         "enable_gpu": "true",
-        "enable_internet": "false",
+        "enable_internet": "true",
         "dataset_sources": [
             f"{username}/vlsp2025-kd-pipeline",
             f"{username}/vlsp2025-kd-wheels",
-            f"{username}/finqa-en",
-            f"{username}/vinumericalqa-private",
+            f"{username}/financial-reasoning-benchmarks",
         ],
         "competition_sources": [],
         "kernel_sources": [],
-        "model_sources": [],
+        "model_sources": [
+            "thanhduc1108/qwen_35_4b/transformers/default/1",
+        ],
     }
 
     metadata_path = push_dir / "kernel-metadata.json"
@@ -417,7 +580,7 @@ def _upload_notebook_as_dataset(username: str, push_dir: Path, ipynb_file: Path)
         kagglehub.dataset_upload(
             handle=handle,
             local_dataset_dir=str(nb_dataset_dir),
-            version_notes="KD Pipeline notebook with proper cell separation",
+            version_notes="Qwen3.5-4B stability notebook with benchmark-suite bootstrap",
         )
         print(f"  SUCCESS: Notebook uploaded as dataset {handle}")
         print(f"\n  To use:")
@@ -437,12 +600,13 @@ def main():
     parser = argparse.ArgumentParser(description="Upload pipeline to Kaggle via kagglehub")
     parser.add_argument("--upload-code", action="store_true", help="Upload pipeline code")
     parser.add_argument("--upload-wheels", action="store_true", help="Upload Python wheels")
-    parser.add_argument("--upload-data", action="store_true", help="Upload FinQA + ViNumQA datasets")
+    parser.add_argument("--upload-data", action="store_true", help="Upload bundled reasoning-suite datasets")
     parser.add_argument("--upload-models", action="store_true", help="Upload teacher + student model weights")
     parser.add_argument("--push-notebook", action="store_true",
                         help="Generate .ipynb and push as Kaggle notebook (recommended!)")
     parser.add_argument("--check", action="store_true", help="Check if uploads exist")
     parser.add_argument("--all", action="store_true", help="Upload everything (code + wheels + data + notebook)")
+    parser.add_argument("--profile", default=None, help="Kaggle profile name from .env to use")
     parser.add_argument("--output-dir", default="/tmp/kaggle_upload", help="Temp directory")
     parser.add_argument("--model-dir", default=None,
                         help="Directory containing downloaded models (e.g., ./kaggle_offline_package/models)")
@@ -454,7 +618,7 @@ def main():
         parser.print_help()
         return
 
-    username = load_credentials()
+    username = load_credentials(args.profile)
     output_base = Path(args.output_dir)
     project_root = Path(__file__).parent.parent
 
@@ -485,29 +649,13 @@ def main():
         )
 
     if args.upload_data or args.all:
-        print("\n=== Uploading Datasets ===")
-
-        # FinQA English
-        finqa_src = project_root / "dataset" / "finqa_en"
-        if finqa_src.exists():
-            finqa_dir = output_base / "finqa-en"
-            prepare_dataset_package(output_base, "finqa-en", finqa_src)
-            upload_dataset_kagglehub(
-                f"{username}/finqa-en",
-                str(finqa_dir),
-                "FinQA English dataset",
-            )
-
-        # ViNumQA Private
-        vinumqa_src = project_root / "dataset" / "viNumericalQA_private"
-        if vinumqa_src.exists():
-            vinumqa_dir = output_base / "vinumericalqa-private"
-            prepare_dataset_package(output_base, "vinumericalqa-private", vinumqa_src)
-            upload_dataset_kagglehub(
-                f"{username}/vinumericalqa-private",
-                str(vinumqa_dir),
-                "ViNumQA Vietnamese private dataset",
-            )
+        print("\n=== Uploading Reasoning-Suite Dataset Bundle ===")
+        benchmark_bundle = prepare_reasoning_benchmark_bundle(output_base)
+        upload_dataset_kagglehub(
+            f"{username}/financial-reasoning-benchmarks",
+            str(benchmark_bundle),
+            "FinQA, ViNumQA, optional FinChain, and public benchmark caches for offline suite runs",
+        )
 
     if args.upload_models:
         print("\n=== Uploading Models ===")
@@ -554,14 +702,10 @@ def main():
     print(f"\nIn Kaggle notebook, add these as input datasets:")
     print(f"  1. {username}/vlsp2025-kd-pipeline        (pipeline code)")
     print(f"  2. {username}/vlsp2025-kd-wheels           (offline wheels)")
-    print(f"  3. {username}/finqa-en                     (FinQA dataset)")
-    print(f"  4. {username}/vinumericalqa-private         (ViNumQA dataset)")
-    print(f"\nAnd these as input models:")
-    print(f"  5. {username}/qwen-35-27b/pyTorch/default  (teacher model)")
-    print(f"  6. {username}/qwen-35-4b/pyTorch/default   (student model)")
-    print(f"\nAlternatively, add HuggingFace models directly via Kaggle Model hub:")
-    print(f"  5. Qwen/Qwen3.5-27B  (search 'Add Model' in Kaggle notebook)")
-    print(f"  6. Qwen/Qwen3.5-4B   (search 'Add Model' in Kaggle notebook)")
+    print(f"  3. {username}/financial-reasoning-benchmarks (FinQA + ViNumQA + offline benchmark cache)")
+    print("\nAttached model source:")
+    print("  4. thanhduc1108/qwen_35_4b/transformers/default/1")
+    print("     This model is attached automatically through kernel metadata when the notebook is pushed.")
 
 
 if __name__ == "__main__":
