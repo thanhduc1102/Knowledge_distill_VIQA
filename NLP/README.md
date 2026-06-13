@@ -1,11 +1,20 @@
-# Tài Liệu Nghiên Cứu Trong Thư Mục `NLP`
+# Tài Liệu Chính Thức Trong Thư Mục `NLP`
 
-Các tài liệu chính đã được chuẩn hóa sang tiếng Việt có dấu gồm:
+Sau khi tổng hợp và dọn lại tài liệu, bộ hồ sơ chính thức để sử dụng hiện tại gồm:
 
-- `research_assessment_fin_kg_rag_aaai27.md`: đánh giá tổng quan hướng nghiên cứu.
-- `kg_assisted_financial_reasoning_architecture.md`: bản thiết kế kiến trúc KG hỗ trợ reasoning.
-- `kg_fin_reasoning_repo_plan.md`: kế hoạch ánh xạ ý tưởng sang triển khai repo.
-- `end_to_end_financial_retrieval_reasoning_strategy_2026-06-13.md`: chiến lược toàn trình retrieval + reasoning.
-- `bao_cao_tien_do_nghien_cuu_gvhd_2026-06-13.md`: báo cáo tiến độ chi tiết để gửi GVHD.
+- `bao_cao_tien_do_nghien_cuu_gvhd_2026-06-13.md`
+  Báo cáo tiến độ chi tiết bằng tiếng Việt, trình bày:
+  - benchmark và dữ liệu,
+  - hiện trạng triển khai,
+  - GSR, CACL, knowledge graph,
+  - các đóng góp hiện có,
+  - định hướng Financial Evidence Graph,
+  - và kế hoạch triển khai tiếp theo.
 
-Các file ghi chú nháp cũ khác vẫn được giữ nguyên để tránh làm mất ý tưởng ban đầu, nhưng bộ tài liệu chính thức ở trên là bộ nên dùng để đọc, trao đổi và làm việc tiếp theo.
+- `bao_cao_tien_do_nghien_cuu_gvhd_2026-06-13.docx`
+  Bản báo cáo tiến độ định dạng Word để gửi GVHD, đã tích hợp nội dung từ `contribution1.pdf` và báo cáo markdown.
+
+- `figures/kien_truc_retrieval_reasoning_2026-06-13.png`
+  Hình kiến trúc mô hình dùng trong báo cáo.
+
+Các file `.md` trung gian do quá trình phân tích và chốt chiến lược sinh thêm đã được loại bỏ để tránh trùng lặp nội dung.

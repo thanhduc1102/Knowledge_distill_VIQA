@@ -16,8 +16,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
 FIG_DIR = ROOT / "figures"
-OUT_DOCX = ROOT / "bao_cao_chien_luoc_kg_retrieval_reasoning_gvhd_2026-06-13.docx"
+OUT_DOCX = ROOT / "bao_cao_tien_do_nghien_cuu_gvhd_2026-06-13.docx"
 FIG_PATH = FIG_DIR / "kien_truc_retrieval_reasoning_2026-06-13.png"
+CONTRIB_DIR = FIG_DIR / "contribution1_assets"
 
 
 def get_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
@@ -228,7 +229,7 @@ def add_header_footer(doc: Document) -> None:
     section = doc.sections[0]
     header = section.header.paragraphs[0]
     header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    run = header.add_run("BÁO CÁO CHIẾN LƯỢC RETRIEVAL VÀ SUY LUẬN TÀI CHÍNH")
+    run = header.add_run("BÁO CÁO TIẾN ĐỘ RETRIEVAL VÀ SUY LUẬN TÀI CHÍNH")
     run.font.name = "Times New Roman"
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
     run.font.size = Pt(9)
@@ -248,6 +249,26 @@ def add_paragraphs(doc: Document, paragraphs: Iterable[str]) -> None:
         p = doc.add_paragraph(style="Normal")
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         p.add_run(text)
+
+
+def add_display_equation(doc: Document, text: str) -> None:
+    p = doc.add_paragraph(style="Normal")
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(2)
+    p.paragraph_format.space_after = Pt(4)
+    run = p.add_run(text)
+    run.italic = True
+    run.font.name = "Times New Roman"
+    run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+
+
+def add_captioned_picture(doc: Document, image_path: Path, caption: str, width: Inches | None = None) -> None:
+    if not image_path.exists():
+        return
+    doc.add_picture(str(image_path), width=width or Inches(6.1))
+    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cap = doc.add_paragraph(caption, style="Caption")
+    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
 
 def add_reference_list(doc: Document, items: list[str]) -> None:
@@ -587,9 +608,469 @@ def build_report(docx_path: Path, fig_path: Path) -> None:
     doc.save(docx_path)
 
 
+def build_progress_report(docx_path: Path, fig_path: Path) -> None:
+    doc = Document()
+    sec = doc.sections[0]
+    sec.page_width = Inches(8.5)
+    sec.page_height = Inches(11)
+    sec.top_margin = Inches(1)
+    sec.bottom_margin = Inches(1)
+    sec.left_margin = Inches(1)
+    sec.right_margin = Inches(1)
+
+    configure_styles(doc)
+    add_header_footer(doc)
+
+    core = doc.core_properties
+    core.title = "Báo cáo tiến độ nghiên cứu KG-assisted financial reasoning"
+    core.author = "OpenAI Codex"
+    core.subject = "Báo cáo tiến độ nghiên cứu gửi GVHD"
+
+    fig1 = CONTRIB_DIR / "figure1_pipeline_crop.png"
+    fig2 = CONTRIB_DIR / "figure2_kg_construction.png"
+    fig3 = CONTRIB_DIR / "figure3_gat_overview.png"
+    fig4 = CONTRIB_DIR / "figure4_edge_aware_attention.png"
+    fig5 = CONTRIB_DIR / "figure5_gat_encoder_flow.png"
+    fig6 = CONTRIB_DIR / "figure6_joint_scorer_crop.png"
+    fig7 = CONTRIB_DIR / "figure7_chap_sampler.png"
+    fig8 = CONTRIB_DIR / "figure8_cacl_objective.png"
+    fig9 = CONTRIB_DIR / "figure9_curriculum.png"
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(78)
+    r = p.add_run("BÁO CÁO TIẾN ĐỘ NGHIÊN CỨU\nRETRIEVAL VÀ SUY LUẬN TÀI CHÍNH DỰA TRÊN ĐỒ THỊ TRI THỨC")
+    r.bold = True
+    r.font.name = "Times New Roman"
+    r._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+    r.font.size = Pt(21)
+    r.font.color.rgb = RGBColor(18, 60, 110)
+
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub.paragraph_format.space_before = Pt(18)
+    sr = sub.add_run(
+        "Tổng hợp hiện trạng triển khai GSR, CACL và Constraint KG; "
+        "mô tả benchmark T²-RAGBench; đánh giá khách quan các khoảng trống kỹ thuật; "
+        "và chốt định hướng Financial Evidence Graph dùng chung cho retrieval và reasoning"
+    )
+    sr.font.name = "Times New Roman"
+    sr._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+    sr.font.size = Pt(12.5)
+
+    meta = doc.add_paragraph()
+    meta.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    meta.paragraph_format.space_before = Pt(122)
+    mr = meta.add_run("Ngày cập nhật: 13/06/2026\nTài liệu phục vụ báo cáo tiến độ với giáo viên hướng dẫn")
+    mr.font.name = "Times New Roman"
+    mr._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+    mr.font.size = Pt(12)
+
+    doc.add_page_break()
+
+    doc.add_heading("1. Tóm tắt điều hành", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Mục tiêu của báo cáo này là chuyển phần ý tưởng và phần triển khai hiện có thành một bức tranh tiến độ nhất quán, trong đó làm rõ ba lớp nội dung: một là bài toán nghiên cứu thực sự cần giải; hai là những gì đã được hiện thực hóa trong repo hiện tại; ba là định hướng kỹ thuật đủ mạnh để nối retrieval với reasoning thành một pipeline tài chính toàn trình.",
+            "Qua đối chiếu trực tiếp giữa contribution1.pdf, mã nguồn trong thư mục NLP/ours/source và báo cáo tiến độ dạng markdown hiện có, có thể kết luận rằng đề tài đã sở hữu một prototype retrieval có cấu trúc khá rõ. Ba hạt nhân kỹ thuật đã xuất hiện tương đối đầy đủ là Graph-Structured Retrieval (GSR), Constraint-Aware Contrastive Learning (CACL) và Constraint KG xây từ bảng markdown. Tuy nhiên, hệ thống hiện nay vẫn thiên về document retrieval và reranking, còn reasoning số học đa bước sau retrieval vẫn chưa được khép kín.",
+            "Điểm quan trọng nhất cần chốt ở giai đoạn này là: đồ thị tri thức hiện tại khả thi và hữu ích cho retrieval, nhưng chưa đủ để trực tiếp gánh reasoning số học toàn trình. Vì vậy, định hướng phù hợp không phải chỉ tăng thêm tín hiệu graph cho reranking, mà là nâng Constraint KG thành một Financial Evidence Graph có kiểu, có provenance, có ontology metadata và có khả năng phục vụ đồng thời việc truy xuất, neo toán hạng, thực thi chương trình và kiểm chứng kết quả.",
+        ],
+    )
+
+    doc.add_heading("2. Mô tả bài toán và benchmark T²-RAGBench", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Bài toán đặt ra không còn là truy xuất ngữ cảnh theo nghĩa RAG thông thường, mà là giải quyết toàn trình một câu hỏi tài chính trong điều kiện dữ liệu đầu vào gồm báo cáo dài, nhiều bảng, nhiều đoạn văn và nhiều footnote. Trong setting này, hệ thống phải tự tìm bằng chứng liên quan, tự chọn đúng toán hạng, tự thực hiện phép tính và có cơ chế tự kiểm tra tính nhất quán của kết quả cuối cùng.",
+            "T²-RAGBench là benchmark phù hợp với mục tiêu đó vì nó buộc hệ thống phải retrieval trước khi reasoning, thay vì cung cấp sẵn oracle context. Theo công bố gốc trên arXiv, benchmark này gồm 32.908 bộ ba câu hỏi - ngữ cảnh - đáp án trên tài liệu tài chính pha trộn văn bản và bảng, đồng thời được thiết kế để tránh hiện tượng một câu hỏi có nhiều đáp án đúng tùy theo context được cấp. Điểm này rất quan trọng vì nó làm benchmark trở nên phù hợp cho đánh giá retrieval-augmented reasoning trong bối cảnh thực tế hơn.",
+        ],
+    )
+
+    io_table = doc.add_table(rows=1, cols=2)
+    io_table.style = "Table Grid"
+    io_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_cell_text(io_table.rows[0].cells[0], "Thành phần", bold=True, font_size=10)
+    set_cell_text(io_table.rows[0].cells[1], "Mô tả trong bài toán toàn trình", bold=True, font_size=10)
+    shade_cell(io_table.rows[0].cells[0], "D9EAF7")
+    shade_cell(io_table.rows[0].cells[1], "D9EAF7")
+    set_repeat_table_header(io_table.rows[0])
+    io_rows = [
+        ("Đầu vào", "Một truy vấn Q và một corpus tài chính C = {Ci}. Mỗi tài liệu Ci chứa văn bản tường thuật ti, bảng markdown Ti và metadata mi như company, year, sector."),
+        ("Đầu ra retrieval", "Danh sách top-k bằng chứng hoặc ứng viên trung gian, không chỉ ở cấp tài liệu mà lý tưởng là ở cấp section, table và evidence atom."),
+        ("Đầu ra end-to-end", "Đáp án số cuối cùng y, kèm theo bằng chứng được grounding, dấu vết suy luận hoặc chương trình thực thi, và trạng thái kiểm chứng hợp lệ/không hợp lệ."),
+        ("Yêu cầu toàn trình", "Hệ thống phải đúng về công ty, năm, đơn vị, scale, đúng toán hạng và đúng phép toán; đồng thời chịu được trường hợp top-k còn nhiễu."),
+        ("Đánh giá cần có", "MRR/Recall/NDCG cho retrieval; độ chính xác evidence grounding; answer accuracy và execution accuracy cho reasoning; robustness dưới context nhiễu."),
+    ]
+    for left, right in io_rows:
+        row = io_table.add_row().cells
+        set_cell_text(row[0], left, font_size=10)
+        set_cell_text(row[1], right, font_size=10)
+
+    doc.add_heading("2.1. Ý nghĩa của T²-RAGBench đối với đề tài", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Nếu chỉ dùng các benchmark như FinQA ở chế độ đã có sẵn ngữ cảnh đúng, mô hình rất dễ cho cảm giác reasoning tốt trong khi thực tế lại thất bại ngay từ bước retrieval. T²-RAGBench ép hệ thống phải đối mặt với hiện tượng đặc trưng của miền tài chính: các báo cáo của cùng một công ty ở nhiều năm có ngôn ngữ rất giống nhau; nhiều bảng có cấu trúc gần nhau; và câu trả lời cuối cùng thường phụ thuộc vào đúng một vài ô số trong rất nhiều distractor nhìn bề ngoài khá hợp lý.",
+            "Vì vậy, benchmark này giúp nhìn rõ một sự thật quan trọng: tăng MRR@3 là cần nhưng chưa đủ. Một hệ thống có thể đưa tài liệu đúng vào top-3 nhưng vẫn thất bại nếu reasoning module chọn nhầm hai toán hạng nhiễu còn lại. Đây cũng là lý do vì sao hướng phát triển tiếp theo phải đi từ document retrieval sang evidence grounding và operand grounding.",
+        ],
+    )
+
+    ds_table = doc.add_table(rows=1, cols=4)
+    ds_table.style = "Table Grid"
+    ds_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    ds_headers = ["Bộ dữ liệu", "Vai trò trong nghiên cứu", "Đặc trưng nổi bật", "Cách dùng đề xuất"]
+    for i, header_text in enumerate(ds_headers):
+        set_cell_text(ds_table.rows[0].cells[i], header_text, bold=True, font_size=10)
+        shade_cell(ds_table.rows[0].cells[i], "E2F0D9")
+    set_repeat_table_header(ds_table.rows[0])
+    for row_data in [
+        ("T²-RAGBench", "Benchmark retrieval-first", "Không giả định oracle context; phù hợp cho text và table", "Benchmark chính cho retrieval và đánh giá end-to-end sau này"),
+        ("FinQA", "Chuẩn reasoning số học", "Có gold program và bài toán nhiều bước", "Dùng huấn luyện executor/planner và đánh giá tính đúng chương trình"),
+        ("ConvFinQA", "Mở rộng reasoning", "Giữ ngữ cảnh hội thoại và chain dài", "Dùng stress-test reasoning dưới truy vấn nhiều lượt"),
+        ("TAT-QA / DocFinQA", "Bài toán hybrid table-text", "Cần grounding đồng thời bảng và văn bản", "Dùng đánh giá grounding và robustness đa nguồn"),
+    ]:
+        cells = ds_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("3. Hiện trạng triển khai trong repo", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Qua khảo sát mã nguồn và tài liệu trong thư mục NLP/, có thể xác định rằng đề tài đã đi qua giai đoạn ý tưởng sơ khai và đang ở mức một prototype nghiên cứu thực sự. Repo hiện có cả nhánh baseline retrieval và nhánh đề xuất, trong đó nhánh đề xuất đã triển khai tương đối đầy đủ các thành phần chính của GSR-CACL.",
+            "Điểm mạnh của giai đoạn hiện tại là các thành phần không nằm rời rạc ở mức ghi chú, mà đã xuất hiện thành code chạy được: có dataset wrapper cho benchmark, có builder sinh KG từ bảng markdown, có GAT encoder, có joint scorer, có negative sampler kiểu CHAP và có benchmark script để đo MRR/Recall/NDCG. Điều này cho thấy luận điểm trong contribution1.pdf đã có nền tảng thực thi chứ không chỉ là đề cương ý tưởng.",
+        ],
+    )
+
+    repo_table = doc.add_table(rows=1, cols=4)
+    repo_table.style = "Table Grid"
+    repo_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    repo_headers = ["Thành phần", "Đường dẫn chính", "Đã triển khai gì", "Nhận xét tiến độ"]
+    for i, header_text in enumerate(repo_headers):
+        set_cell_text(repo_table.rows[0].cells[i], header_text, bold=True, font_size=10)
+        shade_cell(repo_table.rows[0].cells[i], "FCE5CD")
+    set_repeat_table_header(repo_table.rows[0])
+    repo_rows = [
+        ("Dataset wrapper", "ours/source/src/gsr_cacl/datasets/wrappers.py", "Nạp T²-RAGBench, tổ chức corpus và metadata", "Đã dùng được; là nền cho benchmark hiện tại"),
+        ("GSR retrieval", "ours/source/src/gsr_cacl/methods/gsr_retrieval.py", "Lấy ứng viên bằng FAISS và rerank bằng scorer có cấu trúc", "Đây là phần inference rõ nhất của hệ hiện tại"),
+        ("KG builder", "ours/source/src/gsr_cacl/kg/builder.py", "Tạo Constraint KG từ bảng markdown bằng template và fallback positional edges", "Khả thi cho retrieval; chưa đủ trung thành cho reasoning"),
+        ("GAT layer / encoder", "ours/source/src/gsr_cacl/encoders/gat_layer.py", "Lan truyền thông tin có nhận biết omega trên cạnh", "Đã hiện thực hóa đúng tinh thần edge-aware GAT"),
+        ("Constraint scoring", "ours/source/src/gsr_cacl/scoring/constraint_score.py", "Tính điểm tuân thủ ràng buộc từ residual trên accounting edges", "Hữu ích cho reranking nhưng còn xấp xỉ"),
+        ("Joint scorer", "ours/source/src/gsr_cacl/scoring/joint_scorer.py", "Kết hợp s_text, s_entity, s_constraint với trọng số học được", "Đã có cả mode train và score_single cho inference"),
+        ("CHAP sampler", "ours/source/src/gsr_cacl/negative_sampler/chap.py", "Sinh negative kiểu additive, scale, entity/year swap", "Đây là đóng góp training quan trọng của CACL"),
+        ("Training pipeline", "ours/source/src/gsr_cacl/train.py", "Ba giai đoạn Identity, Structural, Joint CACL", "Có khung train; chưa nối kín với benchmark end-to-end"),
+        ("Benchmark", "ours/source/src/gsr_cacl/benchmark_gsr.py", "Đo MRR@3, Recall@k, NDCG@3", "Phù hợp cho retrieval; chưa đo reasoning"),
+    ]
+    for row_data in repo_rows:
+        cells = repo_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("4. Retrieval hiện tại dựa trên contribution1.pdf và mã nguồn", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Phần retrieval trong contribution1.pdf là đóng góp đã hiện hình rõ nhất của đề tài. Tinh thần cốt lõi của proposal này là dense retrieval thuần text chưa đủ cho tài liệu tài chính, vì nó bỏ qua cả metadata thực thể lẫn cấu trúc số học nội tại của bảng. GSR khắc phục điểm đó bằng cách đưa thêm hai lớp tín hiệu vào giai đoạn reranking: tín hiệu graph và tín hiệu constraint.",
+            "Ở mức luồng xử lý, query và tài liệu trước hết được mã hóa để lấy tín hiệu ngôn ngữ. Song song, metadata được tách thành một tín hiệu entity riêng. Với mỗi ứng viên tài liệu, hệ thống trích bảng markdown, dựng Constraint KG, chạy Edge-aware GAT để thu graph embedding và tính Constraint Score để phản ánh mức nhất quán kế toán. Ba tín hiệu sau đó được hợp nhất trong Joint Scorer để tái xếp hạng ứng viên.",
+        ],
+    )
+    add_captioned_picture(
+        doc,
+        fig1,
+        "Hình 1. Figure 1 trong contribution1.pdf: kiến trúc tổng quát GSR-CACL, cho thấy rõ ba nhánh tín hiệu text, entity và structure cùng đi vào Joint Scorer.",
+        Inches(6.1),
+    )
+    add_display_equation(doc, "s(Q, C) = α · s_text(Q, C) + β · s_ent(Q, C) + γ · CS(G_D)")
+
+    signal_table = doc.add_table(rows=1, cols=3)
+    signal_table.style = "Table Grid"
+    signal_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, head in enumerate(["Tín hiệu", "Vai trò", "Hiện thực trong code"]):
+        set_cell_text(signal_table.rows[0].cells[i], head, bold=True, font_size=10)
+        shade_cell(signal_table.rows[0].cells[i], "D9EAD3")
+    set_repeat_table_header(signal_table.rows[0])
+    signal_rows = [
+        ("Text signal", "Đo tương đồng ngữ nghĩa giữa truy vấn và tài liệu", "Text encoder và cosine similarity trong joint_scorer.py"),
+        ("Entity signal", "Phân biệt đúng công ty, đúng năm, đúng ngành", "compute_entity_score và forward_entity trong constraint_score.py / joint_scorer.py"),
+        ("Structure signal", "Bổ sung tri thức kế toán và tính nhất quán bảng", "KG builder, gat_layer.py và constraint_score.py"),
+    ]
+    for row_data in signal_rows:
+        cells = signal_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("4.1. Constraint KG: biểu diễn bảng tài chính thành đồ thị có hướng", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Constraint KG hiện tại được xây từ bảng markdown qua ba thao tác chính. Trước hết, bảng được parse thành hàng, cột và ô số; tiếp theo các header được chuẩn hóa theo template IFRS/GAAP; cuối cùng hệ thống sinh các accounting edges nếu phát hiện được đẳng thức tài chính, hoặc fallback sang positional edges nếu độ tin cậy match chưa đủ cao.",
+            "Vai trò của KG trong giai đoạn này là biến bảng từ một chuỗi markdown phẳng thành một cấu trúc có nghĩa. Khi mỗi ô trở thành node, còn quan hệ cộng, trừ hoặc quan hệ vị trí trở thành cạnh có hướng, mô hình có thêm khả năng phân biệt các bảng bề mặt rất giống nhau nhưng thực chất khác logic kế toán. Đây chính là điểm KG tạo ra giá trị rõ nhất cho retrieval.",
+            "Tuy nhiên, cần đánh giá khách quan rằng KG hiện tại chủ yếu là retrieval graph. Nó hữu ích để tái xếp hạng ứng viên tài liệu, nhưng chưa phải là evidence graph giàu ngữ nghĩa đủ để biểu diễn trọn vẹn quan hệ giữa table, text, footnote, đơn vị và provenance. Vì vậy nó là bước đúng, nhưng mới là bước đầu.",
+        ],
+    )
+    add_captioned_picture(
+        doc,
+        fig2,
+        "Hình 2. Figure 2 trong contribution1.pdf: quy trình Parse → Template Matching → Constraint Edge Construction để tạo Constraint KG từ bảng markdown.",
+        Inches(5.6),
+    )
+    add_display_equation(
+        doc,
+        "conf(H, τ) = |{h ∈ H | normalize(h) ∈ H_τ}| / max(|H|, |H_τ|)"
+    )
+
+    doc.add_heading("4.2. Edge-aware GAT: cách KG tạo ra graph embedding", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Sau khi có Constraint KG, hệ thống dùng một GAT layer có nhận biết cạnh để lan truyền thông tin trên đồ thị. Điểm khác của mô-đun này so với GAT thông thường là trọng số cạnh omega không chỉ tồn tại như nhãn bổ trợ, mà đi trực tiếp vào cả attention bias lẫn message passing. Điều đó giúp mô hình phân biệt được cạnh cộng, cạnh trừ và cạnh vị trí.",
+            "Trong code hiện tại, gat_layer.py hiện thực hóa đúng tinh thần đó: edge_weight trước hết được chiếu qua edge_proj để sinh edge_bias cho attention; sau đó lại tiếp tục nhân vào message khi node nguồn truyền thông tin sang node đích. Vì vậy, embedding cuối cùng của đồ thị mang theo dấu vết của cấu trúc tài chính, thay vì chỉ là tổng hợp thuần văn bản.",
+        ],
+    )
+    add_captioned_picture(
+        doc,
+        fig3,
+        "Hình 3. Figure 3 trong contribution1.pdf: tổng quan khối GAT Encoder dùng để biến node features thành graph embedding.",
+        Inches(5.8),
+    )
+    add_captioned_picture(
+        doc,
+        fig4,
+        "Hình 4. Figure 4 trong contribution1.pdf: cơ chế edge-aware attention, trong đó omega được chiếu thành một bias phụ thêm vào attention score.",
+        Inches(5.8),
+    )
+    add_captioned_picture(
+        doc,
+        fig5,
+        "Hình 5. Figure 5 trong contribution1.pdf: sau nhiều lớp GAT, các biểu diễn node được pooling thành vector đồ thị cấp tài liệu.",
+        Inches(5.8),
+    )
+    add_display_equation(doc, "e_uv^(k) = <W_q^(k) h_u, W_k^(k) h_v> / √d_k + Proj(ω_uv)")
+    add_display_equation(doc, "α_uv^(k) = exp(e_uv^(k)) / Σ_{w ∈ N(v)} exp(e_wv^(k))")
+    add_display_equation(doc, "h_v^(l+1) = W_o [ ||_k Σ_{u ∈ N(v)} α_uv^(k) · ω_uv · W_v^(k) h_u^(l) ] + h_v^(l)")
+
+    doc.add_heading("4.3. Constraint Score và Joint Scorer: KG được đưa vào retrieve như thế nào", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Graph embedding không phải là đầu ra duy nhất của KG. Song song với nhánh GAT, hệ thống còn tính một Constraint Score để đo mức độ nhất quán kế toán của bảng ứng viên. Trong constraint_score.py, điểm này được xây bằng cách lấy residual |ω · v_u - v_v| trên từng accounting edge, chuẩn hóa theo max(|v_v|, ε) rồi đưa qua hàm mũ âm.",
+            "Điểm then chốt là Constraint Score đi vào Joint Scorer cùng với text similarity và entity score. Nghĩa là KG không trực tiếp thay thế semantic retrieval, mà đóng vai trò làm một nguồn tín hiệu cấu trúc bổ sung trong reranking. Đây là lý do ý tưởng hiện tại khả thi: ta không cần thay toàn bộ retriever, nhưng vẫn tăng khả năng tách đúng tài liệu khỏi các distractor cùng chủ đề.",
+            "Mặt khác, Constraint Score cũng cho thấy rõ giới hạn hiện tại. Vì nhiều đẳng thức nhiều toán hạng đang bị giản lược thành các cạnh cặp đôi, điểm số này chỉ là kiểm tra mềm theo cạnh, chưa phải kiểm tra phương trình trung thành theo nghĩa reasoning. Về mặt nghiên cứu, đây là chỗ nên được nâng cấp trong giai đoạn tiếp theo.",
+        ],
+    )
+    add_captioned_picture(
+        doc,
+        fig6,
+        "Hình 6. Figure 6 trong contribution1.pdf: Joint Scorer hợp nhất ba tín hiệu s_text, s_ent và CS(G_D) bằng các trọng số học được α, β, γ.",
+        Inches(5.7),
+    )
+    add_display_equation(
+        doc,
+        "CS(G_D) = (1 / |E_c|) Σ_(u,v,ω) exp( - |ω · v_u - v_v| / max(|v_v|, ε) )"
+    )
+
+    doc.add_heading("4.4. CACL và CHAP: phần huấn luyện đã được đề xuất và đã có code", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Nếu GSR là đóng góp ở phía inference, thì CACL là đóng góp ở phía training. Ý tưởng cơ bản của CACL là không để retriever học từ những negative quá dễ, mà bắt nó phân biệt với các negative nhìn rất giống bản gốc nhưng bị phá đúng một ràng buộc quan trọng. CHAP là cơ chế tạo ra các negative như vậy.",
+            "Trong chap.py, ba kiểu negative đã được hiện thực hóa tương đối rõ: CHAP-A sửa một ô dữ liệu để phá đẳng thức cộng; CHAP-S làm sai scale của giá trị; CHAP-E hoán đổi company hoặc year trong metadata. Đây là một thiết kế rất sát với lỗi thực tế của retrieval tài chính, nơi mô hình thường không sai ở mức chủ đề, mà sai ở mức rất tinh vi như đúng công ty nhưng lệch năm hoặc đúng bảng nhưng sai scale.",
+            "CACL cũng không chỉ dừng ở negative sampler. train.py và trainer.py đã thể hiện rõ một lịch huấn luyện ba giai đoạn: Identity Pretraining để dạy mô hình phân biệt metadata, Structural Pretraining để hiệu chỉnh thành phần graph/constraint, và Joint CACL để tối ưu toàn hệ với CHAP negatives. Vì vậy, có thể khẳng định rằng CACL đã tồn tại ở mức thiết kế và code, dù chưa được đóng kín thành một pipeline benchmark hoàn chỉnh như phần retrieval.",
+        ],
+    )
+    add_captioned_picture(
+        doc,
+        fig7,
+        "Hình 7. Figure 7 trong contribution1.pdf: CHAP sinh hard negatives theo ba kiểu A, S, E; mỗi kiểu chỉ phá vỡ đúng một bất biến tài chính hoặc metadata.",
+        Inches(5.4),
+    )
+    add_captioned_picture(
+        doc,
+        fig8,
+        "Hình 8. Figure 8 trong contribution1.pdf: hàm mục tiêu CACL kết hợp triplet loss với penalty cho vi phạm ràng buộc.",
+        Inches(5.5),
+    )
+    add_captioned_picture(
+        doc,
+        fig9,
+        "Hình 9. Figure 9 trong contribution1.pdf: lịch huấn luyện ba giai đoạn Identity → Structural → Joint CACL.",
+        Inches(5.6),
+    )
+    add_display_equation(doc, "L_CACL = L_triplet + λ · L_constraint")
+
+    stage_table = doc.add_table(rows=1, cols=4)
+    stage_table.style = "Table Grid"
+    stage_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, head in enumerate(["Giai đoạn", "Mục tiêu", "Đã thể hiện ở đâu", "Đánh giá tiến độ"]):
+        set_cell_text(stage_table.rows[0].cells[i], head, bold=True, font_size=10)
+        shade_cell(stage_table.rows[0].cells[i], "D9D2E9")
+    set_repeat_table_header(stage_table.rows[0])
+    stage_rows = [
+        ("Stage 1: Identity", "Học phân biệt company, year, sector", "train.py; joint_scorer.py; compute_entity_score", "Có nền tảng tốt nhưng metadata còn khai thác hẹp"),
+        ("Stage 2: Structural", "Calibrate graph encoder và constraint signal", "gat_layer.py; constraint_score.py", "Đã có cơ chế rõ ở mức prototype"),
+        ("Stage 3: Joint CACL", "Tối ưu toàn hệ với CHAP negatives", "negative_sampler/chap.py; trainer.py", "Đã có khung train, chưa chứng minh end-to-end trên reasoning"),
+    ]
+    for row_data in stage_rows:
+        cells = stage_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("4.5. Chốt lại những gì đã thực sự làm được", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Từ góc nhìn tiến độ, có thể chốt khách quan rằng GSR đã được triển khai rõ nhất ở mức inference retrieval. CACL đã được triển khai ở mức thiết kế huấn luyện và negative generation, nhưng dấu nối giữa training objective và benchmark inference hiện vẫn chưa kín như một hệ hoàn chỉnh. Constraint KG đã có giá trị thực tiễn ở vai trò structural reranking, song chưa phải một knowledge substrate đủ mạnh cho reasoning số học đa bước.",
+            "Nói cách khác, đề tài hiện đã có đóng góp thực và có thể báo cáo rõ với GVHD ở hai phương diện: một là đã xây được retrieval có cấu trúc thay vì retrieval text-only; hai là đã chỉ ra đúng nơi mà retrieval hiện tại dừng lại, từ đó mở ra định hướng mới có chiều sâu hơn là Financial Evidence Graph cho cả retrieval và reasoning.",
+        ],
+    )
+
+    doc.add_heading("5. Đánh giá khách quan về khả năng dùng KG cho reasoning số học", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Ý tưởng dùng KG đã xây cho retrieval để đẩy tiếp sang reasoning là khả thi, nhưng không thể dùng nguyên trạng. Tính khả thi nằm ở chỗ KG hiện tại đã chứng minh được một điều rất quan trọng: biểu diễn bảng tài chính bằng cấu trúc có hướng thực sự giúp hệ thống nhận biết tốt hơn sự khác biệt giữa các tài liệu bề ngoài rất giống nhau. Đây là tiền đề rất mạnh để đi tiếp.",
+            "Vấn đề nằm ở chỗ biểu diễn hiện tại của KG còn quá thiên về reranking tài liệu. Đồ thị hiện chưa lưu provenance đủ rõ, chưa liên kết đồng thời text - table - footnote, chưa chuẩn hóa mạnh unit/scale, chưa có node phương trình hay node phép toán, và chưa hỗ trợ truy vết từ một đáp án ngược trở lại tập toán hạng sinh ra nó. Nếu dùng nguyên KG hiện nay để reasoning, mô hình sẽ vẫn phải suy luận trên context khá thô và dễ trộn nhiễu.",
+            "Bởi vậy, kết luận khách quan là ý tưởng này nên triển khai, nhưng phải triển khai theo hướng nâng cấp KG thành một evidence graph thống nhất, chứ không nên chỉ nối thẳng retriever hiện có với một module suy luận số học ở đầu sau. Nếu làm ngắn mạch như vậy, lợi ích của graph sẽ bị giới hạn ở retrieval và không đi vào chỗ khó nhất là chọn đúng toán hạng dưới top-k nhiễu.",
+        ],
+    )
+
+    gap_table = doc.add_table(rows=1, cols=3)
+    gap_table.style = "Table Grid"
+    gap_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, head in enumerate(["Vấn đề hiện tại", "Hệ quả", "Hướng nâng cấp cần làm"]):
+        set_cell_text(gap_table.rows[0].cells[i], head, bold=True, font_size=10)
+        shade_cell(gap_table.rows[0].cells[i], "F4CCCC")
+    set_repeat_table_header(gap_table.rows[0])
+    gap_rows = [
+        ("Metadata mới dừng ở company, year, sector", "Reranking có ích nhưng chưa đủ mạnh để kiểm soát reasoning", "Nâng thành ontology truy xuất với quarter, statement type, unit, scale, aliases, provenance"),
+        ("Constraint Score kiểm tra theo cạnh cặp đôi", "Không đủ trung thành cho phương trình nhiều toán hạng", "Đưa equation node hoặc hyperedge vào Financial Evidence Graph"),
+        ("Retrieval còn thiên về document level", "Reasoning phải đối mặt top-k còn nhiều nhiễu", "Phân cấp retrieval: document → section/table → evidence atom"),
+        ("KG chưa nối với text và footnote", "Dễ bỏ sót ngoại lệ hoặc điều kiện nằm ngoài bảng", "Thống nhất bảng, đoạn văn và footnote trên cùng đồ thị bằng chứng"),
+    ]
+    for row_data in gap_rows:
+        cells = gap_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("6. Định hướng chốt: Financial Evidence Graph dùng chung cho retrieval và reasoning", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Định hướng được chốt cho giai đoạn tiếp theo là xây dựng một Financial Evidence Graph có kiểu, dùng chung cho cả retrieval và reasoning. Trong kiến trúc này, KG không còn là một mảnh phụ trợ đặt cạnh retriever, mà trở thành lớp biểu diễn trung tâm của toàn bộ pipeline. Mỗi câu hỏi trước hết đi qua query parser để rút ra company, period, metric và kiểu phép toán; sau đó hệ thống truy xuất phân cấp để tạo local evidence graph quanh câu hỏi; cuối cùng planner, executor và verifier đều làm việc trên lớp graph này.",
+            "Điểm then chốt của định hướng mới là metadata phải được nâng thành ontology truy xuất. Thay vì chỉ có company, year, sector, evidence atom cần được gắn rõ statement type, quarter, đơn vị, scale, currency, row path, column path và nguồn gốc từ document nào. Khi đó metadata không chỉ góp điểm ở scorer, mà còn tham gia pre-filtering, chunk embedding, hard-negative mining, grounding và verifier.",
+            "Ở phía reasoning, local evidence graph cần hỗ trợ ba chức năng rõ ràng. Thứ nhất là chọn đúng toán hạng từ top-k còn nhiễu. Thứ hai là sinh một chương trình ngắn dạng DSL hoặc Python để thực thi phép tính. Thứ ba là kiểm tra ngược kết quả bằng cách xác minh company, year, đơn vị, scale, đồng thời kiểm tra xem chương trình vừa chạy có thực sự grounded trên các node bằng chứng hay không.",
+        ],
+    )
+    add_captioned_picture(
+        doc,
+        fig_path,
+        "Hình 10. Kiến trúc đề xuất cho giai đoạn tiếp theo: phía trên là retrieval GSR-CACL hiện tại; phía dưới là kiến trúc Financial Evidence Graph nhằm thống nhất retrieval, grounding, reasoning và verification.",
+        Inches(6.2),
+    )
+
+    graph_table = doc.add_table(rows=1, cols=3)
+    graph_table.style = "Table Grid"
+    graph_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, head in enumerate(["Thành phần của Financial Evidence Graph", "Vai trò", "Lợi ích trực tiếp"]):
+        set_cell_text(graph_table.rows[0].cells[i], head, bold=True, font_size=10)
+        shade_cell(graph_table.rows[0].cells[i], "D9EAF7")
+    set_repeat_table_header(graph_table.rows[0])
+    graph_rows = [
+        ("Document / Section / Table / Cell / Sentence / Footnote", "Tạo lớp bằng chứng đa hạt và có provenance", "Cho phép retrieval không dừng ở cấp tài liệu"),
+        ("Company / Period / Statement / Unit / Scale", "Ontology metadata cho retrieval và verification", "Giảm nhầm lẫn đúng công ty nhưng sai năm, đúng năm nhưng sai statement"),
+        ("MetricConcept / Equation / Operation node", "Biểu diễn rõ các quan hệ số học nhiều toán hạng", "Executor và verifier có thể reasoning trực tiếp trên graph"),
+        ("Support / refers_to / derived_from / same_metric_as", "Nối table với văn bản và footnote", "Tăng khả năng grounding và giải thích kết quả"),
+    ]
+    for row_data in graph_rows:
+        cells = graph_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("7. Kế hoạch triển khai tiếp theo", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Kế hoạch triển khai nên được chia theo lớp năng lực, không nên nhảy thẳng sang RL cho reasoning khi retrieval và evidence grounding còn chưa ổn định. Thứ tự hợp lý là: củng cố retrieval có metadata-aware filtering; xây Financial Evidence Graph; hiện thực planner/executor/verifier; sau đó mới tiến hành huấn luyện preference optimization và reinforcement learning trên reasoning trace.",
+            "Đặc biệt, phần học tăng cường cần được xem là giai đoạn tối ưu cuối, không phải điểm khởi đầu. Nếu verifier và executor chưa đủ tin cậy thì reward của GRPO sẽ nhiễu, dẫn đến học sai mục tiêu. Vì vậy, giá trị lớn nhất của giai đoạn hiện tại là chốt chuẩn kiến trúc và chia việc theo phụ thuộc kỹ thuật một cách chặt chẽ.",
+        ],
+    )
+
+    roadmap = doc.add_table(rows=1, cols=4)
+    roadmap.style = "Table Grid"
+    roadmap.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, head in enumerate(["Giai đoạn", "Mục tiêu", "Công việc chính", "Chỉ số / đầu ra cần có"]):
+        set_cell_text(roadmap.rows[0].cells[i], head, bold=True, font_size=10)
+        shade_cell(roadmap.rows[0].cells[i], "EAD1DC")
+    set_repeat_table_header(roadmap.rows[0])
+    roadmap_rows = [
+        ("Giai đoạn 1", "Củng cố retrieval", "Mở rộng metadata schema; thêm pre-filtering; table/section reranking; đánh giá ablation giữa text-only và GSR", "MRR/Recall/NDCG tăng rõ; có phân tích lỗi theo company/year/statement"),
+        ("Giai đoạn 2", "Xây Financial Evidence Graph", "Thiết kế node/edge schema; lưu provenance; nối text, table, footnote; thêm equation node", "Có graph builder mới và case study trực quan hóa"),
+        ("Giai đoạn 3", "Grounding và reasoning substrate", "Query parser; operand grounding; DSL/Python executor; verifier kiểm tra unit/year/scale", "Đo được operand accuracy, execution accuracy và grounding accuracy"),
+        ("Giai đoạn 4", "Huấn luyện reasoning", "SFT cho chương trình suy luận; Step-DPO cho trace; GRPO/RLVR với reward verifiable", "Cải thiện answer accuracy dưới top-k nhiễu"),
+        ("Giai đoạn 5", "Đánh giá và viết bài", "Thiết kế benchmark end-to-end; robustness test; ablation KG/metadata/verifier", "Bộ kết quả đủ chặt cho báo cáo và bài báo hội nghị"),
+    ]
+    for row_data in roadmap_rows:
+        cells = roadmap.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("7.1. Định hướng lựa chọn thuật toán huấn luyện", level=2)
+    add_paragraphs(
+        doc,
+        [
+            "Đối với retrieval, CACL và CHAP vẫn nên được giữ lại vì chúng đúng với bản chất negative của tài liệu tài chính. Tuy nhiên, ở phần reasoning không nên kỳ vọng CACL một mình giải quyết bài toán. Cách hợp lý hơn là dùng Supervised Fine-Tuning để dạy dạng chương trình suy luận chuẩn, sau đó dùng Step-DPO để ưu tiên trace grounded hơn trace bị nhiễu, và chỉ khi verifier đủ tốt mới chuyển sang GRPO hoặc một biến thể RLVR để tối ưu cuối.",
+            "Trong ba thuật toán preference/RL thường được cân nhắc là DPO, ORPO và GRPO, ORPO phù hợp hơn như baseline tính toán rẻ; DPO hoặc Step-DPO phù hợp hơn cho giai đoạn làm sạch reasoning trace; còn GRPO phù hợp nhất cho bước tối ưu cuối cùng vì bài toán tài chính có reward kiểm chứng được từ executor và verifier. Cách phân vai như vậy nhất quán hơn với cấu trúc kỹ thuật của đề tài so với việc chọn một thuật toán duy nhất cho toàn bộ pipeline.",
+        ],
+    )
+
+    algo_table = doc.add_table(rows=1, cols=4)
+    algo_table.style = "Table Grid"
+    algo_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, head in enumerate(["Thuật toán", "Nên dùng ở đâu", "Ưu điểm", "Lưu ý"]):
+        set_cell_text(algo_table.rows[0].cells[i], head, bold=True, font_size=10)
+        shade_cell(algo_table.rows[0].cells[i], "FFF2CC")
+    set_repeat_table_header(algo_table.rows[0])
+    algo_rows = [
+        ("CACL + CHAP", "Retrieval training", "Học phân biệt negative rất gần nhưng sai logic tài chính", "Không thay thế được reasoning optimizer"),
+        ("SFT", "Reasoning bootstrap", "Ổn định, dễ kiểm soát chương trình vàng", "Cần dữ liệu reasoning trace có chất lượng"),
+        ("Step-DPO / DPO", "Trace preference", "Ưu tiên suy luận grounded hơn suy luận nhiễu", "Cần chuẩn bị cặp trace tốt/xấu đủ rõ"),
+        ("GRPO / RLVR", "Tối ưu reasoning cuối", "Tận dụng reward kiểm chứng được từ executor", "Chỉ nên dùng khi verifier đủ đáng tin"),
+    ]
+    for row_data in algo_rows:
+        cells = algo_table.add_row().cells
+        for i, text in enumerate(row_data):
+            set_cell_text(cells[i], text, font_size=9)
+
+    doc.add_heading("8. Kết luận", level=1)
+    add_paragraphs(
+        doc,
+        [
+            "Nhìn từ trạng thái hiện tại, đề tài đã có phần lõi đủ mạnh để báo cáo một cách tự tin: GSR, CACL và Constraint KG đều đã xuất hiện dưới dạng đóng góp kỹ thuật có mã nguồn tương ứng. Phần retrieval hiện tại không còn là ý tưởng mơ hồ, mà là một prototype nghiên cứu thực sự có thể benchmark và phân tích.",
+            "Điểm cần chốt với GVHD là định hướng phát triển tiếp theo phải chuyển từ KG cho reranking sang Financial Evidence Graph dùng chung cho retrieval và reasoning. Đây là bước nâng cấp làm cho đồ thị tri thức không chỉ giúp tìm đúng tài liệu, mà còn giúp neo đúng toán hạng, thực thi đúng phép toán và kiểm tra được đáp án cuối cùng. Nếu bám chặt theo lộ trình này, đề tài có nền tảng tốt để tiến tới một đóng góp học thuật sâu hơn và thuyết phục hơn nhiều so với việc chỉ tiếp tục tối ưu MRR ở tầng retrieval.",
+        ],
+    )
+
+    doc.add_heading("Tài liệu tham khảo chính", level=1)
+    refs = [
+        "Strich, J., Isgorur, E. K., Trescher, M., Biemann, C., & Semmann, M. T²-RAGBench: Text-and-Table Benchmark for Evaluating Retrieval-Augmented Generation. arXiv:2506.12071, 2025; accepted to EACL 2026.",
+        "Chen, Z. et al. FinQA: A Dataset of Numerical Reasoning over Financial Data. EMNLP 2021.",
+        "Zhu, F. et al. TAT-QA: A Question Answering Benchmark on a Hybrid of Tabular and Textual Content in Finance. ACL 2021.",
+        "Chen, Z. et al. ConvFinQA: Exploring the Chain of Numerical Reasoning in Conversational Finance Question Answering. EMNLP 2022.",
+        "Dang, Q.-V., Nguyen, N.-S.-A., & Vo, T.-B.-D. HierFinRAG—Hierarchical Multimodal RAG for Financial Document Understanding. Informatics 13(2):30, 2026.",
+        "FT-RAG: A Fine-grained Retrieval-Augmented Generation Framework for Financial Analysis. arXiv:2605.01495, 2026.",
+        "Rafailov, R. et al. Direct Preference Optimization: Your Language Model is Secretly a Reward Model. arXiv:2305.18290, 2023.",
+        "Hong, J. et al. ORPO: Monolithic Preference Optimization without Reference Model. EMNLP 2024.",
+        "Shao, Z. et al. DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv:2402.03300, 2024.",
+        "Tài liệu nội bộ: contribution1.pdf, bao_cao_tien_do_nghien_cuu_gvhd_2026-06-13.md và mã nguồn trong thư mục NLP/ours/source.",
+    ]
+    add_reference_list(doc, refs)
+    doc.save(docx_path)
+
+
 def main() -> None:
     build_diagram(FIG_PATH)
-    build_report(OUT_DOCX, FIG_PATH)
+    build_progress_report(OUT_DOCX, FIG_PATH)
     print(f"Generated: {OUT_DOCX}")
     print(f"Generated: {FIG_PATH}")
 
