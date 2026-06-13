@@ -41,6 +41,34 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+class HashingEmbeddingFunction:
+    """Lightweight local embedding fallback when LangChain embeddings are unavailable."""
+
+    def __init__(self, dim: int = 768):
+        self.dim = dim
+
+    def _embed(self, text: str) -> list[float]:
+        import hashlib
+        import re
+        import math
+
+        vec = [0.0] * self.dim
+        tokens = re.findall(r"[A-Za-z0-9]+", text.lower())
+        for tok in tokens:
+            digest = hashlib.sha1(tok.encode("utf-8")).digest()
+            idx = int.from_bytes(digest[:4], "big") % self.dim
+            sign = 1.0 if digest[4] % 2 == 0 else -1.0
+            vec[idx] += sign
+        norm = math.sqrt(sum(v * v for v in vec)) or 1.0
+        return [v / norm for v in vec]
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._embed(text)
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return [self._embed(text) for text in texts]
+
+
 # ---------------------------------------------------------------------------
 # Fallback dataset configs (used when Hydra configs are not available)
 # ---------------------------------------------------------------------------
@@ -97,6 +125,51 @@ def compute_ndcg(results: list[RetrievalResult], k: int = 3) -> float:
     return total / len(results) if results else 0.0
 
 
+def _serialise_retrieval_artifacts(
+    output_dir: Path,
+    eval_results: list[RetrievalResult],
+    retrieved_with_scores: list[list[tuple[Document, float]]],
+    save_top_k: int,
+) -> Path:
+    """Save generator-ready retrieval artifacts as JSONL."""
+    save_top_k = max(1, save_top_k)
+    out_path = output_dir / f"retrieval_top{save_top_k}.jsonl"
+    with open(out_path, "w", encoding="utf-8") as f:
+        for result, scored_docs in zip(eval_results, retrieved_with_scores):
+            top_docs = scored_docs[:save_top_k]
+            retrieved_payload = []
+            for rank, (doc, score) in enumerate(top_docs, start=1):
+                retrieved_payload.append({
+                    "rank": rank,
+                    "id": str(doc.id),
+                    "score": float(score),
+                    "page_content": doc.page_content,
+                    "metadata": doc.meta_data,
+                })
+
+            generator_context = "\n\n".join(
+                f"[DOC {item['rank']}] {item['page_content']}" for item in retrieved_payload
+            )
+            record = {
+                "query": result.query,
+                "query_meta": result.meta_data,
+                "ground_truth_id": result.ground_truth_id,
+                "retrieved_docs": retrieved_payload,
+                "generator_context": generator_context,
+                "top_k": len(retrieved_payload),
+            }
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    manifest = {
+        "artifact_file": out_path.name,
+        "record_count": len(eval_results),
+        "save_top_k": save_top_k,
+    }
+    with open(output_dir / "retrieval_manifest.json", "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    return out_path
+
+
 # ---------------------------------------------------------------------------
 # Core benchmark
 # ---------------------------------------------------------------------------
@@ -111,6 +184,7 @@ def run_gsr_benchmark(
     device: str | None = None,
     output_dir: Path | None = None,
     sample_size: int | None = None,
+    save_top_k: int | None = None,
 ) -> dict:
     """
     Run GSR retrieval benchmark on a T²-RAGBench subset.
@@ -125,6 +199,7 @@ def run_gsr_benchmark(
         device: "cuda" or "cpu" (auto-detected if None)
         output_dir: where to save metrics JSON
         sample_size: limit QA samples for debugging
+        save_top_k: number of top retrieved docs to persist for the generator
 
     Returns:
         dict of metric results
@@ -156,11 +231,18 @@ def run_gsr_benchmark(
         logger.info(f"  {k}: {v}")
 
     # Embedding model
-    from langchain_huggingface import HuggingFaceEmbeddings
-    embeddings = HuggingFaceEmbeddings(
-        model_name=embedding_model,
-        model_kwargs={"device": device},
-    )
+    try:
+        from langchain_huggingface import HuggingFaceEmbeddings
+
+        embeddings = HuggingFaceEmbeddings(
+            model_name=embedding_model,
+            model_kwargs={"device": device},
+        )
+    except ImportError:
+        logger.warning(
+            "langchain_huggingface is unavailable; using a local hashing embedder fallback"
+        )
+        embeddings = HashingEmbeddingFunction(dim=768)
 
     # Build retrieval method with GSR hyperparameters from config
     rag_method = RAGClass(
@@ -176,16 +258,20 @@ def run_gsr_benchmark(
         gat_num_layers=gsr_params.get("gat_num_layers", 2),
     )
 
+    save_top_k = save_top_k if save_top_k is not None else min(top_k, 3)
+
     # Run retrieval
     logger.info(f"Running {mode} retrieval for {len(split_data.queries)} queries...")
     all_retrieved = rag_method.retrieve_batch(
         queries=split_data.queries,
         queries_meta=split_data.meta_data,
+        return_scores=True,
     )
 
     # Build evaluation results
     eval_results: list[RetrievalResult] = []
-    for i, (query, docs) in enumerate(zip(split_data.queries, all_retrieved)):
+    for i, (query, scored_docs) in enumerate(zip(split_data.queries, all_retrieved)):
+        docs = [doc for doc, _ in scored_docs]
         eval_results.append(RetrievalResult(
             query=query,
             retrieved_docs=docs,
@@ -217,10 +303,18 @@ def run_gsr_benchmark(
         output_dir = Path(f"outputs/gsr_benchmark/{config_name}/{mode}_{ts}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(output_dir / "metrics.json", "w") as f:
-        json.dump(metrics, f, indent=2)
+    with open(output_dir / "metrics.json", "w", encoding="utf-8") as f:
+        json.dump(metrics, f, indent=2, ensure_ascii=False)
+
+    artifact_path = _serialise_retrieval_artifacts(
+        output_dir=output_dir,
+        eval_results=eval_results,
+        retrieved_with_scores=all_retrieved,
+        save_top_k=save_top_k,
+    )
 
     logger.info(f"Results saved to {output_dir}")
+    logger.info(f"Retrieval artifacts saved to {artifact_path}")
     return metrics
 
 
@@ -260,6 +354,7 @@ def _main_hydra() -> None:
             top_k=gsr_params.pop("top_k", cfg.get("eval", {}).get("top_k", 3)),
             device=None,
             sample_size=cfg.get("eval", {}).get("sample_size"),
+            save_top_k=gsr_params.pop("save_top_k", cfg.get("eval", {}).get("save_top_k", 3)),
         )
 
     _run()
@@ -282,6 +377,8 @@ def _main_argparse() -> None:
     parser.add_argument("--output-dir", type=str, default=None)
     parser.add_argument("--sample", type=int, default=None,
                         help="Limit number of QA samples (for debugging)")
+    parser.add_argument("--save-top-k", type=int, default=3,
+                        help="Number of top retrieved documents to persist for downstream generation")
     args = parser.parse_args()
 
     ds_cfg = DATASET_CONFIGS.get(args.dataset)
@@ -299,6 +396,7 @@ def _main_argparse() -> None:
             device=args.device,
             output_dir=output_dir,
             sample_size=args.sample,
+            save_top_k=args.save_top_k,
         )
     except Exception as e:
         logger.error(f"Benchmark failed: {e}", exc_info=True)

@@ -172,6 +172,11 @@ python -m gsr_cacl.benchmark_gsr --mode gsr --dataset tatqa --top-k 3
 python -m gsr_cacl.benchmark_gsr --mode hybridgsr --dataset finqa --top-k 3
 ```
 
+Each benchmark run now writes:
+- `metrics.json` for retrieval metrics
+- `retrieval_top3.jsonl` for generator-ready top-3 documents
+- `retrieval_manifest.json` as a small index of the export
+
 ### 3. Compare with Baselines
 
 ```bash

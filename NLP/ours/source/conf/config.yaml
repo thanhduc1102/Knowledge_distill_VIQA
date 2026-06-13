@@ -10,6 +10,7 @@ mode: "gsr"               # "gsr" | "hybridgsr"
 # Evaluation
 eval:
   top_k: 3
+  save_top_k: 3            # number of retrieved docs to persist for generator
   sample_size: null        # null = use full dataset; int = subsample for debugging
 
 # Training

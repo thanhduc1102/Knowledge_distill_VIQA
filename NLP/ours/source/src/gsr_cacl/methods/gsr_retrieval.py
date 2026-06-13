@@ -115,9 +115,24 @@ class GSRRetrieval:
     # ------------------------------------------------------------------
 
     def _build_faiss_index(self) -> None:
-        """Build FAISS vector store from corpus documents."""
-        from langchain_community.vectorstores import FAISS
-        from langchain_core.documents import Document as LCDocument
+        """Build vector index from corpus documents, or fall back to brute-force search."""
+        self.vector_store = None
+        self._id_to_idx: dict[str, int] = {str(doc.id): i for i, doc in enumerate(self.corpus)}
+
+        # Store text embeddings for scoring
+        all_text_embeds = []
+        for doc in tqdm(self.corpus, desc="Computing text embeddings"):
+            emb = self.embedding_function.embed_query(doc.page_content)
+            all_text_embeds.append(emb)
+        self.doc_text_embeds = np.array(all_text_embeds)
+
+        try:
+            from langchain_community.vectorstores import FAISS
+            from langchain_core.documents import Document as LCDocument
+        except ImportError:
+            # No LangChain available: use brute-force cosine over all documents.
+            self._candidate_mode = "bruteforce"
+            return
 
         lc_docs = []
         for doc in self.corpus:
@@ -126,7 +141,6 @@ class GSRRetrieval:
             lc_docs.append(LCDocument(page_content=doc.page_content, metadata=md))
 
         batch_size = 100
-        self.vector_store = None
         for i in tqdm(range(0, len(lc_docs), batch_size), desc="Indexing documents (FAISS)"):
             batch = lc_docs[i : i + batch_size]
             if self.vector_store is None:
@@ -134,17 +148,7 @@ class GSRRetrieval:
             else:
                 self.vector_store.add_documents(batch)
 
-        # Corpus id → index mapping for KG/embed lookup
-        self._id_to_idx: dict[str, int] = {
-            str(doc.id): i for i, doc in enumerate(self.corpus)
-        }
-
-        # Store text embeddings for scoring
-        all_text_embeds = []
-        for doc in tqdm(self.corpus, desc="Computing text embeddings"):
-            emb = self.embedding_function.embed_query(doc.page_content)
-            all_text_embeds.append(emb)
-        self.doc_text_embeds = np.array(all_text_embeds)
+        self._candidate_mode = "faiss"
 
     def _build_all_kgs(self) -> None:
         """Build a Constraint KG for every corpus document (§4.2)."""
@@ -166,62 +170,90 @@ class GSRRetrieval:
     # Retrieval (§4.1 + §4.4)
     # ------------------------------------------------------------------
 
+    def _rank_candidates(
+        self,
+        query: str,
+        query_meta: dict[str, Any] | None = None,
+    ) -> list[tuple[Document, float]]:
+        """Return ranked documents with their final retrieval scores."""
+        q_text_emb = torch.tensor(
+            np.array(self.embedding_function.embed_query(query)),
+            dtype=torch.float32,
+            device=self.device,
+        ).unsqueeze(0)
+
+        if getattr(self, "_candidate_mode", "faiss") == "faiss" and self.vector_store is not None:
+            # FAISS first-stage retrieval → candidate LangChain Documents
+            candidates = self.vector_store.similarity_search(query, k=self.top_k * 4)
+            candidate_indices = []
+            for cand in candidates:
+                cand_id = cand.metadata.get("id", "")
+                corpus_idx = self._id_to_idx.get(cand_id)
+                if corpus_idx is not None:
+                    candidate_indices.append(corpus_idx)
+        else:
+            # Fallback: score every document directly, but do it as a batch.
+            candidate_indices = list(range(len(self.corpus)))
+
+        if not candidate_indices:
+            return []
+
+        doc_text_batch = torch.tensor(
+            self.doc_text_embeds[candidate_indices],
+            dtype=torch.float32,
+            device=self.device,
+        )
+        kg_batch = torch.stack([self.kg_embeds[idx] for idx in candidate_indices])
+        constraint_feats = JointScorer.build_constraint_features(
+            [compute_constraint_score(self.doc_kgs[idx], epsilon=self.epsilon) for idx in candidate_indices],
+            self.device,
+        )
+
+        if query_meta is None:
+            entity_scores = torch.full((len(candidate_indices),), 0.5, device=self.device)
+        else:
+            q_vals = {
+                key: str(query_meta.get(key, "")).strip().lower()
+                for key in ("company_name", "report_year", "company_sector")
+            }
+            entity_scores = []
+            for idx in candidate_indices:
+                doc_meta = self.corpus[idx].meta_data
+                score = 0.0
+                for key in ("company_name", "report_year", "company_sector"):
+                    d_val = str(doc_meta.get(key, "")).strip().lower()
+                    if q_vals[key] and d_val and q_vals[key] == d_val:
+                        score += 1.0 / 3.0
+                entity_scores.append(score)
+            entity_scores = torch.tensor(entity_scores, dtype=torch.float32, device=self.device)
+
+        with torch.no_grad():
+            s_text = self.scorer.forward_text_sim(q_text_emb.repeat(len(candidate_indices), 1), doc_text_batch, kg_batch)
+            s_constraint = self.scorer.forward_constraint(constraint_feats)
+            final_scores = self.scorer.alpha * s_text + self.scorer.beta * entity_scores + self.scorer.gamma * s_constraint
+
+        scored = list(zip(candidate_indices, final_scores.detach().cpu().tolist()))
+        ranked = sorted(scored, key=lambda x: x[1], reverse=True)[: self.top_k]
+        return [(self.corpus[idx], score) for idx, score in ranked]
+
     def retrieve(self, query: str, query_meta: dict[str, Any] | None = None) -> list[Document]:
-        """
-        Retrieve top-K documents for a query using joint scoring.
+        """Retrieve top-K documents for a query using joint scoring."""
+        return [doc for doc, _ in self._rank_candidates(query, query_meta=query_meta)]
 
-        Joint Score = α·sim_text(Q,D,KG) + β·sim_entity(Q,D) + γ·CS(G_D)
-        Uses JointScorer with KG embeddings from GAT encoder.
-        """
-        # FAISS first-stage retrieval → candidate LangChain Documents
-        candidates = self.vector_store.similarity_search(query, k=self.top_k * 4)
-
-        q_text_emb = np.array(self.embedding_function.embed_query(query))
-        q_tensor = torch.tensor(q_text_emb, dtype=torch.float32, device=self.device)
-
-        scores: list[tuple[int, float]] = []
-        for cand in candidates:
-            # Map FAISS candidate back to corpus index
-            cand_id = cand.metadata.get("id", "")
-            corpus_idx = self._id_to_idx.get(cand_id)
-            if corpus_idx is None:
-                continue
-
-            doc_tensor = torch.tensor(
-                self.doc_text_embeds[corpus_idx], dtype=torch.float32, device=self.device
-            )
-
-            # KG embedding from pre-computed GAT encoder output
-            kg_embed = self.kg_embeds[corpus_idx]
-
-            # Constraint score
-            cs_result = compute_constraint_score(
-                self.doc_kgs[corpus_idx], epsilon=self.epsilon
-            )
-
-            # Entity matching score
-            entity_score = self._compute_entity_score(query_meta, corpus_idx)
-
-            # Use JointScorer for final score (integrates text + KG + entity + constraint)
-            with torch.no_grad():
-                final_score = self.scorer.score_single(
-                    query_text_embed=q_tensor,
-                    doc_text_embed=doc_tensor,
-                    kg_embed=kg_embed,
-                    entity_score=entity_score,
-                    constraint_result=cs_result,
-                )
-
-            scores.append((corpus_idx, final_score))
-
-        ranked = sorted(scores, key=lambda x: x[1], reverse=True)[: self.top_k]
-        return [self.corpus[idx] for idx, _ in ranked]
+    def retrieve_with_scores(
+        self,
+        query: str,
+        query_meta: dict[str, Any] | None = None,
+    ) -> list[tuple[Document, float]]:
+        """Retrieve top-K documents and keep their final scores."""
+        return self._rank_candidates(query, query_meta=query_meta)
 
     def retrieve_batch(
         self,
         queries: list[str],
         queries_meta: list[dict[str, Any] | None] | None = None,
-    ) -> list[list[Document]]:
+        return_scores: bool = False,
+    ) -> list[list[Document]] | list[list[tuple[Document, float]]]:
         """Retrieve for a batch of queries."""
         if queries_meta is None:
             queries_meta = [None] * len(queries)
@@ -229,7 +261,10 @@ class GSRRetrieval:
         for q, meta in tqdm(
             zip(queries, queries_meta), total=len(queries), desc="GSR Retrieval"
         ):
-            results.append(self.retrieve(q, query_meta=meta))
+            if return_scores:
+                results.append(self.retrieve_with_scores(q, query_meta=meta))
+            else:
+                results.append(self.retrieve(q, query_meta=meta))
         return results
 
     # ------------------------------------------------------------------
@@ -291,28 +326,45 @@ class HybridGSR(GSRRetrieval):
         self._build_bm25_index()
 
     def _build_bm25_index(self) -> None:
-        from rank_bm25 import BM25Okapi
-
         self.tokenized_corpus = [
             doc.page_content.split(" ") for doc in self.corpus
         ]
-        self.bm25 = BM25Okapi(self.tokenized_corpus)
+        try:
+            from rank_bm25 import BM25Okapi
+            self.bm25 = BM25Okapi(self.tokenized_corpus)
+            self._bm25_mode = "bm25"
+        except ImportError:
+            self.bm25 = None
+            self._bm25_mode = "overlap"
 
-    def retrieve(self, query: str, query_meta: dict[str, Any] | None = None) -> list[Document]:
+    def _rank_candidates(
+        self,
+        query: str,
+        query_meta: dict[str, Any] | None = None,
+    ) -> list[tuple[Document, float]]:
         # GSR ranking
-        gsr_docs = super().retrieve(query, query_meta=query_meta)
-        gsr_ranking = {d.id: rank for rank, d in enumerate(gsr_docs)}
+        gsr_scored = super()._rank_candidates(query, query_meta=query_meta)
+        gsr_ranking = {d.id: rank for rank, (d, _) in enumerate(gsr_scored)}
 
-        # BM25 ranking
+        # BM25 ranking or token-overlap fallback
         tokenized_query = query.split(" ")
-        bm25_scores = self.bm25.get_scores(tokenized_query)
-        top_n_indices = np.argsort(bm25_scores)[::-1][: self.top_k * 4]
+        if self.bm25 is not None:
+            bm25_scores = self.bm25.get_scores(tokenized_query)
+            top_n_indices = np.argsort(bm25_scores)[::-1][: self.top_k * 4]
+        else:
+            q_tokens = {t.lower() for t in tokenized_query if t}
+            overlap_scores = []
+            for idx, doc_tokens in enumerate(self.tokenized_corpus):
+                d_tokens = {t.lower() for t in doc_tokens if t}
+                overlap = len(q_tokens & d_tokens)
+                overlap_scores.append((idx, overlap))
+            top_n_indices = [idx for idx, _ in sorted(overlap_scores, key=lambda x: x[1], reverse=True)[: self.top_k * 4]]
         bm25_ranking = {
             self.corpus[i].id: rank for rank, i in enumerate(top_n_indices)
         }
 
         # Merge candidates
-        all_docs: dict[str, Document] = {d.id: d for d in gsr_docs}
+        all_docs: dict[str, Document] = {d.id: d for d, _ in gsr_scored}
         for idx in top_n_indices:
             all_docs[self.corpus[idx].id] = self.corpus[idx]
 
@@ -329,7 +381,7 @@ class HybridGSR(GSRRetrieval):
         ranked = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)[
             : self.top_k
         ]
-        return [all_docs[doc_id] for doc_id, _ in ranked]
+        return [(all_docs[doc_id], score) for doc_id, score in ranked]
 
 
 GSR_REGISTRY: dict[str, type] = {
