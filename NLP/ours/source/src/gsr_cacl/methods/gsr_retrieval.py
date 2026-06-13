@@ -43,6 +43,7 @@ class GSRRetrieval:
         corpus: list[Document],
         embedding_function: Any,
         top_k: int = 5,
+        candidate_mode: str = "faiss",
         alpha: float = 0.5,
         beta: float = 0.3,
         gamma: float = 0.2,
@@ -56,6 +57,7 @@ class GSRRetrieval:
         self.corpus = corpus
         self.embedding_function = embedding_function
         self.top_k = top_k
+        self.candidate_mode = candidate_mode
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
@@ -65,8 +67,17 @@ class GSRRetrieval:
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(device)
 
-        # Step 1: FAISS text index
-        self._build_faiss_index()
+        if self.candidate_mode not in {"faiss", "bruteforce"}:
+            raise ValueError(
+                f"Unknown candidate_mode: {self.candidate_mode}. "
+                "Choose from {'faiss', 'bruteforce'}."
+            )
+
+        # Step 1: text candidate store
+        if self.candidate_mode == "faiss":
+            self._build_faiss_index()
+        else:
+            self._build_bruteforce_index()
 
         # Infer embedding dimension from the first document
         self._embed_dim = len(self.doc_text_embeds[0]) if len(self.doc_text_embeds) > 0 else 768
@@ -115,40 +126,34 @@ class GSRRetrieval:
     # ------------------------------------------------------------------
 
     def _build_faiss_index(self) -> None:
-        """Build vector index from corpus documents, or fall back to brute-force search."""
-        self.vector_store = None
+        """Build a direct FAISS index over normalized corpus embeddings."""
+        import faiss
+
         self._id_to_idx: dict[str, int] = {str(doc.id): i for i, doc in enumerate(self.corpus)}
+        self._build_text_embeddings()
 
-        # Store text embeddings for scoring
-        all_text_embeds = []
-        for doc in tqdm(self.corpus, desc="Computing text embeddings"):
-            emb = self.embedding_function.embed_query(doc.page_content)
-            all_text_embeds.append(emb)
-        self.doc_text_embeds = np.array(all_text_embeds)
+        # Cosine similarity via normalized vectors + inner product.
+        faiss.normalize_L2(self.doc_text_embeds)
+        dim = self.doc_text_embeds.shape[1]
+        self.faiss_index = faiss.IndexFlatIP(dim)
+        self.faiss_index.add(self.doc_text_embeds)
 
-        try:
-            from langchain_community.vectorstores import FAISS
-            from langchain_core.documents import Document as LCDocument
-        except ImportError:
-            # No LangChain available: use brute-force cosine over all documents.
-            self._candidate_mode = "bruteforce"
-            return
+    def _build_bruteforce_index(self) -> None:
+        """Build the brute-force text store without a FAISS index."""
+        self._id_to_idx = {str(doc.id): i for i, doc in enumerate(self.corpus)}
+        self._build_text_embeddings()
 
-        lc_docs = []
-        for doc in self.corpus:
-            md = dict(doc.meta_data) if isinstance(doc.meta_data, dict) else {}
-            md["id"] = str(doc.id)
-            lc_docs.append(LCDocument(page_content=doc.page_content, metadata=md))
+    def _build_text_embeddings(self) -> None:
+        """Encode the whole corpus once so both FAISS and brute force can reuse it."""
+        texts = [doc.page_content for doc in self.corpus]
+        if hasattr(self.embedding_function, "embed_documents"):
+            all_text_embeds = self.embedding_function.embed_documents(texts)
+        else:
+            all_text_embeds = [self.embedding_function.embed_query(text) for text in texts]
 
-        batch_size = 100
-        for i in tqdm(range(0, len(lc_docs), batch_size), desc="Indexing documents (FAISS)"):
-            batch = lc_docs[i : i + batch_size]
-            if self.vector_store is None:
-                self.vector_store = FAISS.from_documents(batch, self.embedding_function)
-            else:
-                self.vector_store.add_documents(batch)
-
-        self._candidate_mode = "faiss"
+        self.doc_text_embeds = np.asarray(all_text_embeds, dtype="float32")
+        if self.doc_text_embeds.ndim != 2:
+            raise ValueError(f"Expected 2D embeddings, got shape {self.doc_text_embeds.shape}")
 
     def _build_all_kgs(self) -> None:
         """Build a Constraint KG for every corpus document (§4.2)."""
@@ -176,27 +181,22 @@ class GSRRetrieval:
         query_meta: dict[str, Any] | None = None,
     ) -> list[tuple[Document, float]]:
         """Return ranked documents with their final retrieval scores."""
-        q_text_emb = torch.tensor(
-            np.array(self.embedding_function.embed_query(query)),
-            dtype=torch.float32,
-            device=self.device,
-        ).unsqueeze(0)
+        q_vec = np.asarray(self.embedding_function.embed_query(query), dtype="float32").reshape(1, -1)
+        import faiss
+        faiss.normalize_L2(q_vec)
 
-        if getattr(self, "_candidate_mode", "faiss") == "faiss" and self.vector_store is not None:
-            # FAISS first-stage retrieval → candidate LangChain Documents
-            candidates = self.vector_store.similarity_search(query, k=self.top_k * 4)
-            candidate_indices = []
-            for cand in candidates:
-                cand_id = cand.metadata.get("id", "")
-                corpus_idx = self._id_to_idx.get(cand_id)
-                if corpus_idx is not None:
-                    candidate_indices.append(corpus_idx)
+        k = min(self.top_k * 4, len(self.corpus))
+        if self.candidate_mode == "faiss":
+            _, indices_np = self.faiss_index.search(q_vec, k)
+            candidate_indices = [int(i) for i in indices_np[0] if int(i) >= 0]
         else:
-            # Fallback: score every document directly, but do it as a batch.
-            candidate_indices = list(range(len(self.corpus)))
+            brute_scores = np.dot(self.doc_text_embeds, q_vec[0])
+            candidate_indices = list(np.argsort(brute_scores)[::-1][:k])
 
         if not candidate_indices:
             return []
+
+        q_text_emb = torch.tensor(q_vec, dtype=torch.float32, device=self.device)
 
         doc_text_batch = torch.tensor(
             self.doc_text_embeds[candidate_indices],

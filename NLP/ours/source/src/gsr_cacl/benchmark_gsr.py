@@ -41,32 +41,33 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class HashingEmbeddingFunction:
-    """Lightweight local embedding fallback when LangChain embeddings are unavailable."""
+class SentenceTransformerEmbeddingFunction:
+    """SentenceTransformer wrapper compatible with the retriever's embedding API."""
 
-    def __init__(self, dim: int = 768):
-        self.dim = dim
+    def __init__(self, model_name: str, device: str = "cpu"):
+        from sentence_transformers import SentenceTransformer
 
-    def _embed(self, text: str) -> list[float]:
-        import hashlib
-        import re
-        import math
+        self.model = SentenceTransformer(model_name, device=device)
+        self.dim = self.model.get_sentence_embedding_dimension()
 
-        vec = [0.0] * self.dim
-        tokens = re.findall(r"[A-Za-z0-9]+", text.lower())
-        for tok in tokens:
-            digest = hashlib.sha1(tok.encode("utf-8")).digest()
-            idx = int.from_bytes(digest[:4], "big") % self.dim
-            sign = 1.0 if digest[4] % 2 == 0 else -1.0
-            vec[idx] += sign
-        norm = math.sqrt(sum(v * v for v in vec)) or 1.0
-        return [v / norm for v in vec]
+    def _encode(self, texts: list[str] | str) -> list[list[float]] | list[float]:
+        single = isinstance(texts, str)
+        batch = [texts] if single else texts
+        embeds = self.model.encode(
+            batch,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=False,
+        )
+        if single:
+            return embeds[0].tolist()
+        return [emb.tolist() for emb in embeds]
 
     def embed_query(self, text: str) -> list[float]:
-        return self._embed(text)
+        return self._encode(text)  # type: ignore[return-value]
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        return [self._embed(text) for text in texts]
+        return self._encode(texts)  # type: ignore[return-value]
 
 
 # ---------------------------------------------------------------------------
@@ -130,6 +131,12 @@ def _serialise_retrieval_artifacts(
     eval_results: list[RetrievalResult],
     retrieved_with_scores: list[list[tuple[Document, float]]],
     save_top_k: int,
+    *,
+    mode: str,
+    candidate_mode: str,
+    embedding_model: str,
+    config_name: str,
+    eval_split: str,
 ) -> Path:
     """Save generator-ready retrieval artifacts as JSONL."""
     save_top_k = max(1, save_top_k)
@@ -164,6 +171,11 @@ def _serialise_retrieval_artifacts(
         "artifact_file": out_path.name,
         "record_count": len(eval_results),
         "save_top_k": save_top_k,
+        "mode": mode,
+        "candidate_mode": candidate_mode,
+        "embedding_model": embedding_model,
+        "config_name": config_name,
+        "eval_split": eval_split,
     }
     with open(output_dir / "retrieval_manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
@@ -185,6 +197,7 @@ def run_gsr_benchmark(
     output_dir: Path | None = None,
     sample_size: int | None = None,
     save_top_k: int | None = None,
+    candidate_mode: str = "faiss",
 ) -> dict:
     """
     Run GSR retrieval benchmark on a T²-RAGBench subset.
@@ -200,6 +213,7 @@ def run_gsr_benchmark(
         output_dir: where to save metrics JSON
         sample_size: limit QA samples for debugging
         save_top_k: number of top retrieved docs to persist for the generator
+        candidate_mode: text-candidate backend, either "faiss" or "bruteforce"
 
     Returns:
         dict of metric results
@@ -230,25 +244,18 @@ def run_gsr_benchmark(
     for k, v in stats.items():
         logger.info(f"  {k}: {v}")
 
-    # Embedding model
-    try:
-        from langchain_huggingface import HuggingFaceEmbeddings
-
-        embeddings = HuggingFaceEmbeddings(
-            model_name=embedding_model,
-            model_kwargs={"device": device},
-        )
-    except ImportError:
-        logger.warning(
-            "langchain_huggingface is unavailable; using a local hashing embedder fallback"
-        )
-        embeddings = HashingEmbeddingFunction(dim=768)
+    # Embedding model (SentenceTransformer + normalized embeddings)
+    embeddings = SentenceTransformerEmbeddingFunction(
+        model_name=embedding_model,
+        device=device,
+    )
 
     # Build retrieval method with GSR hyperparameters from config
     rag_method = RAGClass(
         corpus=split_data.corpus,
         embedding_function=embeddings,
         top_k=top_k,
+        candidate_mode=candidate_mode,
         device=device,
         alpha=gsr_params.get("alpha", 0.5),
         beta=gsr_params.get("beta", 0.3),
@@ -300,7 +307,7 @@ def run_gsr_benchmark(
     # Save outputs
     if output_dir is None:
         ts = datetime.now().strftime("%y%m%d_%H%M%S")
-        output_dir = Path(f"outputs/gsr_benchmark/{config_name}/{mode}_{ts}")
+        output_dir = Path(f"outputs/gsr_benchmark/{config_name}/{mode}_{candidate_mode}_{ts}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with open(output_dir / "metrics.json", "w", encoding="utf-8") as f:
@@ -311,6 +318,11 @@ def run_gsr_benchmark(
         eval_results=eval_results,
         retrieved_with_scores=all_retrieved,
         save_top_k=save_top_k,
+        mode=mode,
+        candidate_mode=candidate_mode,
+        embedding_model=embedding_model,
+        config_name=config_name,
+        eval_split=eval_split,
     )
 
     logger.info(f"Results saved to {output_dir}")
@@ -355,6 +367,7 @@ def _main_hydra() -> None:
             device=None,
             sample_size=cfg.get("eval", {}).get("sample_size"),
             save_top_k=gsr_params.pop("save_top_k", cfg.get("eval", {}).get("save_top_k", 3)),
+            candidate_mode=gsr_params.pop("candidate_mode", cfg.get("eval", {}).get("candidate_mode", "faiss")),
         )
 
     _run()
@@ -379,6 +392,8 @@ def _main_argparse() -> None:
                         help="Limit number of QA samples (for debugging)")
     parser.add_argument("--save-top-k", type=int, default=3,
                         help="Number of top retrieved documents to persist for downstream generation")
+    parser.add_argument("--candidate-mode", type=str, default="faiss", choices=["faiss", "bruteforce"],
+                        help="Text candidate backend to preserve and compare")
     args = parser.parse_args()
 
     ds_cfg = DATASET_CONFIGS.get(args.dataset)
@@ -397,6 +412,7 @@ def _main_argparse() -> None:
             output_dir=output_dir,
             sample_size=args.sample,
             save_top_k=args.save_top_k,
+            candidate_mode=args.candidate_mode,
         )
     except Exception as e:
         logger.error(f"Benchmark failed: {e}", exc_info=True)

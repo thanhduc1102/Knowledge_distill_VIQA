@@ -1,7 +1,40 @@
-# GSR-CACL: Graph-Structured Retrieval + Constraint-Aware Contrastive Learning
+# GSR-CACL → LEDGER-RAG: Fact-Ledger Retrieval & Generation for Financial Documents
 
 > **Paper:** Structured Knowledge-Enhanced Retrieval for Financial Documents
 > **Venue:** EMNLP / SIGIR | **Benchmark:** T²-RAGBench (EACL 2026)
+
+---
+
+## 🆕 LEDGER-RAG upgrade (read this first)
+
+The original GSR-CACL benchmark numbers did **not** reflect a trained pipeline (the GAT + scorer
+were randomly initialized at inference, the trained text encoder was discarded, the "entity score"
+was string-matching, CHAP-E was a stub, and there was **no generator at all**). The LEDGER-RAG
+upgrade fixes these and adds the full generation phase. **Start here:**
+
+- **[docs/ASSESSMENT.md](docs/ASSESSMENT.md)** — đánh giá toàn diện code cũ + phân tích SOTA/leaderboard (6 lỗi nghiêm trọng B1–B6).
+- **[docs/LEDGER_RAG.md](docs/LEDGER_RAG.md)** — kiến trúc & cách chạy hệ thống mới (KG dùng chung cho retrieve + generate).
+- **[docs/RESULTS.md](docs/RESULTS.md)** — kết quả **đã kiểm chứng thật**.
+- **[docs/ROADMAP.md](docs/ROADMAP.md)** — kế hoạch phiên bản v1→v4 + việc reviewer yêu cầu.
+
+**Verified (FinQA, e5-large, 300 queries, corpus 2,789):** dense-only MRR@3 **0.381** → FULL
+(trained entity-embedding + metadata-aware candidates) MRR@3 **0.732**, R@3 **0.873**, R@5 **0.933**
+(+0.35 MRR@3). Generation đo bằng **Number-Match** với Qwen. Smoke tests:
+`python tests/test_ledger_rag.py` → 7/7.
+
+New modules (all under `src/gsr_cacl/`): `ledger/` (Fact Ledger = KG-for-generator),
+`entity/` (trained metadata embedding + SupCon), `generation/` (Qwen generator + Ledger Verifier +
+Number-Match), `methods/ledger_retrieval.py` (metadata-aware retrieval),
+`negative_sampler/channel_aligned.py` (5 channel-aligned negatives), `training/preference.py`
+(DPO/ORPO/GRPO), `eval/pipeline.py` (end-to-end harness).
+
+```bash
+cd ours/source && export HF_DATASETS_OFFLINE=1 PYTHONPATH=src
+python tests/test_ledger_rag.py                                            # smoke tests
+python scripts/retrieval_ablation.py --dataset finqa --sample 300          # retrieval ablation
+python -m gsr_cacl.eval.pipeline --dataset finqa --sample 200 --stage all \
+       --generator hf --gen-model Qwen/Qwen2.5-3B-Instruct                  # end-to-end + Number-Match
+```
 
 ---
 

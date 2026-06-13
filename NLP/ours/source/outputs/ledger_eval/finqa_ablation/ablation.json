@@ -1,0 +1,37 @@
+{
+  "dataset": "FinQA",
+  "split": "test",
+  "n_queries": 300,
+  "n_corpus": 2789,
+  "embed_model": "intfloat/multilingual-e5-large-instruct",
+  "arms": {
+    "dense_only": {
+      "MRR@3": 0.38111111111111096,
+      "Recall@1": 0.3,
+      "Recall@3": 0.48333333333333334,
+      "Recall@5": 0.5466666666666666,
+      "NDCG@3": 0.40737823709524124
+    },
+    "dense+equationCS": {
+      "MRR@3": 0.38111111111111096,
+      "Recall@1": 0.3,
+      "Recall@3": 0.48333333333333334,
+      "Recall@5": 0.5466666666666666,
+      "NDCG@3": 0.40737823709524124
+    },
+    "dense+entity_rerank": {
+      "MRR@3": 0.6688888888888891,
+      "Recall@1": 0.5733333333333334,
+      "Recall@3": 0.7866666666666666,
+      "Recall@5": 0.8133333333333334,
+      "NDCG@3": 0.699203030523813
+    },
+    "FULL (entity+metadata_filter)": {
+      "MRR@3": 0.731666666666667,
+      "Recall@1": 0.6166666666666667,
+      "Recall@3": 0.8733333333333333,
+      "Recall@5": 0.9333333333333333,
+      "NDCG@3": 0.7681309231309567
+    }
+  }
+}
