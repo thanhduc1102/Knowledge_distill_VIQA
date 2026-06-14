@@ -3,10 +3,24 @@
 data/vinumqa_raw/
 dataset/
 
-# Outputs
+# Outputs (general) — but allow key result artifacts
 outputs/
 checkpoints/
 logs/
+# Allow LEDGER-RAG v2 result artifacts under ours/source/outputs/
+!NLP/ours/source/outputs/
+!NLP/ours/source/outputs/**
+!NLP/ours/source/outputs/final_retrieval/
+!NLP/ours/source/outputs/final_retrieval/**
+!NLP/ours/source/outputs/cacl_infonce/
+!NLP/ours/source/outputs/cacl_infonce/**
+!NLP/ours/source/outputs/entity_ablation/
+!NLP/ours/source/outputs/entity_ablation/**
+!NLP/ours/source/outputs/validity/
+!NLP/ours/source/outputs/validity/**
+# Exclude very large model checkpoints (keep cacl2_model.pt — only 1.1MB each)
+NLP/ours/source/outputs/**/*.bin
+NLP/ours/source/outputs/**/*.safetensors
 
 # Kaggle offline package
 kaggle_offline_package/

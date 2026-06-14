@@ -1,0 +1,7 @@
+{
+  "checkpoint": "outputs/cacl_infonce/finqa/cacl2_model.pt",
+  "dataset": "FinQA",
+  "w_text": 1.3343673944473267,
+  "w_ent": 1.0581856966018677,
+  "w_cov": 0.72702556848526
+}

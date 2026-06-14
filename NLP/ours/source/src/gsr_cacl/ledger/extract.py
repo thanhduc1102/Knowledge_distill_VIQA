@@ -15,6 +15,7 @@ from typing import Any, Optional
 from gsr_cacl.kg.parser import parse_markdown_rows
 from gsr_cacl.ledger.numeric import parse_financial_number, extract_years
 from gsr_cacl.ledger.fact import Fact, FactLedger
+from gsr_cacl.ontology.concepts import canonical_concept
 
 # ----------------------------------------------------------------------
 # Scale / unit detection
@@ -145,6 +146,7 @@ def extract_ledger_from_table(
             ledger.facts.append(Fact(
                 concept=concept,
                 value=val,
+                concept_canonical=canonical_concept(concept),
                 raw_text=raw,
                 period=period,
                 column_header=header.strip(),
@@ -231,7 +233,8 @@ def _text_number_facts(context: str, doc_id: str, meta: dict, limit: int) -> lis
         seen_vals.add(rounded)
         yrs = extract_years(text[max(0, m.start() - 80):m.end() + 20])
         facts.append(Fact(
-            concept=concept, value=v, raw_text=m.group(0).strip(),
+            concept=concept, value=v, concept_canonical=canonical_concept(concept),
+            raw_text=m.group(0).strip(),
             period=str(yrs[0]) if yrs else None,
             source="text", doc_id=doc_id, company=company,
             provenance=f"{doc_id} text",

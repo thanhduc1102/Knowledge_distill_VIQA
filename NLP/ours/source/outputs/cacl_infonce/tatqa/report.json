@@ -1,0 +1,15 @@
+{
+  "dataset": "TAT-DQA",
+  "n_train": 644,
+  "n_eval": 500,
+  "tau": 0.05,
+  "n_neg": 8,
+  "drop_same_cy": true,
+  "MRR@3_text+entity_default_w": 0.36400000000000005,
+  "MRR@3_CACL2_trained_no_cov": 0.3326666666666667,
+  "MRR@3_CACL2_trained_full": 0.4160000000000002,
+  "w_text": 1.32894766330719,
+  "w_ent": 1.046057105064392,
+  "w_cov": 0.7339255213737488,
+  "seconds": 125.5
+}

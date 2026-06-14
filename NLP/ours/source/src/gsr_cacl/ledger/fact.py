@@ -23,6 +23,7 @@ class Fact:
 
     concept: str                 # line-item / row label, e.g. "net cash from operating activities"
     value: Optional[float]       # numeric value in display units (table scale)
+    concept_canonical: Optional[str] = None  # canonical IFRS/GAAP/XBRL concept (C2), if recognised
     raw_text: str = ""           # original cell text, e.g. "$ 206588"
     period: Optional[str] = None # period token (fiscal year) if identifiable
     column_header: str = ""      # raw column header the value came from
@@ -70,6 +71,10 @@ class FactLedger:
 
     def numeric_facts(self) -> list[Fact]:
         return [f for f in self.facts if f.value is not None]
+
+    def concept_set(self) -> set[str]:
+        """Canonical IFRS/GAAP concepts present in this ledger (C2/C3)."""
+        return {f.concept_canonical for f in self.facts if f.concept_canonical}
 
     def periods(self) -> list[str]:
         seen, out = set(), []

@@ -180,6 +180,69 @@ def compute_row_major_constraint_score(
     )
 
 
+def compute_concept_equation_score(
+    ledger,
+    epsilon: float = 1.0,
+) -> ConstraintScoringResult:
+    """Concept-grounded, scale-aware accounting verifier (contribution C5).
+
+    Unlike the column-template KG (which is dead on row-major tables), this evaluates the
+    IFRS/GAAP identities from :data:`gsr_cacl.ontology.concepts.IDENTITIES` directly on the
+    Fact-Ledger, matching operands/target by **canonical concept** and **period**, and
+    comparing in *absolute* (scale-normalised) units so a thousands/millions mismatch does
+    not create a phantom violation::
+
+        residual = | Σ_i ω_i · v_{operand_i}  −  v_target |   (all in absolute units)
+        score    = exp( − residual / max(|v_target|, ε) )      ∈ (0, 1]
+
+    A document with no evaluable identity → 1.0 (neutral). This is a *verifier / generation*
+    signal (it judges internal consistency), not a retrieval signal — keep it out of the
+    ranking score (use C3 concept-coverage there instead).
+    """
+    from gsr_cacl.ontology.concepts import IDENTITIES
+
+    # index facts by (canonical_concept, period) → absolute value
+    by_cp: dict[tuple[str, str], float] = {}
+    for f in ledger.facts:
+        if f.concept_canonical is None or f.value is None:
+            continue
+        per = str(f.period) if f.period else "_"
+        key = (f.concept_canonical, per)
+        if key not in by_cp:                       # first (table) occurrence wins
+            by_cp[key] = f.value_absolute if f.value_absolute is not None else f.value
+
+    periods = {p for (_, p) in by_cp} or {"_"}
+    scores: list[float] = []
+    violated = 0
+    for target, operands in IDENTITIES:
+        for per in periods:
+            tv = by_cp.get((target, per))
+            if tv is None:
+                continue
+            lhs = 0.0; n_ok = 0
+            for op, omega in operands:
+                ov = by_cp.get((op, per))
+                if ov is None:
+                    continue
+                lhs += omega * ov; n_ok += 1
+            if n_ok < max(2, len(operands)):        # need the full identity present
+                continue
+            residual = abs(lhs - tv)
+            sc = math.exp(-residual / max(abs(tv), epsilon))
+            scores.append(sc)
+            if sc < 0.5:
+                violated += 1
+
+    if not scores:
+        return ConstraintScoringResult(1.0, 0, 0, [])
+    return ConstraintScoringResult(
+        constraint_score=sum(scores) / len(scores),
+        violated_count=violated,
+        total_count=len(scores),
+        per_constraint_scores=scores,
+    )
+
+
 def compute_equation_constraint_score(
     kg: ConstraintKG,
     epsilon: float = 1e-4,

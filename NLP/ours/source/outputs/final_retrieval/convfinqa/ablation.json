@@ -1,0 +1,70 @@
+{
+  "dataset": "ConvFinQA",
+  "split": "turn_0",
+  "n_queries": 3458,
+  "n_corpus": 1806,
+  "embed_model": "intfloat/multilingual-e5-large-instruct",
+  "coverage_diag": {
+    "pct_docs_with_canonical_concept": 72.9,
+    "pct_queries_with_canonical_concept": 43.0
+  },
+  "cacl2_loaded": true,
+  "cacl2_weights": {
+    "w_text": 1.3728516101837158,
+    "w_ent": 1.1037546396255493,
+    "w_cov": 0.7027222514152527
+  },
+  "best_fixed_delta": 0.1,
+  "arms": {
+    "dense": {
+      "MRR@3": 0.3905,
+      "Recall@1": 0.3013,
+      "Recall@3": 0.5055,
+      "Recall@5": 0.5946,
+      "NDCG@3": 0.42
+    },
+    "FULL (entity+meta, \u03b2=0.6)": {
+      "MRR@3": 0.7686,
+      "Recall@1": 0.668,
+      "Recall@3": 0.8918,
+      "Recall@5": 0.9439,
+      "NDCG@3": 0.8003
+    },
+    "FULL + C3 \u03b4=0.1 (fixed w)": {
+      "MRR@3": 0.8176,
+      "Recall@1": 0.7279,
+      "Recall@3": 0.9274,
+      "Recall@5": 0.9647,
+      "NDCG@3": 0.8459
+    },
+    "FULL + C3 \u03b4=0.2 (fixed w)": {
+      "MRR@3": 0.8105,
+      "Recall@1": 0.7201,
+      "Recall@3": 0.9213,
+      "Recall@5": 0.9618,
+      "NDCG@3": 0.839
+    },
+    "FULL + C3 \u03b4=0.3 (fixed w)": {
+      "MRR@3": 0.8057,
+      "Recall@1": 0.7154,
+      "Recall@3": 0.9164,
+      "Recall@5": 0.9584,
+      "NDCG@3": 0.8342
+    },
+    "FULL + C3 \u03b4=0.5 (fixed w)": {
+      "MRR@3": 0.7868,
+      "Recall@1": 0.6998,
+      "Recall@3": 0.8947,
+      "Recall@5": 0.9422,
+      "NDCG@3": 0.8145
+    },
+    "FULL + C3 CACL2-weights": {
+      "MRR@3": 0.8017,
+      "Recall@1": 0.7221,
+      "Recall@3": 0.8973,
+      "Recall@5": 0.9479,
+      "NDCG@3": 0.8264
+    }
+  },
+  "seconds": 87.3
+}

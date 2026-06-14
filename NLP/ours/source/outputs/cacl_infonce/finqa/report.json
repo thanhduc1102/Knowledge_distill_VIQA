@@ -1,0 +1,15 @@
+{
+  "dataset": "FinQA",
+  "n_train": 647,
+  "n_eval": 500,
+  "tau": 0.05,
+  "n_neg": 8,
+  "drop_same_cy": true,
+  "MRR@3_text+entity_default_w": 0.6536666666666665,
+  "MRR@3_CACL2_trained_no_cov": 0.6363333333333333,
+  "MRR@3_CACL2_trained_full": 0.6646666666666665,
+  "w_text": 1.3343673944473267,
+  "w_ent": 1.0581856966018677,
+  "w_cov": 0.72702556848526,
+  "seconds": 131.3
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "ConvFinQA",
+  "n_train": 2000,
+  "n_eval": 500,
+  "tau": 0.05,
+  "n_neg": 8,
+  "drop_same_cy": true,
+  "MRR@3_text+entity_default_w": 0.7556666666666663,
+  "MRR@3_CACL2_trained_no_cov": 0.7569999999999997,
+  "MRR@3_CACL2_trained_full": 0.7809999999999998,
+  "w_text": 1.3728516101837158,
+  "w_ent": 1.1037546396255493,
+  "w_cov": 0.7027222514152527,
+  "seconds": 119.4
+}

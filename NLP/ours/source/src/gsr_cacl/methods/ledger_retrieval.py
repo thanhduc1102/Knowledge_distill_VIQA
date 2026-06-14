@@ -42,6 +42,7 @@ class LedgerRetrieval:
         candidate_mult: int = 10,
         year_window: int = 1,
         use_metadata_filter: bool = True,
+        alias_match: bool = False,
         device: str | None = None,
     ):
         self.corpus = corpus
@@ -52,6 +53,9 @@ class LedgerRetrieval:
         self.candidate_mult = candidate_mult
         self.year_window = year_window
         self.use_metadata_filter = use_metadata_filter
+        # E2: when True, company keys are canonicalised (alias/suffix robust) and a fuzzy
+        # fallback scan recovers acronym/ticker variants. Default False = exact-match baseline.
+        self.alias_match = alias_match
         self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
 
         self._build_faiss_index()
@@ -73,15 +77,36 @@ class LedgerRetrieval:
         self.faiss_index.add(self.doc_text_embeds)
 
     def _build_metadata_index(self) -> None:
+        from gsr_cacl.ontology import normalize_company
+
         self.company_to_idx: dict[str, list[int]] = {}
         self.doc_years: list[Optional[int]] = []
         for i, d in enumerate(self.corpus):
-            c = str(d.meta_data.get("company_name", "")).lower().strip()
-            self.company_to_idx.setdefault(c, []).append(i)
+            raw = str(d.meta_data.get("company_name", "")).lower().strip()
+            key = normalize_company(raw) if self.alias_match else raw
+            self.company_to_idx.setdefault(key, []).append(i)
             try:
                 self.doc_years.append(int(float(str(d.meta_data.get("report_year", "")).strip())))
             except (ValueError, TypeError):
                 self.doc_years.append(None)
+        # unique company surfaces (for the fuzzy fallback used only under alias_match)
+        self._company_keys = list(self.company_to_idx.keys())
+
+    def _company_matches(self, query_company: str) -> list[int]:
+        """Corpus indices whose company matches ``query_company`` (alias-aware if enabled)."""
+        from gsr_cacl.ontology import normalize_company, company_match
+
+        if not self.alias_match:
+            return self.company_to_idx.get(query_company.lower().strip(), [])
+        key = normalize_company(query_company)
+        hits = list(self.company_to_idx.get(key, []))
+        if hits:
+            return hits
+        # fuzzy fallback: acronym/ticker/word-order variants (corpus is small → cheap)
+        for ck in self._company_keys:
+            if ck and company_match(key, ck):
+                hits.extend(self.company_to_idx[ck])
+        return hits
 
     def _build_constraint_cache(self, tables: Optional[list[str]]) -> None:
         self.cs_cache = np.ones(len(self.corpus), dtype="float32")
@@ -107,12 +132,12 @@ class LedgerRetrieval:
         cands = {int(i) for i in idx[0] if int(i) >= 0}
 
         if self.use_metadata_filter and query_meta:
-            company = str(query_meta.get("company_name", "")).lower().strip()
+            company = str(query_meta.get("company_name", "")).strip()
             try:
                 qyear = int(float(str(query_meta.get("report_year", "")).strip()))
             except (ValueError, TypeError):
                 qyear = None
-            for j in self.company_to_idx.get(company, []):
+            for j in self._company_matches(company):
                 if qyear is None or self.doc_years[j] is None or \
                         abs(self.doc_years[j] - qyear) <= self.year_window:
                     cands.add(j)

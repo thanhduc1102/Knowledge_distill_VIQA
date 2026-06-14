@@ -1,0 +1,23 @@
+{
+  "dataset": "FinQA",
+  "n_queries": 1147,
+  "uniqueness": {
+    "n_corpus": 2789,
+    "n_unique_companies": 136,
+    "n_(company,year)_groups": 799,
+    "mean_docs_per_(company,year)": 3.491,
+    "max_docs_per_(company,year)": 29,
+    "pct_docs_in_singleton_(company,year)": 8.4
+  },
+  "metadata_only_ceiling": {
+    "recall_company+year_exact": 1.0,
+    "recall_company+year_alias": 1.0,
+    "pct_queries_metadata_singleton==gold": 1.1,
+    "mean_alias_candidate_set_size": 14.13
+  },
+  "recoverable_from_text": {
+    "pct_queries_with_year_in_text": 98.3,
+    "pct_queries_year_in_text==gold_year": 82.4,
+    "pct_queries_company_in_text": 88.3
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "checkpoint": "outputs/cacl_infonce/tatqa/cacl2_model.pt",
+  "dataset": "TAT-DQA",
+  "w_text": 1.32894766330719,
+  "w_ent": 1.046057105064392,
+  "w_cov": 0.7339255213737488
+}

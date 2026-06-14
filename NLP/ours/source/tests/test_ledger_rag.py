@@ -96,6 +96,105 @@ def test_entity_embedder_separation():
     assert same > diff
 
 
+def test_gics_canonicalization():
+    from gsr_cacl.ontology import canonical_sector, sector_id, N_SECTORS
+    assert canonical_sector("Financials") == "Financials"
+    assert canonical_sector("Utilities") == "Utilities"
+    # industry tokens resolve to their parent GICS sector
+    assert canonical_sector("", "Semiconductors") == "Information Technology"
+    assert canonical_sector("", "Software") == "Information Technology"
+    assert canonical_sector("Telecommunications") == "Communication Services"
+    assert canonical_sector("", "Oil & Gas Drilling") == "Energy"
+    assert canonical_sector("garbage xyz") == "Unknown"
+    assert 0 <= sector_id("Financials") < N_SECTORS
+
+
+def test_company_alias_matching():
+    from gsr_cacl.ontology import normalize_company, company_match, company_acronym
+    assert normalize_company("American Water Works Company, Inc.") == \
+           normalize_company("American Water Works")
+    assert company_match("American Water Works Company, Inc.", "American Water Works")
+    assert company_match("Apple", "Apple Inc.")
+    assert company_acronym("American Water Works") == "aww"
+    assert not company_match("Apple Inc.", "Microsoft Corporation")
+
+
+def test_ontology_embedder_sector_proximity():
+    import torch
+    from gsr_cacl.entity import OntologyMetadataEmbedder, entity_cosine
+    from gsr_cacl.entity.supcon import SupConLoss, make_entity_labels
+    torch.manual_seed(0)
+    sectors = {"Information Technology": ["Apple", "Microsoft", "Nvidia"],
+               "Financials": ["JPMorgan", "Citigroup", "Wells Fargo"],
+               "Energy": ["Exxon", "Chevron", "ConocoPhillips"]}
+    metas = [{"company_name": c, "report_year": y, "company_sector": s,
+              "company_industry": s, "company_symbol": c[:3]}
+             for s, cs in sectors.items() for c in cs for y in ["2018", "2019"]]
+    labels = make_entity_labels(metas)
+    model = OntologyMetadataEmbedder(embed_dim=32)
+    loss_fn = SupConLoss()
+    opt = torch.optim.Adam(model.parameters(), lr=1e-2)
+    for _ in range(60):
+        loss = loss_fn(model(metas), labels)
+        opt.zero_grad(); loss.backward(); opt.step()
+    emb = model.encode(metas)
+    sec_of = [m["company_sector"] for m in metas]
+    comp_of = [m["company_name"] for m in metas]
+    same_sec, diff_sec = [], []
+    for i in range(len(metas)):
+        for j in range(i + 1, len(metas)):
+            if comp_of[i] == comp_of[j]:
+                continue  # ignore same-entity pairs; we test cross-company structure
+            c = float(entity_cosine(emb[i:i+1], emb[j:j+1]))
+            (same_sec if sec_of[i] == sec_of[j] else diff_sec).append(c)
+    # same-sector companies are, on average, closer than different-sector companies
+    assert sum(same_sec) / len(same_sec) > sum(diff_sec) / len(diff_sec)
+
+
+def test_concept_ontology():
+    from gsr_cacl.ontology import canonical_concept, concepts_in_text
+    assert canonical_concept("Gross profit") == "GrossProfit"
+    assert canonical_concept("Cost of goods sold") == "CostOfRevenue"
+    assert canonical_concept("Total net revenue") == "Revenue"
+    assert canonical_concept("net cash provided by operating activities") == "OperatingCashFlow"
+    assert canonical_concept("random narrative sentence") is None
+    cs = concepts_in_text("What was the gross profit and net income in 2019?")
+    assert "GrossProfit" in cs and "NetIncome" in cs
+
+
+def test_concept_coverage_signal():
+    from gsr_cacl.ledger import extract_ledger
+    from gsr_cacl.scoring.concept_coverage import (
+        query_concepts, query_periods, doc_periods_from_ledger,
+        concept_coverage_score, expand_derivable)
+    led = extract_ledger(table_md=SYNTH_TABLE, doc_id="d1", meta={"company_name": "Acme"})
+    dc, dp = led.concept_set(), doc_periods_from_ledger(led)
+    assert "GrossProfit" in dc and "Revenue" in dc
+    # query asking for a concept+period the doc covers scores higher than one it doesn't
+    s_hit = concept_coverage_score(query_concepts("gross profit 2019"), query_periods("gross profit 2019"), dc, dp)
+    s_miss = concept_coverage_score(query_concepts("capital expenditures 2019"), query_periods("capital expenditures 2019"), dc, dp)
+    assert s_hit > s_miss
+    # derivable: a doc with Revenue + CostOfRevenue can answer GrossProfit even if implicit
+    assert "GrossProfit" in expand_derivable({"Revenue", "CostOfRevenue"})
+
+
+def test_concept_equation_verifier():
+    from gsr_cacl.ledger import extract_ledger
+    from gsr_cacl.scoring.constraint_score import compute_concept_equation_score
+    # SYNTH_TABLE: revenue 1000 - cogs 600 = gross profit 400 (consistent)
+    led = extract_ledger(table_md=SYNTH_TABLE, doc_id="d1", meta={"company_name": "Acme"})
+    good = compute_concept_equation_score(led)
+    assert good.total_count >= 1 and good.constraint_score > 0.9
+    # a value-identity channel-aligned negative breaks Revenue-COGS=GrossProfit → lower score
+    from gsr_cacl.negative_sampler.channel_aligned import make_negative
+    import random
+    neg = make_negative(SYNTH_TABLE, "value-identity", random.Random(0))
+    if neg is not None:
+        led_neg = extract_ledger(table_md=neg.table_md, doc_id="d1", meta={"company_name": "Acme"})
+        bad = compute_concept_equation_score(led_neg)
+        assert bad.constraint_score <= good.constraint_score
+
+
 def test_preference_reward_and_grpo():
     from gsr_cacl.ledger import extract_ledger
     from gsr_cacl.training.preference import ledger_reward, grpo_advantages

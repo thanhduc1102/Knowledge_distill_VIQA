@@ -1,0 +1,7 @@
+{
+  "checkpoint": "outputs/cacl_infonce/convfinqa/cacl2_model.pt",
+  "dataset": "ConvFinQA",
+  "w_text": 1.3728516101837158,
+  "w_ent": 1.1037546396255493,
+  "w_cov": 0.7027222514152527
+}

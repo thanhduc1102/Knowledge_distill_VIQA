@@ -5,7 +5,7 @@ Given a question and the FactLedgers of the top-K retrieved documents, return th
 cells instead of raw markdown. This directly addresses the user requirement: "even with
 top-3 docs, retrieve and pass the exact data to the model".
 
-Scoring is intentionally lightweight (lexical + period + entity) so it runs without a
+Scoring is intentionally lightweight (lexical + ontology + period) so it runs without a
 GPU; an optional embedding scorer can be plugged in via ``concept_sim_fn``.
 """
 
@@ -16,6 +16,8 @@ from typing import Callable, Optional
 
 from gsr_cacl.ledger.fact import Fact, FactLedger
 from gsr_cacl.ledger.numeric import extract_years
+from gsr_cacl.ontology.concepts import concepts_in_text
+from gsr_cacl.scoring.concept_coverage import expand_derivable
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOP = {
@@ -37,19 +39,42 @@ def _lexical_overlap(q_tokens: set[str], concept: str) -> float:
     return len(q_tokens & c_tokens) / (len(c_tokens) ** 0.5)
 
 
+def _render_fact_for_prompt(fact: Fact) -> str:
+    per = f" [{fact.period}]" if fact.period else ""
+    canon = f" [{fact.concept_canonical}]" if fact.concept_canonical else ""
+    unit = f" {fact.unit}" if fact.unit else ""
+    sc = f" (in {fact.scale_label})" if fact.scale_label else ""
+    val = fact.raw_text if fact.raw_text else (f"{fact.value}" if fact.value is not None else "—")
+    return f"{fact.concept}{canon}{per} = {val}{unit}{sc}"
+
+
 def score_fact(
     fact: Fact,
     q_tokens: set[str],
     q_years: list[int],
+    q_concepts: Optional[set[str]] = None,
     concept_sim_fn: Optional[Callable[[str], float]] = None,
 ) -> float:
     """Relevance score of a single fact to the query."""
+    q_concepts = q_concepts or set()
+    q_derived = expand_derivable(q_concepts) if q_concepts else set()
+
     if concept_sim_fn is not None:
         concept_score = concept_sim_fn(fact.concept)
     else:
         concept_score = _lexical_overlap(q_tokens, fact.concept)
 
     score = concept_score
+    # Ontology-aware boost: exact canonical concept hits win, one-hop derived concepts
+    # are next, and lexical overlap stays as the fallback when no concept is detected.
+    if q_concepts and fact.concept_canonical:
+        if fact.concept_canonical in q_concepts:
+            score += 1.20
+        elif fact.concept_canonical in q_derived:
+            score += 0.75
+        elif concept_sim_fn is None:
+            score += 0.05 * _lexical_overlap(q_tokens, fact.concept_canonical)
+
     # period gate: boost facts whose period matches a year in the question
     if q_years and fact.period:
         try:
@@ -77,11 +102,12 @@ def select_facts(
     """Return the ``top_n`` most query-relevant facts across the given ledgers."""
     q_tokens = _tokens(query)
     q_years = extract_years(query)
+    q_concepts = concepts_in_text(query)
 
     scored: list[tuple[float, Fact]] = []
     for ledger in ledgers:
         doc_scored = [
-            (score_fact(f, q_tokens, q_years, concept_sim_fn), f)
+            (score_fact(f, q_tokens, q_years, q_concepts, concept_sim_fn), f)
             for f in ledger.numeric_facts()
         ]
         doc_scored.sort(key=lambda x: x[0], reverse=True)
@@ -121,5 +147,5 @@ def build_evidence_block(
         head = f"[{doc_id}]" + (f" {company}" if company else "") + (f" (in {sl})" if sl else "")
         lines.append(head)
         for f in fs:
-            lines.append("  - " + f.render())
+            lines.append("  - " + _render_fact_for_prompt(f))
     return "\n".join(lines)

@@ -1,0 +1,23 @@
+{
+  "dataset": "TAT-DQA",
+  "n_queries": 1144,
+  "uniqueness": {
+    "n_corpus": 2723,
+    "n_unique_companies": 173,
+    "n_(company,year)_groups": 173,
+    "mean_docs_per_(company,year)": 15.74,
+    "max_docs_per_(company,year)": 47,
+    "pct_docs_in_singleton_(company,year)": 0.3
+  },
+  "metadata_only_ceiling": {
+    "recall_company+year_exact": 1.0,
+    "recall_company+year_alias": 1.0,
+    "pct_queries_metadata_singleton==gold": 0.0,
+    "mean_alias_candidate_set_size": 23.31
+  },
+  "recoverable_from_text": {
+    "pct_queries_with_year_in_text": 95.7,
+    "pct_queries_year_in_text==gold_year": 81.1,
+    "pct_queries_company_in_text": 81.2
+  }
+}

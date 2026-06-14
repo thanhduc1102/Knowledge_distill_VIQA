@@ -11,7 +11,7 @@ from typing import Any
 
 import torch
 
-from gsr_cacl.entity.encoder import HashMetadataEmbedder
+from gsr_cacl.entity.encoder import build_entity_embedder
 from gsr_cacl.entity.supcon import SupConLoss, make_entity_labels
 
 logger = logging.getLogger(__name__)
@@ -27,12 +27,17 @@ def train_entity_embedder(
     temperature: float = 0.1,
     device: str | None = None,
     seed: int = 42,
-) -> HashMetadataEmbedder:
-    """Train and return a HashMetadataEmbedder via SupCon over entity labels."""
+    embedder: str = "hash",
+):
+    """Train and return an entity embedder via SupCon over entity labels.
+
+    ``embedder="hash"`` (default) reproduces the original baseline; ``embedder="ontology"``
+    uses the GICS/alias-grounded :class:`OntologyMetadataEmbedder` (E1+E2).
+    """
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     torch.manual_seed(seed)
 
-    model = HashMetadataEmbedder(embed_dim=embed_dim).to(device)
+    model = build_entity_embedder(embedder, embed_dim=embed_dim).to(device)
     loss_fn = SupConLoss(temperature=temperature)
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
 
