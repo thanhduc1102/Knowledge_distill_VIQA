@@ -18,6 +18,16 @@ logs/
 !NLP/ours/source/outputs/entity_ablation/**
 !NLP/ours/source/outputs/validity/
 !NLP/ours/source/outputs/validity/**
+!NLP/ours/source/outputs/final_generation/
+!NLP/ours/source/outputs/final_generation/**
+!NLP/ours/source/outputs/ledger_full2/
+!NLP/ours/source/outputs/ledger_full2/**
+!NLP/ours/source/outputs/faiss_run/
+!NLP/ours/source/outputs/faiss_run/**
+!NLP/ours/source/outputs/qwen_eval/
+!NLP/ours/source/outputs/qwen_eval/**
+!NLP/ours/source/outputs/checks/
+!NLP/ours/source/outputs/checks/**
 # Exclude very large model checkpoints (keep cacl2_model.pt — only 1.1MB each)
 NLP/ours/source/outputs/**/*.bin
 NLP/ours/source/outputs/**/*.safetensors
