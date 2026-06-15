@@ -7,30 +7,53 @@ the exact cells it needs.
 
 from __future__ import annotations
 
+from gsr_cacl.ledger.numeric import extract_years
+from gsr_cacl.ontology.concepts import concepts_in_text
+
 SYSTEM_PROMPT = (
-    "You are a meticulous financial analyst. Answer the question using ONLY the financial "
-    "facts provided. The facts are exact values extracted from the source tables. "
-    "Reason step by step: identify the relevant cells, perform any arithmetic exactly, and "
-    "respect the stated scale (e.g. 'in millions'). Do not invent numbers. "
-    "End with a single line: 'Answer: <number>' giving the numeric answer only."
+    "You are a precise financial QA model. Use only the provided facts, TASK, FORMULA, "
+    "and CALCULATION HINT if present. Do not reveal reasoning. Return exactly one line "
+    "only: Answer: <number>. For percentage questions, prefer the decimal fraction (for "
+    "example 0.1446) rather than multiplying by 100."
 )
+
+
+def _format_focus_hints(query: str, meta: dict | None = None) -> str:
+    meta = meta or {}
+    lines: list[str] = []
+    concepts = sorted(concepts_in_text(query))
+    if concepts:
+        lines.append("Canonical concept hints: " + ", ".join(concepts))
+    years = sorted(set(extract_years(query)))
+    if years:
+        lines.append("Period hints: " + ", ".join(str(y) for y in years))
+    if meta.get("company_name"):
+        lines.append(f"Company hint: {meta.get('company_name')}")
+    if meta.get("report_year"):
+        lines.append(f"Report year hint: {meta.get('report_year')}")
+    return "\n".join(lines)
 
 
 def build_user_prompt(query: str, evidence_block: str, meta: dict | None = None) -> str:
     meta = meta or {}
-    head = ""
+    sections: list[str] = []
     if meta.get("company_name"):
-        head = f"Company: {meta.get('company_name')}"
+        company_line = f"Company: {meta.get('company_name')}"
         if meta.get("report_year"):
-            head += f" | Reporting context year: {meta.get('report_year')}"
-        head += "\n"
-    return (
-        f"{head}"
-        f"{evidence_block}\n\n"
-        f"Question: {query}\n"
-        f"Think step by step, then give the final numeric answer.\n"
-        f"Answer:"
+            company_line += f" | Reporting context year: {meta.get('report_year')}"
+        sections.append(company_line)
+    hints = _format_focus_hints(query, meta)
+    if hints:
+        sections.append(hints)
+    if evidence_block.strip():
+        sections.append(evidence_block.strip())
+    sections.append(f"Question: {query}")
+    sections.append(
+        "Instructions: follow TASK, FORMULA, and CALCULATION HINT exactly, use only the "
+        "facts above, and return a single numeric line in the form Answer: <number>. "
+        "No explanation, no bullets, and no extra text."
     )
+    return "\n\n".join(sections)
 
 
 def build_chat_messages(query: str, evidence_block: str, meta: dict | None = None) -> list[dict]:

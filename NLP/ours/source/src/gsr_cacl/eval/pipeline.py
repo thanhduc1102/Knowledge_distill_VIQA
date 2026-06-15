@@ -12,7 +12,7 @@ Usage::
   python -m gsr_cacl.eval.pipeline --dataset finqa --split test --sample 200 \
       --stage all --generator extractive
   python -m gsr_cacl.eval.pipeline --dataset finqa --sample 200 \
-      --stage generation --generator hf --gen-model Qwen/Qwen2.5-3B-Instruct
+      --stage generation --generator hf --gen-model Qwen/Qwen3.5-4B
 """
 
 from __future__ import annotations
@@ -145,8 +145,21 @@ def stage_retrieval(data, args, out_dir: Path) -> list[list]:
 # ---------------------------------------------------------------------------
 
 def stage_generation(retrieval_jsonl: str, args, out_dir: Path) -> dict:
+    import torch
+
     records = [json.loads(l) for l in open(retrieval_jsonl)]
-    gen_kwargs = {"model_name": args.gen_model, "device": "cpu", "dtype": "float32", "max_new_tokens": 16} if args.generator == "hf" else {}
+    if args.generator == "hf":
+        gen_device = args.gen_device or ("auto" if torch.cuda.is_available() else "cpu")
+        gen_dtype = args.gen_dtype or ("float16" if torch.cuda.is_available() else "float32")
+        gen_kwargs = {
+            "model_name": args.gen_model,
+            "device": gen_device,
+            "dtype": gen_dtype,
+            "max_new_tokens": args.gen_max_new_tokens,
+            "temperature": args.gen_temperature,
+        }
+    else:
+        gen_kwargs = {}
     generator = build_generator(args.generator, **gen_kwargs)
     logger.info("Generator: %s", generator.name)
 
@@ -169,43 +182,71 @@ def stage_generation(retrieval_jsonl: str, args, out_dir: Path) -> dict:
 
     preds, golds, rewards, grounded, dump = [], [], [], [], []
     t0 = time.time()
-    for i, rec in enumerate(records):
-        retrieved = _get_retrieved(rec)
-        ledgers = [extract_ledger(table_md=d.get("table", ""), context=d.get("page_content", ""),
-                                  doc_id=d["id"], meta=d.get("meta", {})) for d in retrieved]
-        facts = select_facts(rec["query"], ledgers, top_n=args.fact_top_n)
-        evidence = rec.get("evidence_block") or build_evidence_block(rec["query"], ledgers, top_n=args.fact_top_n)
-        meta = rec.get("query_meta", {})
-        pred = generator.generate(rec["query"], evidence, meta, facts)
-        # verify against the union ledger
-        union = ledgers[0] if ledgers else None
-        if union is not None:
-            for lg in ledgers[1:]:
-                union.facts.extend(lg.facts)
-        vr = verify(pred, union, rec["query"], gold=rec.get("gold")) if union else None
-        preds.append(pred)
-        golds.append(rec.get("gold"))
-        rewards.append(vr.reward if vr else 0.0)
-        grounded.append(vr.grounded if vr else False)
-        dump.append({"query": rec["query"], "gold": rec.get("gold"), "prediction": pred,
-                     "pred_value": vr.pred_value if vr else None,
-                     "reward": vr.reward if vr else 0.0,
-                     "grounded": vr.grounded if vr else False,
-                     "explanation": vr.explanation if vr else ""})
-        if (i + 1) % 25 == 0:
-            logger.info("  generated %d/%d", i + 1, len(records))
+    batch_size = max(1, getattr(args, "gen_batch_size", 1))
+
+    for start in range(0, len(records), batch_size):
+        batch = records[start:start + batch_size]
+        retrieved_batch = [_get_retrieved(rec) for rec in batch]
+        ledgers_batch = [
+            [
+                extract_ledger(
+                    table_md=d.get("table", ""),
+                    context=d.get("page_content", ""),
+                    doc_id=d.get("id", d.get("context_id", "")),
+                    meta=d.get("meta", d.get("metadata", {})),
+                )
+                for d in retrieved
+            ]
+            for retrieved in retrieved_batch
+        ]
+        facts_batch = [select_facts(rec["query"], ledgers, top_n=args.fact_top_n)
+                       for rec, ledgers in zip(batch, ledgers_batch)]
+        evidence_batch = [
+            build_evidence_block(rec["query"], ledgers, top_n=args.fact_top_n, facts=facts)
+            for rec, ledgers, facts in zip(batch, ledgers_batch, facts_batch)
+        ]
+        meta_batch = [rec.get("query_meta", rec.get("meta", {})) for rec in batch]
+        query_batch = [rec["query"] for rec in batch]
+        pred_batch = generator.generate_batch(query_batch, evidence_batch, meta_batch, facts_batch)
+
+        for rec, ledgers, evidence, pred in zip(batch, ledgers_batch, evidence_batch, pred_batch):
+            union = ledgers[0] if ledgers else None
+            if union is not None:
+                for lg in ledgers[1:]:
+                    union.facts.extend(lg.facts)
+            vr = verify(pred, union, rec["query"], gold=rec.get("gold")) if union else None
+            preds.append(pred)
+            golds.append(rec.get("gold"))
+            rewards.append(vr.reward if vr else 0.0)
+            grounded.append(vr.grounded if vr else False)
+            dump.append({
+                "query": rec["query"],
+                "gold": rec.get("gold"),
+                "prediction": pred,
+                "pred_value": vr.pred_value if vr else None,
+                "reward": vr.reward if vr else 0.0,
+                "grounded": vr.grounded if vr else False,
+                "explanation": vr.explanation if vr else "",
+                "evidence_block": evidence,
+            })
+
+        if len(preds) % 25 == 0:
+            logger.info("  generated %d/%d", len(preds), len(records))
 
     nm = compute_number_match(preds, golds)
-    metrics = {**nm, "mean_verifier_reward": sum(rewards) / len(rewards) if rewards else 0.0,
-               "grounded_rate": sum(grounded) / len(grounded) if grounded else 0.0,
-               "generator": generator.name, "seconds": round(time.time() - t0, 1)}
+    metrics = {
+        **nm,
+        "mean_verifier_reward": sum(rewards) / len(rewards) if rewards else 0.0,
+        "grounded_rate": sum(grounded) / len(grounded) if grounded else 0.0,
+        "generator": generator.name,
+        "seconds": round(time.time() - t0, 1),
+    }
     (out_dir / "generation_metrics.json").write_text(json.dumps(metrics, indent=2))
     with open(out_dir / "predictions.jsonl", "w") as f:
         for d in dump:
             f.write(json.dumps(d) + "\n")
     logger.info("Generation metrics: %s", metrics)
     return metrics
-
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -218,7 +259,7 @@ def main():
     p.add_argument("--sample", type=int, default=None)
     p.add_argument("--stage", default="all", choices=["retrieval", "generation", "all"])
     p.add_argument("--top-k", type=int, default=3)
-    p.add_argument("--fact-top-n", type=int, default=12)
+    p.add_argument("--fact-top-n", type=int, default=6)
     # retrieval
     p.add_argument("--embed-model", default="intfloat/multilingual-e5-large-instruct")
     p.add_argument("--alpha", type=float, default=1.0)
@@ -232,6 +273,11 @@ def main():
     # generation
     p.add_argument("--generator", default="extractive", choices=["extractive", "hf"])
     p.add_argument("--gen-model", default="Qwen/Qwen2.5-3B-Instruct")
+    p.add_argument("--gen-device", default=None, help="HF generator device override (cpu, auto, cuda)")
+    p.add_argument("--gen-dtype", default=None, help="HF generator dtype override (float16, bfloat16, float32)")
+    p.add_argument("--gen-max-new-tokens", type=int, default=16)
+    p.add_argument("--gen-temperature", type=float, default=0.0)
+    p.add_argument("--gen-batch-size", type=int, default=4)
     p.add_argument("--out-dir", default=None)
     p.add_argument("--retrieval-jsonl", default=None, help="reuse an existing retrieval file")
     args = p.parse_args()

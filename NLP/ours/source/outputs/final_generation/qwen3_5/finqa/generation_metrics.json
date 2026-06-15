@@ -1,0 +1,9 @@
+{
+  "number_match": 0.0993897122929381,
+  "correct": 114,
+  "total": 1147,
+  "mean_verifier_reward": 0.4687009590235397,
+  "grounded_rate": 0.15344376634699217,
+  "generator": "hf",
+  "seconds": 1003.6
+}
