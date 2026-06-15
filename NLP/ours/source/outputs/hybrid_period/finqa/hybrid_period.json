@@ -1,0 +1,129 @@
+{
+  "dataset": "FinQA",
+  "split": "test",
+  "n_queries": 1147,
+  "n_corpus": 2789,
+  "embed_model": "intfloat/multilingual-e5-large-instruct",
+  "queries_with_year": 1128,
+  "weights(bm25,dense,period)": {
+    "bm25_only": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "dense_only": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "bm25+period(0.05)": [
+      1.0,
+      0.0,
+      0.05
+    ],
+    "bm25+period(0.1)": [
+      1.0,
+      0.0,
+      0.1
+    ],
+    "bm25+period(0.2)": [
+      1.0,
+      0.0,
+      0.2
+    ],
+    "bm25+period(0.3)": [
+      1.0,
+      0.0,
+      0.3
+    ],
+    "bm25+dense(0.3)": [
+      1.0,
+      0.3,
+      0.0
+    ],
+    "bm25+dense+period(0.1)": [
+      1.0,
+      0.3,
+      0.1
+    ]
+  },
+  "arms": {
+    "bm25_only": {
+      "MRR@3": 0.6649,
+      "Recall@1": 0.5667,
+      "Recall@3": 0.782,
+      "Recall@5": 0.8518,
+      "NDCG@3": 0.6951
+    },
+    "dense_only": {
+      "MRR@3": 0.3939,
+      "Recall@1": 0.3261,
+      "Recall@3": 0.4795,
+      "Recall@5": 0.5684,
+      "NDCG@3": 0.4159
+    },
+    "bm25+period(0.05)": {
+      "MRR@3": 0.6697,
+      "Recall@1": 0.5676,
+      "Recall@3": 0.796,
+      "Recall@5": 0.8622,
+      "NDCG@3": 0.7022
+    },
+    "bm25+period(0.1)": {
+      "MRR@3": 0.6484,
+      "Recall@1": 0.5554,
+      "Recall@3": 0.7646,
+      "Recall@5": 0.857,
+      "NDCG@3": 0.6782
+    },
+    "bm25+period(0.2)": {
+      "MRR@3": 0.6197,
+      "Recall@1": 0.5362,
+      "Recall@3": 0.7228,
+      "Recall@5": 0.7986,
+      "NDCG@3": 0.6462
+    },
+    "bm25+period(0.3)": {
+      "MRR@3": 0.6064,
+      "Recall@1": 0.531,
+      "Recall@3": 0.6983,
+      "Recall@5": 0.7602,
+      "NDCG@3": 0.6301
+    },
+    "bm25+dense(0.3)": {
+      "MRR@3": 0.6019,
+      "Recall@1": 0.5057,
+      "Recall@3": 0.7245,
+      "Recall@5": 0.7942,
+      "NDCG@3": 0.6333
+    },
+    "bm25+dense+period(0.1)": {
+      "MRR@3": 0.6237,
+      "Recall@1": 0.5292,
+      "Recall@3": 0.7402,
+      "Recall@5": 0.8108,
+      "NDCG@3": 0.6536
+    },
+    "[cluster n=1144] bm25": {
+      "MRR@3": 0.664,
+      "Recall@1": 0.5656,
+      "Recall@3": 0.7815,
+      "Recall@5": 0.8514,
+      "NDCG@3": 0.6943
+    },
+    "[cluster n=1144] bm25+period(0.1)": {
+      "MRR@3": 0.6474,
+      "Recall@1": 0.5542,
+      "Recall@3": 0.764,
+      "Recall@5": 0.8566,
+      "NDCG@3": 0.6774
+    },
+    "[cluster n=1144] bm25+period(0.2)": {
+      "MRR@3": 0.6187,
+      "Recall@1": 0.535,
+      "Recall@3": 0.722,
+      "Recall@5": 0.7981,
+      "NDCG@3": 0.6453
+    }
+  }
+}

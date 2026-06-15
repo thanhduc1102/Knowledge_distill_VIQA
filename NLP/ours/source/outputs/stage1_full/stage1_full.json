@@ -1,0 +1,150 @@
+{
+  "counts": {
+    "FinQA": 1147,
+    "ConvFinQA": 3458,
+    "TAT-DQA": 1144
+  },
+  "per_dataset": {
+    "FinQA": {
+      "bm25+period": {
+        "MRR@3": 0.6799,
+        "Recall@1": 0.585,
+        "Recall@3": 0.7951,
+        "Recall@5": 0.8553,
+        "NDCG@3": 0.7096
+      },
+      "+concept_gated(0.1)": {
+        "MRR@3": 0.6747,
+        "Recall@1": 0.5719,
+        "Recall@3": 0.8012,
+        "Recall@5": 0.8622,
+        "NDCG@3": 0.7072
+      },
+      "+cellmatch(0.3)": {
+        "MRR@3": 0.6834,
+        "Recall@1": 0.5859,
+        "Recall@3": 0.8003,
+        "Recall@5": 0.8596,
+        "NDCG@3": 0.7135
+      },
+      "+cellmatch(0.5)": {
+        "MRR@3": 0.6831,
+        "Recall@1": 0.5859,
+        "Recall@3": 0.8003,
+        "Recall@5": 0.8596,
+        "NDCG@3": 0.7133
+      },
+      "+concept+cellmatch(0.1,0.3)": {
+        "MRR@3": 0.6767,
+        "Recall@1": 0.5711,
+        "Recall@3": 0.8056,
+        "Recall@5": 0.8657,
+        "NDCG@3": 0.7099
+      },
+      "+concept+cellmatch(0.1,0.5)": {
+        "MRR@3": 0.677,
+        "Recall@1": 0.5719,
+        "Recall@3": 0.8056,
+        "Recall@5": 0.8657,
+        "NDCG@3": 0.7101
+      }
+    },
+    "ConvFinQA": {
+      "bm25+period": {
+        "MRR@3": 0.6531,
+        "Recall@1": 0.5515,
+        "Recall@3": 0.7788,
+        "Recall@5": 0.8447,
+        "NDCG@3": 0.6855
+      },
+      "+concept_gated(0.1)": {
+        "MRR@3": 0.6644,
+        "Recall@1": 0.5578,
+        "Recall@3": 0.7941,
+        "Recall@5": 0.8563,
+        "NDCG@3": 0.6979
+      },
+      "+cellmatch(0.3)": {
+        "MRR@3": 0.6602,
+        "Recall@1": 0.5573,
+        "Recall@3": 0.7863,
+        "Recall@5": 0.8505,
+        "NDCG@3": 0.6926
+      },
+      "+cellmatch(0.5)": {
+        "MRR@3": 0.6603,
+        "Recall@1": 0.5581,
+        "Recall@3": 0.7857,
+        "Recall@5": 0.8522,
+        "NDCG@3": 0.6926
+      },
+      "+concept+cellmatch(0.1,0.3)": {
+        "MRR@3": 0.6677,
+        "Recall@1": 0.5616,
+        "Recall@3": 0.7967,
+        "Recall@5": 0.8612,
+        "NDCG@3": 0.701
+      },
+      "+concept+cellmatch(0.1,0.5)": {
+        "MRR@3": 0.6674,
+        "Recall@1": 0.561,
+        "Recall@3": 0.797,
+        "Recall@5": 0.8618,
+        "NDCG@3": 0.7008
+      }
+    },
+    "TAT-DQA": {
+      "bm25+period": {
+        "MRR@3": 0.4135,
+        "Recall@1": 0.3173,
+        "Recall@3": 0.5341,
+        "Recall@5": 0.6075,
+        "NDCG@3": 0.4445
+      },
+      "+concept_gated(0.1)": {
+        "MRR@3": 0.3891,
+        "Recall@1": 0.2885,
+        "Recall@3": 0.5192,
+        "Recall@5": 0.6198,
+        "NDCG@3": 0.4225
+      },
+      "+cellmatch(0.3)": {
+        "MRR@3": 0.4123,
+        "Recall@1": 0.3138,
+        "Recall@3": 0.5367,
+        "Recall@5": 0.611,
+        "NDCG@3": 0.4443
+      },
+      "+cellmatch(0.5)": {
+        "MRR@3": 0.4089,
+        "Recall@1": 0.3086,
+        "Recall@3": 0.5367,
+        "Recall@5": 0.6119,
+        "NDCG@3": 0.4418
+      },
+      "+concept+cellmatch(0.1,0.3)": {
+        "MRR@3": 0.3877,
+        "Recall@1": 0.285,
+        "Recall@3": 0.521,
+        "Recall@5": 0.625,
+        "NDCG@3": 0.4219
+      },
+      "+concept+cellmatch(0.1,0.5)": {
+        "MRR@3": 0.3852,
+        "Recall@1": 0.2815,
+        "Recall@3": 0.521,
+        "Recall@5": 0.6224,
+        "NDCG@3": 0.42
+      }
+    }
+  },
+  "weighted_avg_mrr3": {
+    "bm25+period": 0.6108,
+    "+concept_gated(0.1)": 0.6117,
+    "+cellmatch(0.3)": 0.6155,
+    "+cellmatch(0.5)": 0.6148,
+    "+concept+cellmatch(0.1,0.3)": 0.6138,
+    "+concept+cellmatch(0.1,0.5)": 0.6132
+  },
+  "best": "+cellmatch(0.3)"
+}

@@ -1,0 +1,18 @@
+{
+  "dataset": "FinQA",
+  "split": "test",
+  "n_queries_used": 1147,
+  "answer_parsed": 1147,
+  "ledger": {
+    "mean_facts_per_doc": 13.71,
+    "empty_ledger_rate": 0.027,
+    "cell_recall": 0.953,
+    "canonical_rate": 0.144,
+    "period_rate": 0.6932
+  },
+  "answer_reachability": {
+    "answer_is_lookup": 0.0384,
+    "answer_in_ledger": 0.0384,
+    "answer_derivable_one_op": 0.6155
+  }
+}

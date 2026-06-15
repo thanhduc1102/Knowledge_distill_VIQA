@@ -1,0 +1,253 @@
+{
+  "counts": {
+    "FinQA": 1147,
+    "ConvFinQA": 3458,
+    "TAT-DQA": 1144
+  },
+  "per_dataset": {
+    "FinQA": {
+      "dense_only": {
+        "MRR@3": 0.3939,
+        "Recall@1": 0.3261,
+        "Recall@3": 0.4795,
+        "Recall@5": 0.5684,
+        "NDCG@3": 0.4159
+      },
+      "bm25_only": {
+        "MRR@3": 0.6649,
+        "Recall@1": 0.5667,
+        "Recall@3": 0.782,
+        "Recall@5": 0.8518,
+        "NDCG@3": 0.6951
+      },
+      "bm25+period_fixed(0.05)": {
+        "MRR@3": 0.6697,
+        "Recall@1": 0.5676,
+        "Recall@3": 0.796,
+        "Recall@5": 0.8622,
+        "NDCG@3": 0.7022
+      },
+      "bm25+period_gated(0.05,thr.6)": {
+        "MRR@3": 0.6712,
+        "Recall@1": 0.5693,
+        "Recall@3": 0.7969,
+        "Recall@5": 0.864,
+        "NDCG@3": 0.7035
+      },
+      "bm25+period_gated(0.05,thr.4)": {
+        "MRR@3": 0.6776,
+        "Recall@1": 0.5789,
+        "Recall@3": 0.7986,
+        "Recall@5": 0.8596,
+        "NDCG@3": 0.7087
+      },
+      "bm25+period_adaptive(0.1)": {
+        "MRR@3": 0.6656,
+        "Recall@1": 0.5658,
+        "Recall@3": 0.7908,
+        "Recall@5": 0.8675,
+        "NDCG@3": 0.6978
+      },
+      "bm25+period_adaptive(0.2)": {
+        "MRR@3": 0.6279,
+        "Recall@1": 0.5371,
+        "Recall@3": 0.7411,
+        "Recall@5": 0.8422,
+        "NDCG@3": 0.657
+      },
+      "bm25+period_adapt_gated(0.2,.6)": {
+        "MRR@3": 0.6299,
+        "Recall@1": 0.5388,
+        "Recall@3": 0.7437,
+        "Recall@5": 0.8439,
+        "NDCG@3": 0.6592
+      }
+    },
+    "ConvFinQA": {
+      "dense_only": {
+        "MRR@3": 0.4255,
+        "Recall@1": 0.3355,
+        "Recall@3": 0.5376,
+        "Recall@5": 0.6186,
+        "NDCG@3": 0.4543
+      },
+      "bm25_only": {
+        "MRR@3": 0.6417,
+        "Recall@1": 0.5422,
+        "Recall@3": 0.7663,
+        "Recall@5": 0.8274,
+        "NDCG@3": 0.6737
+      },
+      "bm25+period_fixed(0.05)": {
+        "MRR@3": 0.661,
+        "Recall@1": 0.5561,
+        "Recall@3": 0.7883,
+        "Recall@5": 0.8462,
+        "NDCG@3": 0.6938
+      },
+      "bm25+period_gated(0.05,thr.6)": {
+        "MRR@3": 0.6584,
+        "Recall@1": 0.5532,
+        "Recall@3": 0.7866,
+        "Recall@5": 0.8462,
+        "NDCG@3": 0.6914
+      },
+      "bm25+period_gated(0.05,thr.4)": {
+        "MRR@3": 0.6556,
+        "Recall@1": 0.5523,
+        "Recall@3": 0.7825,
+        "Recall@5": 0.8444,
+        "NDCG@3": 0.6883
+      },
+      "bm25+period_adaptive(0.1)": {
+        "MRR@3": 0.6553,
+        "Recall@1": 0.5486,
+        "Recall@3": 0.786,
+        "Recall@5": 0.8525,
+        "NDCG@3": 0.689
+      },
+      "bm25+period_adaptive(0.2)": {
+        "MRR@3": 0.6217,
+        "Recall@1": 0.524,
+        "Recall@3": 0.7447,
+        "Recall@5": 0.8415,
+        "NDCG@3": 0.6533
+      },
+      "bm25+period_adapt_gated(0.2,.6)": {
+        "MRR@3": 0.6196,
+        "Recall@1": 0.5211,
+        "Recall@3": 0.7438,
+        "Recall@5": 0.8412,
+        "NDCG@3": 0.6515
+      }
+    },
+    "TAT-DQA": {
+      "dense_only": {
+        "MRR@3": 0.2449,
+        "Recall@1": 0.1879,
+        "Recall@3": 0.3164,
+        "Recall@5": 0.3855,
+        "NDCG@3": 0.2633
+      },
+      "bm25_only": {
+        "MRR@3": 0.4184,
+        "Recall@1": 0.3243,
+        "Recall@3": 0.5376,
+        "Recall@5": 0.6093,
+        "NDCG@3": 0.449
+      },
+      "bm25+period_fixed(0.05)": {
+        "MRR@3": 0.3884,
+        "Recall@1": 0.2998,
+        "Recall@3": 0.5017,
+        "Recall@5": 0.6005,
+        "NDCG@3": 0.4175
+      },
+      "bm25+period_gated(0.05,thr.6)": {
+        "MRR@3": 0.4143,
+        "Recall@1": 0.3199,
+        "Recall@3": 0.5341,
+        "Recall@5": 0.6101,
+        "NDCG@3": 0.4451
+      },
+      "bm25+period_gated(0.05,thr.4)": {
+        "MRR@3": 0.417,
+        "Recall@1": 0.3234,
+        "Recall@3": 0.535,
+        "Recall@5": 0.6101,
+        "NDCG@3": 0.4473
+      },
+      "bm25+period_adaptive(0.1)": {
+        "MRR@3": 0.4044,
+        "Recall@1": 0.3033,
+        "Recall@3": 0.5323,
+        "Recall@5": 0.6101,
+        "NDCG@3": 0.4373
+      },
+      "bm25+period_adaptive(0.2)": {
+        "MRR@3": 0.3913,
+        "Recall@1": 0.299,
+        "Recall@3": 0.5131,
+        "Recall@5": 0.6058,
+        "NDCG@3": 0.4225
+      },
+      "bm25+period_adapt_gated(0.2,.6)": {
+        "MRR@3": 0.4101,
+        "Recall@1": 0.3173,
+        "Recall@3": 0.528,
+        "Recall@5": 0.6084,
+        "NDCG@3": 0.4404
+      }
+    }
+  },
+  "weighted_avg_mrr3": {
+    "dense_only": 0.3833,
+    "bm25_only": 0.6019,
+    "bm25+period_fixed(0.05)": 0.6085,
+    "bm25+period_gated(0.05,thr.6)": 0.6124,
+    "bm25+period_gated(0.05,thr.4)": 0.6125,
+    "bm25+period_adaptive(0.1)": 0.6074,
+    "bm25+period_adaptive(0.2)": 0.5771,
+    "bm25+period_adapt_gated(0.2,.6)": 0.58
+  },
+  "best_method": "bm25+period_gated(0.05,thr.4)",
+  "best_wavg_mrr3": 0.6125,
+  "arms": {
+    "dense_only": [
+      0.0,
+      1.0,
+      0.0,
+      1.0,
+      false
+    ],
+    "bm25_only": [
+      1.0,
+      0.0,
+      0.0,
+      1.0,
+      false
+    ],
+    "bm25+period_fixed(0.05)": [
+      1.0,
+      0.0,
+      0.05,
+      1.0,
+      false
+    ],
+    "bm25+period_gated(0.05,thr.6)": [
+      1.0,
+      0.0,
+      0.05,
+      0.6,
+      false
+    ],
+    "bm25+period_gated(0.05,thr.4)": [
+      1.0,
+      0.0,
+      0.05,
+      0.4,
+      false
+    ],
+    "bm25+period_adaptive(0.1)": [
+      1.0,
+      0.0,
+      0.1,
+      1.0,
+      true
+    ],
+    "bm25+period_adaptive(0.2)": [
+      1.0,
+      0.0,
+      0.2,
+      1.0,
+      true
+    ],
+    "bm25+period_adapt_gated(0.2,.6)": [
+      1.0,
+      0.0,
+      0.2,
+      0.6,
+      true
+    ]
+  }
+}

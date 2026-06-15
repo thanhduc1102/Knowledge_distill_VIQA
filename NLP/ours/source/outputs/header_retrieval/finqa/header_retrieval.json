@@ -1,0 +1,59 @@
+{
+  "dataset": "FinQA",
+  "split": "test",
+  "n_queries": 1147,
+  "n_corpus": 2789,
+  "embed_model": "intfloat/multilingual-e5-large-instruct",
+  "empty_header_docs": 106,
+  "arms": {
+    "dense_honest": {
+      "MRR@3": 0.3939,
+      "Recall@1": 0.3261,
+      "Recall@3": 0.4795,
+      "Recall@5": 0.5684,
+      "NDCG@3": 0.4159
+    },
+    "dense_leaky": {
+      "MRR@3": 0.3917,
+      "Recall@1": 0.3235,
+      "Recall@3": 0.4795,
+      "Recall@5": 0.5737,
+      "NDCG@3": 0.4143
+    },
+    "fulltext_bm25": {
+      "MRR@3": 0.6649,
+      "Recall@1": 0.5667,
+      "Recall@3": 0.782,
+      "Recall@5": 0.8518,
+      "NDCG@3": 0.6951
+    },
+    "header_bm25": {
+      "MRR@3": 0.3185,
+      "Recall@1": 0.2616,
+      "Recall@3": 0.3915,
+      "Recall@5": 0.4516,
+      "NDCG@3": 0.3372
+    },
+    "dense_honest+fulltext": {
+      "MRR@3": 0.534,
+      "Recall@1": 0.4324,
+      "Recall@3": 0.66,
+      "Recall@5": 0.7262,
+      "NDCG@3": 0.5664
+    },
+    "dense_honest+header": {
+      "MRR@3": 0.3916,
+      "Recall@1": 0.3112,
+      "Recall@3": 0.4952,
+      "Recall@5": 0.585,
+      "NDCG@3": 0.4182
+    },
+    "dense_leaky+header": {
+      "MRR@3": 0.3939,
+      "Recall@1": 0.3095,
+      "Recall@3": 0.5004,
+      "Recall@5": 0.5885,
+      "NDCG@3": 0.4213
+    }
+  }
+}
