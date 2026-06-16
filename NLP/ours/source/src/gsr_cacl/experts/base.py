@@ -46,6 +46,16 @@ class Expert(abc.ABC):
         """Optional: scores over the whole corpus (only for ``is_retriever`` experts)."""
         raise NotImplementedError
 
+    def get_candidates(self, qi: int, pool_size: int) -> list[int]:
+        """Return candidate doc indices for pool seeding.
+
+        Default: top-``pool_size`` by full_scores (argsort).
+        Override in subclasses that need different selection logic (e.g.
+        MetadataRetriever returns only genuinely-matching docs, ignoring pool_size).
+        Only called when ``is_retriever=True`` and ``full_scores`` is implemented.
+        """
+        return [int(j) for j in np.argsort(-self.full_scores(qi))[:pool_size]]
+
 
 def minmax(x: np.ndarray) -> np.ndarray:
     """Per-vector min-max to [0,1]; flat vector → all 0.5 (no signal)."""

@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import random
 from pathlib import Path
 
 import torch
@@ -40,7 +41,7 @@ from gsr_cacl.training import (
     CACLLoss,
     TripletLoss,
 )
-from gsr_cacl.negative_sampler import CHAPNegativeSampler
+from gsr_cacl.negative_sampler.channel_aligned import ChannelAlignedSampler, make_negative as _make_channel_negative
 from gsr_cacl.kg import build_constraint_kg
 from gsr_cacl.scoring import JointScorer, compute_constraint_score
 from gsr_cacl.encoders import GATEncoder, TextEncoder
@@ -311,7 +312,7 @@ def stage_joint(
     optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=0.01)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
     criterion = CACLLoss(margin=margin, lambda_constraint=lambda_constraint)
-    sampler = CHAPNegativeSampler(chap_a_prob=0.5, chap_s_prob=0.3, chap_e_prob=0.2)
+    sampler = ChannelAlignedSampler()
 
     dataset_obj = RetrievalDataset(dataset)
     dataloader = torch.utils.data.DataLoader(
@@ -351,11 +352,12 @@ def stage_joint(
                 pos_score = scorer(q_emb, pos_d_emb, pos_kg_embed, q_meta, d_meta, pos_cs_feats)
                 pos_scores_list.append(pos_score.squeeze(0))
 
-                # Negatives: CHAP perturbation
-                negs = sampler.sample(pos_kg, n_negatives=1)
+                # Channel-aligned negatives (real value perturbation)
+                negs = sampler.sample(sample.positive_context, n_negatives=1)
                 if not negs:
-                    from gsr_cacl.negative_sampler import apply_chap_e
-                    negs = [apply_chap_e(pos_kg)]
+                    fb = _make_channel_negative(sample.positive_context, "scale-break", random.Random())
+                    if fb is not None:
+                        negs = [fb]
 
                 for neg in negs:
                     neg_kg = build_constraint_kg(neg.table_md)
@@ -369,7 +371,7 @@ def stage_joint(
 
                     neg_score = scorer(q_emb, neg_d_emb, neg_kg_embed, q_meta, d_meta, neg_cs_feats)
                     neg_scores_list.append(neg_score.squeeze(0))
-                    violates_list.append(1.0 if neg.is_violated else 0.0)
+                    violates_list.append(1.0)  # all ChannelNegative are answer-invalidating
 
             pos_scores_t = torch.stack(pos_scores_list)
             neg_scores_t = torch.stack(neg_scores_list)

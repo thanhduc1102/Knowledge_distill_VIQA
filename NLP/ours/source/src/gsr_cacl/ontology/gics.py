@@ -91,13 +91,27 @@ _SECTOR_KEYWORDS: list[tuple[str, str]] = [
 ]
 
 _WS = re.compile(r"\s+")
+_NOISE = re.compile(r"[^a-z0-9 ]+")
+
+# Precompiled per-keyword patterns (longest keyword first, matching on word boundaries).
+_SECTOR_KW_COMPILED: list[tuple[re.Pattern, str, int]] = sorted(
+    [(re.compile(rf"\b{re.escape(kw)}"), canon, len(kw)) for kw, canon in _SECTOR_KEYWORDS],
+    key=lambda t: t[2], reverse=True,
+)
+
+# Precompiled normalised canonical sector names (for fast exact match).
+_NORM_GICS_SECTORS: set[str] = set()
 
 
 def _norm(text: str) -> str:
     t = str(text or "").lower().strip()
     t = t.replace("&", " and ")
-    t = re.sub(r"[^a-z0-9 ]+", " ", t)
+    t = _NOISE.sub(" ", t)
     return _WS.sub(" ", t).strip()
+
+
+# Populate normalised canonical names after _norm is defined.
+_NORM_GICS_SECTORS = {_norm(s): s for s in GICS_SECTORS}
 
 
 def canonical_sector(sector: str = "", industry: str = "") -> str:
@@ -111,18 +125,13 @@ def canonical_sector(sector: str = "", industry: str = "") -> str:
         n = _norm(field)
         if not n:
             continue
-        # exact canonical sector name
-        for s in GICS_SECTORS:
-            if n == _norm(s):
-                return s
-        # keyword / substring match (longest keyword wins for specificity)
-        best: tuple[int, str] | None = None
-        for kw, canon in _SECTOR_KEYWORDS:
-            if re.search(rf"\b{re.escape(kw)}", n):
-                if best is None or len(kw) > best[0]:
-                    best = (len(kw), canon)
-        if best is not None:
-            return best[1]
+        # exact canonical sector name (O(1) dict lookup instead of 12 string compares)
+        if n in _NORM_GICS_SECTORS:
+            return _NORM_GICS_SECTORS[n]
+        # keyword / substring match using precompiled patterns (longest wins)
+        for pat, canon, _ in _SECTOR_KW_COMPILED:
+            if pat.search(n):
+                return canon
     return "Unknown"
 
 

@@ -29,6 +29,8 @@ from gsr_cacl.experts.concept import ConceptExpert
 from gsr_cacl.experts.cell import CellExpert
 from gsr_cacl.experts.entity import EntityExpert
 from gsr_cacl.experts.graph import GraphExpert
+from gsr_cacl.experts.factgate import FactGateExpert
+from gsr_cacl.experts.meta_retriever import MetadataRetriever
 from gsr_cacl.experts.fusion import FusionData, train_fusion, rank_scores
 from gsr_cacl.ledger.numeric import extract_years
 from gsr_cacl.ontology.concepts import concepts_in_text
@@ -51,6 +53,10 @@ def make_experts(spec: str, device: str, lateint_model: str | None = None):
             out.append(CellExpert())
         elif nm == "graph":
             out.append(GraphExpert())
+        elif nm == "factgate":
+            out.append(FactGateExpert())
+        elif nm == "meta":
+            out.append(MetadataRetriever())
         elif nm == "dense":
             from gsr_cacl.experts.dense import DenseExpert
             out.append(DenseExpert(device=device))
@@ -111,7 +117,12 @@ def build(dataset: str, sample: int, pool_size: int, expert_spec: str, device: s
     for qi in range(len(raw_q)):
         cand = set()
         for ex in retrievers:
-            cand.update(int(j) for j in np.argsort(-ex.full_scores(qi))[:pool_size])
+            if hasattr(ex, "get_candidates"):
+                # Expert controls its own candidate selection (e.g. MetadataRetriever
+                # adds only genuinely-matching docs, ignoring pool_size to avoid noise).
+                cand.update(ex.get_candidates(qi, pool_size))
+            else:
+                cand.update(int(j) for j in np.argsort(-ex.full_scores(qi))[:pool_size])
         pools.append(sorted(cand))
 
     # ---- expert score matrices (min-max per column) ---------------------------
@@ -152,7 +163,7 @@ def main():
     ap.add_argument("--dataset", default="FinQA", choices=list(SPLITS))
     ap.add_argument("--sample", type=int, default=0)
     ap.add_argument("--pool", type=int, default=50)
-    ap.add_argument("--experts", default="lexical,entity,concept,cell,graph")
+    ap.add_argument("--experts", default="lexical,entity,concept,cell,graph,factgate")
     ap.add_argument("--cv", type=int, default=5, help="k-fold CV (0/1 = single 50/50 split)")
     ap.add_argument("--lateint-model", default=None, help="path/name for the lateint fact encoder")
     ap.add_argument("--device", default="cpu")

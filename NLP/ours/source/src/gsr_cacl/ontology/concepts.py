@@ -101,9 +101,26 @@ _ALIAS_INDEX: list[tuple[str, str]] = sorted(
 _WS = re.compile(r"\s+")
 _PUNCT = re.compile(r"[^a-z0-9&% ]+")
 
+# Precompiled per-alias patterns (longest first) — avoids re-compiling on every call.
+_ALIAS_COMPILED: list[tuple[str, str, re.Pattern]] = [
+    (c, a, re.compile(rf"(?<![a-z]){re.escape(a)}(?![a-z])"))
+    for c, a in _ALIAS_INDEX
+]
+
+# Alias → concept lookup for the combined finditer path used by concepts_in_text.
+_ALIAS_TO_CONCEPT: dict[str, str] = {
+    a: c for c, als in CONCEPT_ALIASES.items() for a in als
+}
+# Single combined alternation (longest alias first) for a one-pass full-text scan.
+_CONCEPTS_ALL_RE: re.Pattern = re.compile(
+    r"(?<![a-z])("
+    + "|".join(re.escape(a) for a in sorted(_ALIAS_TO_CONCEPT, key=len, reverse=True))
+    + r")(?![a-z])"
+)
+
 
 def _norm(text: str) -> str:
-    t = str(text or "").lower().replace("’", "'").replace("'s", "")
+    t = str(text or "").lower().replace("’", "’").replace("’s", "")
     t = _PUNCT.sub(" ", t)
     return _WS.sub(" ", t).strip()
 
@@ -113,8 +130,8 @@ def canonical_concept(label: str) -> str | None:
     n = _norm(label)
     if not n:
         return None
-    for concept, alias in _ALIAS_INDEX:
-        if re.search(rf"(?<![a-z]){re.escape(alias)}(?![a-z])", n):
+    for concept, alias, pat in _ALIAS_COMPILED:
+        if pat.search(n):
             return concept
     return None
 
@@ -136,8 +153,4 @@ IDENTITIES: list[tuple[str, list[tuple[str, int]]]] = [
 def concepts_in_text(text: str) -> set[str]:
     """All canonical concepts whose alias appears in a free-text string (e.g. a question)."""
     n = _norm(text)
-    out: set[str] = set()
-    for concept, alias in _ALIAS_INDEX:
-        if re.search(rf"(?<![a-z]){re.escape(alias)}(?![a-z])", n):
-            out.add(concept)
-    return out
+    return {_ALIAS_TO_CONCEPT[m.group(1)] for m in _CONCEPTS_ALL_RE.finditer(n)}

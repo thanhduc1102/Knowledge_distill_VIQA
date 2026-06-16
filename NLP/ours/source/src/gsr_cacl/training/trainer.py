@@ -9,6 +9,7 @@ Now supports end-to-end training through the text encoder with gradient flow.
 from __future__ import annotations
 
 import logging
+import random
 from dataclasses import dataclass
 from typing import Any
 
@@ -21,7 +22,7 @@ from gsr_cacl.encoders.text_encoder import TextEncoder
 from gsr_cacl.kg.builder import build_kg_from_markdown
 from gsr_cacl.scoring.constraint_score import compute_constraint_score
 from gsr_cacl.scoring.joint_scorer import JointScorer
-from gsr_cacl.negative_sampler.chap import CHAPNegativeSampler, apply_chap_e
+from gsr_cacl.negative_sampler.channel_aligned import ChannelAlignedSampler, make_negative as _make_channel_negative
 from gsr_cacl.training.losses import CACLLoss
 from gsr_cacl.training.data import RetrievalDataset, RetrievalSample, collate_retrieval_samples
 
@@ -52,7 +53,7 @@ def train_gsr_cacl(
     gat_encoder: GATEncoder,
     dataset: RetrievalDataset,
     optimizer: torch.optim.Optimizer,
-    sampler: CHAPNegativeSampler,
+    sampler: ChannelAlignedSampler,
     device: torch.device = torch.device("cpu"),
     n_epochs: int = 5,
     batch_size: int = 16,
@@ -120,22 +121,27 @@ def train_gsr_cacl(
                 pos_score = scorer(q_emb, pos_d_emb, pos_kg_embed, q_meta, q_meta, pos_cs_feats)
                 pos_scores_list.append(pos_score.squeeze(0))
 
-                # Generate CHAP negative
-                negs = sampler.sample(pos_kg, n_negatives=1)
+                # Generate channel-aligned negative (real value perturbation, not stub header)
+                negs = sampler.sample(positives[i], n_negatives=1)
                 if not negs:
-                    negs = [apply_chap_e(pos_kg)]
+                    fb = _make_channel_negative(positives[i], "scale-break", random.Random())
+                    if fb is not None:
+                        negs = [fb]
 
                 for neg in negs:
                     neg_kg = build_kg_from_markdown(neg.table_md)
                     neg_kg_embed = gat_encoder.encode_graph(neg_kg).unsqueeze(0)
                     neg_d_emb = text_encoder.encode_single(neg.table_md[:512]).unsqueeze(0)
 
+                    # entity-swap negatives ideally use a different company's metadata;
+                    # using q_meta here is a known approximation (swap_metadata=True flag
+                    # can be used by callers with access to a multi-company meta bank).
                     neg_cs = compute_constraint_score(neg_kg)
                     neg_cs_feats = scorer.build_constraint_features([neg_cs], device)
 
                     neg_score = scorer(q_emb, neg_d_emb, neg_kg_embed, q_meta, q_meta, neg_cs_feats)
                     neg_scores_list.append(neg_score.squeeze(0))
-                    violates_list.append(1.0 if neg.is_violated else 0.0)
+                    violates_list.append(1.0)  # all ChannelNegative are answer-invalidating
 
             pos_scores_t = torch.stack(pos_scores_list)
             neg_scores_t = torch.stack(neg_scores_list)
