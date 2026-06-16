@@ -11,7 +11,11 @@
 | [00_overview.md](00_overview.md) | Tóm tắt điều hành, phương án cuối, số liệu headline (file này) |
 | [01_method_analysis.md](01_method_analysis.md) | Phân tích từng họ tín hiệu: text/dense, metadata, table-granularity, graph/KG, reranking — kèm phán quyết & bằng chứng |
 | [02_experiments_and_results.md](02_experiments_and_results.md) | Toàn bộ thực nghiệm, script, bảng kết quả đầy đủ, ablation |
-| [03_final_recipe_and_repro.md](03_final_recipe_and_repro.md) | Công thức production, lý do chọn hệ số, cách tái lập & mở rộng |
+| [03_final_recipe_and_repro.md](03_final_recipe_and_repro.md) | Công thức production BM25, lý do chọn hệ số, cách tái lập |
+| [04_phaseA_results.md](04_phaseA_results.md) | Phase A: abbr unification (+) & metadata boost (negative result) |
+| [05_modular_design.md](05_modular_design.md) | **MMER**: thiết kế 7 expert độc lập + fusion học được |
+| [06_modular_results.md](06_modular_results.md) | MMER: kết quả từng expert standalone + fusion (5 expert) |
+| [07_research_report.md](07_research_report.md) | **BÁO CÁO TỔNG HỢP** — chẩn đoán, 3 thế hệ, MMER 7-expert, phương pháp, kết quả, hạn chế |
 
 ## TL;DR — phương án tối ưu
 

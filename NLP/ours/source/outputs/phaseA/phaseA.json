@@ -1,0 +1,155 @@
+{
+  "counts": {
+    "FinQA": 1147,
+    "ConvFinQA": 3458,
+    "TAT-DQA": 1144
+  },
+  "company_in_question_rate": {
+    "FinQA": 0.896,
+    "ConvFinQA": 0.898,
+    "TAT-DQA": 0.865
+  },
+  "per_dataset": {
+    "FinQA": {
+      "stage1 (bm25+period+cell)": {
+        "MRR@3": 0.6834,
+        "Recall@1": 0.5859,
+        "Recall@3": 0.8003,
+        "Recall@5": 0.8596,
+        "NDCG@3": 0.7135
+      },
+      "+abbr": {
+        "MRR@3": 0.6864,
+        "Recall@1": 0.5867,
+        "Recall@3": 0.8047,
+        "Recall@5": 0.8631,
+        "NDCG@3": 0.717
+      },
+      "+abbr+coyear(0.05)": {
+        "MRR@3": 0.6853,
+        "Recall@1": 0.585,
+        "Recall@3": 0.8047,
+        "Recall@5": 0.8631,
+        "NDCG@3": 0.7161
+      },
+      "+abbr+coyear(0.1)": {
+        "MRR@3": 0.6795,
+        "Recall@1": 0.5754,
+        "Recall@3": 0.803,
+        "Recall@5": 0.8631,
+        "NDCG@3": 0.7113
+      },
+      "+abbr+coyear(0.2)": {
+        "MRR@3": 0.6672,
+        "Recall@1": 0.5527,
+        "Recall@3": 0.8012,
+        "Recall@5": 0.8622,
+        "NDCG@3": 0.7019
+      },
+      "+abbr+company_flat(0.05)": {
+        "MRR@3": 0.6838,
+        "Recall@1": 0.5824,
+        "Recall@3": 0.8047,
+        "Recall@5": 0.8631,
+        "NDCG@3": 0.715
+      }
+    },
+    "ConvFinQA": {
+      "stage1 (bm25+period+cell)": {
+        "MRR@3": 0.6602,
+        "Recall@1": 0.5573,
+        "Recall@3": 0.7863,
+        "Recall@5": 0.8505,
+        "NDCG@3": 0.6926
+      },
+      "+abbr": {
+        "MRR@3": 0.6619,
+        "Recall@1": 0.5596,
+        "Recall@3": 0.7883,
+        "Recall@5": 0.8534,
+        "NDCG@3": 0.6945
+      },
+      "+abbr+coyear(0.05)": {
+        "MRR@3": 0.6585,
+        "Recall@1": 0.5523,
+        "Recall@3": 0.7889,
+        "Recall@5": 0.8551,
+        "NDCG@3": 0.6921
+      },
+      "+abbr+coyear(0.1)": {
+        "MRR@3": 0.655,
+        "Recall@1": 0.5463,
+        "Recall@3": 0.7883,
+        "Recall@5": 0.8548,
+        "NDCG@3": 0.6893
+      },
+      "+abbr+coyear(0.2)": {
+        "MRR@3": 0.6422,
+        "Recall@1": 0.5254,
+        "Recall@3": 0.7848,
+        "Recall@5": 0.8543,
+        "NDCG@3": 0.6789
+      },
+      "+abbr+company_flat(0.05)": {
+        "MRR@3": 0.656,
+        "Recall@1": 0.5477,
+        "Recall@3": 0.7886,
+        "Recall@5": 0.8543,
+        "NDCG@3": 0.6902
+      }
+    },
+    "TAT-DQA": {
+      "stage1 (bm25+period+cell)": {
+        "MRR@3": 0.4123,
+        "Recall@1": 0.3138,
+        "Recall@3": 0.5367,
+        "Recall@5": 0.611,
+        "NDCG@3": 0.4443
+      },
+      "+abbr": {
+        "MRR@3": 0.4149,
+        "Recall@1": 0.3129,
+        "Recall@3": 0.5437,
+        "Recall@5": 0.6206,
+        "NDCG@3": 0.448
+      },
+      "+abbr+coyear(0.05)": {
+        "MRR@3": 0.4127,
+        "Recall@1": 0.3094,
+        "Recall@3": 0.5428,
+        "Recall@5": 0.6206,
+        "NDCG@3": 0.4462
+      },
+      "+abbr+coyear(0.1)": {
+        "MRR@3": 0.4101,
+        "Recall@1": 0.3068,
+        "Recall@3": 0.5402,
+        "Recall@5": 0.6206,
+        "NDCG@3": 0.4435
+      },
+      "+abbr+coyear(0.2)": {
+        "MRR@3": 0.4066,
+        "Recall@1": 0.3024,
+        "Recall@3": 0.5376,
+        "Recall@5": 0.6206,
+        "NDCG@3": 0.4403
+      },
+      "+abbr+company_flat(0.05)": {
+        "MRR@3": 0.4127,
+        "Recall@1": 0.3094,
+        "Recall@3": 0.5428,
+        "Recall@5": 0.6206,
+        "NDCG@3": 0.4462
+      }
+    }
+  },
+  "weighted_avg_mrr3": {
+    "stage1 (bm25+period+cell)": 0.6155,
+    "+abbr": 0.6176,
+    "+abbr+coyear(0.05)": 0.6149,
+    "+abbr+coyear(0.1)": 0.6112,
+    "+abbr+coyear(0.2)": 0.6003,
+    "+abbr+company_flat(0.05)": 0.6131
+  },
+  "best": "+abbr"
+}
