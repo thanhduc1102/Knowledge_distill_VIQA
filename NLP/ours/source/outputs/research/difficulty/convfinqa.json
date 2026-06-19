@@ -1,0 +1,54 @@
+{
+  "dataset": "ConvFinQA",
+  "n_queries": 3458,
+  "corpus_size": 1806,
+  "coverage": {
+    "q_has_company_frac": 1.0,
+    "q_has_year_frac": 1.0,
+    "avg_company_pool": 32.64,
+    "avg_company_year_pool": 6.17,
+    "D_eligible_frac": 1.0
+  },
+  "pool_recall": {
+    "B": 1.0,
+    "C": 1.0,
+    "D": 1.0
+  },
+  "regimes": {
+    "A_corpus_bm25": {
+      "MRR@3": 0.6408,
+      "R@1": 0.5393,
+      "R@3": 0.7678,
+      "R@5": 0.8305,
+      "n": 3458
+    },
+    "A_corpus_bm25_company_masked": {
+      "MRR@3": 0.5903,
+      "R@1": 0.4933,
+      "R@3": 0.714,
+      "R@5": 0.7846,
+      "n": 3458
+    },
+    "B_companypool_bm25": {
+      "MRR@3": 0.6918,
+      "R@1": 0.581,
+      "R@3": 0.83,
+      "R@5": 0.8913,
+      "n": 3458
+    },
+    "C_companypool_loclex": {
+      "MRR@3": 0.8254,
+      "R@1": 0.7302,
+      "R@3": 0.9361,
+      "R@5": 0.9676,
+      "n": 3458
+    },
+    "D_within_company_year_loclex": {
+      "MRR@3": 0.9193,
+      "R@1": 0.8641,
+      "R@3": 0.9815,
+      "R@5": 0.9939,
+      "n": 3458
+    }
+  }
+}

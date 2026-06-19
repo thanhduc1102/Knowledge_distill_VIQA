@@ -1,0 +1,17 @@
+{
+  "dataset": "finqa",
+  "n": 100,
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "NM": {
+    "raw": 0.25,
+    "kg": 0.19,
+    "hybrid2": 0.17,
+    "hybrid3": 0.19,
+    "kg+verify": 0.17
+  },
+  "fired": {
+    "hybrid2": 23,
+    "hybrid3": 5
+  },
+  "hallucination_caught": 18
+}

@@ -1,0 +1,13 @@
+{
+  "dataset": "convfinqa",
+  "stage": "generation",
+  "generation": {
+    "number_match": 0.2275882012724118,
+    "correct": 787,
+    "total": 3458,
+    "mean_verifier_reward": 0.5785714285714286,
+    "grounded_rate": 0.36813186813186816,
+    "generator": "extractive",
+    "seconds": 31.1
+  }
+}

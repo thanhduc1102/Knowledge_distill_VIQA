@@ -1,0 +1,13 @@
+{
+  "dataset": "finqa",
+  "stage": "generation",
+  "generation": {
+    "number_match": 0.12,
+    "correct": 12,
+    "total": 100,
+    "mean_verifier_reward": 0.49,
+    "grounded_rate": 0.16,
+    "generator": "hf",
+    "seconds": 80.2
+  }
+}

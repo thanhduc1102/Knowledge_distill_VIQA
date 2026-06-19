@@ -1,0 +1,65 @@
+{
+  "dataset": "finqa",
+  "n_symbolic": 988,
+  "categories": {
+    "exact": 173,
+    "wrong_value_absent": 779,
+    "wrong_value_present": 17,
+    "sign_format": 14,
+    "percent_format": 5
+  },
+  "recoverable_ceiling": 0.1943,
+  "by_task": {
+    "factor_sum": {
+      "exact": 5,
+      "wrong_value_absent": 16
+    },
+    "ratio": {
+      "wrong_value_absent": 333,
+      "exact": 53,
+      "wrong_value_present": 1,
+      "sign_format": 2,
+      "percent_format": 2
+    },
+    "percent_change": {
+      "wrong_value_absent": 95,
+      "exact": 82,
+      "wrong_value_present": 1,
+      "sign_format": 8,
+      "percent_format": 1
+    },
+    "comparison": {
+      "exact": 4,
+      "wrong_value_absent": 3
+    },
+    "difference": {
+      "wrong_value_absent": 54,
+      "exact": 11,
+      "sign_format": 2,
+      "wrong_value_present": 1
+    },
+    "average": {
+      "wrong_value_absent": 90,
+      "exact": 5,
+      "wrong_value_present": 5
+    },
+    "lookup": {
+      "wrong_value_absent": 68,
+      "exact": 9,
+      "wrong_value_present": 6,
+      "sign_format": 1
+    },
+    "sum": {
+      "wrong_value_absent": 102,
+      "percent_format": 2,
+      "exact": 3,
+      "wrong_value_present": 2
+    },
+    "adjustment": {
+      "wrong_value_present": 1,
+      "wrong_value_absent": 18,
+      "sign_format": 1,
+      "exact": 1
+    }
+  }
+}

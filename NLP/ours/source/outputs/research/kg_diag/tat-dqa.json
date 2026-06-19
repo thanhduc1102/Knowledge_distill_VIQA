@@ -1,0 +1,13 @@
+{
+  "dataset": "TAT-DQA",
+  "n_docs": 379,
+  "avg_facts_per_doc": 14.401,
+  "canonical_concept_coverage(frac of facts)": 0.253,
+  "grid_recoverable(frac of facts w/ row,col)": 1.0,
+  "distinct_canonical_concepts_seen": 38,
+  "identity_edge_firing(frac of docs)": 0.024,
+  "avg_identity_edges_per_firing_doc": 2.556,
+  "avg_identity_satisfied_frac": 0.722,
+  "temporal_edge_firing(frac of docs)": 0.493,
+  "avg_temporal_edges_per_firing_doc": 7.561
+}

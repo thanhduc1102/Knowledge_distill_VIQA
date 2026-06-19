@@ -1,0 +1,18 @@
+{
+  "dataset": "ConvFinQA",
+  "before": {
+    "canonical_coverage": 0.225,
+    "identity_firing": 0.004,
+    "avg_identity_edges": 3.0,
+    "identity_satisfied_frac": 1.0,
+    "n_docs": 242
+  },
+  "after": {
+    "canonical_coverage": 0.608,
+    "identity_firing": 0.025,
+    "avg_identity_edges": 3.0,
+    "identity_satisfied_frac": 0.167,
+    "n_docs": 242
+  },
+  "threshold": 0.72
+}

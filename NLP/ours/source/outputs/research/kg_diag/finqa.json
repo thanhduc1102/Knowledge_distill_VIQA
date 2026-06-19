@@ -1,0 +1,13 @@
+{
+  "dataset": "FinQA",
+  "n_docs": 383,
+  "avg_facts_per_doc": 12.561,
+  "canonical_concept_coverage(frac of facts)": 0.21,
+  "grid_recoverable(frac of facts w/ row,col)": 1.0,
+  "distinct_canonical_concepts_seen": 33,
+  "identity_edge_firing(frac of docs)": 0.0,
+  "avg_identity_edges_per_firing_doc": 0.0,
+  "avg_identity_satisfied_frac": 0.0,
+  "temporal_edge_firing(frac of docs)": 0.371,
+  "avg_temporal_edges_per_firing_doc": 6.049
+}

@@ -48,9 +48,32 @@ class MetadataRetriever(Expert):
     name = "meta"
     is_retriever = True
 
-    def __init__(self, require_year: bool = True, max_add: int = 15):
+    def __init__(
+        self,
+        require_year: bool = True,
+        max_add: int = 15,
+        company_pool: bool = False,
+        use_query_meta_company: bool | None = None,
+    ):
+        """
+        Args (new):
+            company_pool: If True, ``get_candidates`` returns the ENTIRE set of chunks of
+                the query's company (year-matched first), capped at ``max_add``. This
+                realises the "company-complete pool" (recall→1.0 on T²-RAGBench, where the
+                gold always shares the company), turning retrieval into the within-filing
+                disambiguation problem. Use a large ``max_add`` (e.g. 200) with this mode.
+            use_query_meta_company: Read the company from ``query_meta["company_name"]``
+                (normalised) instead of detecting it in the stripped question. Defaults to
+                ``company_pool`` — the legitimate metadata use (the company is in the
+                question by T²-RAGBench design; see docs/RESEARCH_AAAI27.md §2.2). Fixes the
+                CompanyIndex.detect() miss (≈0–3% gold-company on stripped questions).
+        """
         self.require_year = require_year
         self.max_add = max_add
+        self.company_pool = company_pool
+        self.use_query_meta_company = (
+            company_pool if use_query_meta_company is None else use_query_meta_company
+        )
 
     def prepare(self, corpus: Sequence[Document], doc_metas: Sequence[dict]) -> None:
         self._n = len(corpus)
@@ -77,9 +100,23 @@ class MetadataRetriever(Expert):
     def set_queries(self, raw_queries: Sequence[str], query_metas: Sequence[dict]) -> None:
         self._q_company_key: list[str | None] = []
         self._q_years: list[set[int]] = []
-        for q in raw_queries:
-            self._q_company_key.append(self._comp_index.detect(q))
-            self._q_years.append(set(extract_years(q)))
+        metas = list(query_metas) if query_metas is not None else [{}] * len(raw_queries)
+        for q, m in zip(raw_queries, metas):
+            if self.use_query_meta_company:
+                raw = str((m or {}).get("company_name", "") or "").strip()
+                self._q_company_key.append(normalize_company(raw) if raw else None)
+            else:
+                self._q_company_key.append(self._comp_index.detect(q))
+            # Years may live in the question text and/or the query metadata.
+            yrs = set(extract_years(q))
+            if self.use_query_meta_company:
+                ym = (m or {}).get("report_year") or (m or {}).get("year")
+                if ym:
+                    try:
+                        yrs.add(int(float(str(ym))))
+                    except (ValueError, TypeError):
+                        pass
+            self._q_years.append(yrs)
 
     def full_scores(self, qi: int) -> np.ndarray:
         q_co = self._q_company_key[qi]
@@ -87,7 +124,8 @@ class MetadataRetriever(Expert):
         out = np.zeros(self._n, dtype=np.float64)
         if not q_co:
             return out   # no company detected → no candidates
-        if self.require_year and not q_yrs:
+        # company_pool mode wants the WHOLE company set even with no year signal.
+        if self.require_year and not q_yrs and not self.company_pool:
             return out   # require_year=True: skip queries with no year signal
         for di in self._co_to_docs.get(q_co, []):
             dy = self._doc_year[di]

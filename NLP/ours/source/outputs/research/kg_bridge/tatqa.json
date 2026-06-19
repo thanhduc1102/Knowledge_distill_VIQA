@@ -1,0 +1,344 @@
+{
+  "path": "outputs/final_retrieval/tatqa/retrieval_top3.jsonl",
+  "n": 1144,
+  "top3_recall": 0.6198,
+  "original_top1_acc": 0.326,
+  "kg_top1_acc": 0.3837,
+  "delta_top1": 0.0577,
+  "changed_frac": 0.2281,
+  "rescue_count": 98,
+  "harm_count": 32,
+  "symbolic_coverage": 0.3208,
+  "symbolic_nm_all": 0.0428,
+  "symbolic_nm_when_available": 0.1335,
+  "raw_symbolic_coverage": 0.5472,
+  "raw_symbolic_nm_all": 0.0524,
+  "tiers": {
+    "PREFER_TOP1": 597,
+    "REVIEW": 284,
+    "TRUST_TOP1": 263
+  },
+  "tier_kg_acc": {
+    "PREFER_TOP1": 0.3434,
+    "REVIEW": 0.2746,
+    "TRUST_TOP1": 0.5932
+  },
+  "policies": {
+    "override_margin>=0.10": {
+      "top1_acc": 0.3724,
+      "delta": 0.0463,
+      "changed_frac": 0.1399,
+      "rescue": 69,
+      "harm": 16
+    },
+    "override_margin>=0.15": {
+      "top1_acc": 0.3671,
+      "delta": 0.0411,
+      "changed_frac": 0.1215,
+      "rescue": 62,
+      "harm": 15
+    },
+    "override_margin>=0.20": {
+      "top1_acc": 0.3575,
+      "delta": 0.0315,
+      "changed_frac": 0.097,
+      "rescue": 50,
+      "harm": 14
+    },
+    "override_margin>=0.25": {
+      "top1_acc": 0.3514,
+      "delta": 0.0253,
+      "changed_frac": 0.0804,
+      "rescue": 42,
+      "harm": 13
+    },
+    "override_margin>=0.30": {
+      "top1_acc": 0.3497,
+      "delta": 0.0236,
+      "changed_frac": 0.0603,
+      "rescue": 35,
+      "harm": 8
+    },
+    "override_margin>=0.35": {
+      "top1_acc": 0.347,
+      "delta": 0.021,
+      "changed_frac": 0.049,
+      "rescue": 30,
+      "harm": 6
+    },
+    "override_margin>=0.40": {
+      "top1_acc": 0.3427,
+      "delta": 0.0166,
+      "changed_frac": 0.0393,
+      "rescue": 24,
+      "harm": 5
+    },
+    "override_margin>=0.45": {
+      "top1_acc": 0.333,
+      "delta": 0.007,
+      "changed_frac": 0.021,
+      "rescue": 13,
+      "harm": 5
+    },
+    "override_margin>=0.50": {
+      "top1_acc": 0.3339,
+      "delta": 0.0079,
+      "changed_frac": 0.0166,
+      "rescue": 12,
+      "harm": 3
+    },
+    "override_margin>=0.60": {
+      "top1_acc": 0.333,
+      "delta": 0.007,
+      "changed_frac": 0.007,
+      "rescue": 8,
+      "harm": 0
+    },
+    "trust_only": {
+      "top1_acc": 0.333,
+      "delta": 0.007,
+      "changed_frac": 0.021,
+      "rescue": 13,
+      "harm": 5
+    },
+    "kg+rankprior_0.25": {
+      "top1_acc": 0.3706,
+      "delta": 0.0446,
+      "changed_frac": 0.4598,
+      "rescue": 154,
+      "harm": 103
+    },
+    "kg+rankprior_0.50": {
+      "top1_acc": 0.3759,
+      "delta": 0.0498,
+      "changed_frac": 0.4362,
+      "rescue": 153,
+      "harm": 96
+    },
+    "kg+rankprior_0.75": {
+      "top1_acc": 0.3724,
+      "delta": 0.0463,
+      "changed_frac": 0.4161,
+      "rescue": 144,
+      "harm": 91
+    },
+    "kg+rankprior_1.00": {
+      "top1_acc": 0.3794,
+      "delta": 0.0533,
+      "changed_frac": 0.3969,
+      "rescue": 142,
+      "harm": 81
+    },
+    "kg+rankprior_1.50": {
+      "top1_acc": 0.3785,
+      "delta": 0.0524,
+      "changed_frac": 0.368,
+      "rescue": 134,
+      "harm": 74
+    },
+    "kg+rankprior_2.00": {
+      "top1_acc": 0.3837,
+      "delta": 0.0577,
+      "changed_frac": 0.3374,
+      "rescue": 132,
+      "harm": 66
+    },
+    "kg+rankprior_3.00": {
+      "top1_acc": 0.3872,
+      "delta": 0.0612,
+      "changed_frac": 0.2727,
+      "rescue": 112,
+      "harm": 42
+    },
+    "kg+rankprior_4.00": {
+      "top1_acc": 0.3837,
+      "delta": 0.0577,
+      "changed_frac": 0.2281,
+      "rescue": 98,
+      "harm": 32
+    }
+  },
+  "best_policy": {
+    "name": "kg+rankprior_3.00",
+    "top1_acc": 0.3872,
+    "delta": 0.0612,
+    "changed_frac": 0.2727,
+    "rescue": 112,
+    "harm": 42
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "aci-worldwide-inc: What was the percentage decrease in aci-worldwide-inc's Gross deferred income tax assets from $131,128 in 2018 to $124,387 in 2019, as reported in the company's 2019 financial statements?",
+        "gt": "0551beccb943904e051f6f2a1519bd3a",
+        "orig": "eadb89dffa4969819ce7deb63d4044d4",
+        "kg": "0551beccb943904e051f6f2a1519bd3a",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "top fact: Gross deferred income tax assets"
+        ]
+      },
+      {
+        "query": "chefs-wharehouse: What is the amount of Stock options for the fiscal year ended December 29, 2017, as reported in the financial statements of chefs-wharehouse?",
+        "gt": "057149f07d2fad98ce7387e82475f309",
+        "orig": "2c757857a7d2552143d1c7e5871bdce2",
+        "kg": "057149f07d2fad98ce7387e82475f309",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "top fact: Stock options"
+        ]
+      },
+      {
+        "query": "jabil-circuit-inc: What was the net cash provided by investing activities for Jabil Circuit Inc. in the fiscal year ended August 31, 2018?",
+        "gt": "0b31ec7e0200c0354c067a2cf192f4af",
+        "orig": "f4e5e687e6185cabde6d70a4d37f729f",
+        "kg": "0b31ec7e0200c0354c067a2cf192f4af",
+        "tier": "REVIEW",
+        "reasons": [
+          "matches concept: CashAndEquivalents",
+          "top fact: Net cash provided by (used in)"
+        ]
+      },
+      {
+        "query": "atlassian-corp-plc: What is the average annual number of shares of restricted stock outstanding for both years ended June 30, 2018 and 2019?",
+        "gt": "18fcffb6cdd39b9830c130a53cbcc4f2",
+        "orig": "880c27ab5b60f3c3151e35dba93b3f6d",
+        "kg": "18fcffb6cdd39b9830c130a53cbcc4f2",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches period: 2018, 2019",
+          "top fact: Balance as of June 30, 2018"
+        ]
+      },
+      {
+        "query": "atlassian-corp-plc: What is the percentage increase in the total number of Atlassian Corp Plc's shares from June 30, 2018 to June 30, 2019?",
+        "gt": "18fcffb6cdd39b9830c130a53cbcc4f2",
+        "orig": "880c27ab5b60f3c3151e35dba93b3f6d",
+        "kg": "18fcffb6cdd39b9830c130a53cbcc4f2",
+        "tier": "REVIEW",
+        "reasons": [
+          "covers requested year pair",
+          "matches period: 2018, 2019",
+          "top fact: Balance as of June 30, 2018"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "united-micro-electronics-corp: What is the percentage point increase in the proportion of UMC's wafer sales for communication devices from 2018 to 2019?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg": "6e1111319702225e4b8b1b74c0236acb",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple operands in a period",
+          "matches concept: Revenue",
+          "top fact: Sales and marketing"
+        ]
+      },
+      {
+        "query": "united-micro-electronics-corp: What was the percentage point increase in the 'Others' category of UMC's wafer sales from 2017 to 2018?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg": "6e1111319702225e4b8b1b74c0236acb",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple operands in a period",
+          "matches concept: Revenue",
+          "top fact: Sales and marketing"
+        ]
+      },
+      {
+        "query": "nordic-american-tankers-limited: What is the average voyage revenue for Nordic American Tankers Limited in the years 2018 and 2019, according to the Selected Consolidated Financial Data in the 2019 annual report?",
+        "gt": "097f22c33fd3ff811a21c799dd76e595",
+        "kg": "9369cf38757ad3e31c53eb5e8304934e",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches concept: Revenue",
+          "top fact: Voyage Revenue"
+        ]
+      },
+      {
+        "query": "netapp-inc: What was the percentage change in proceeds from the issuance of shares under the Employee Stock Purchase Plan between the fiscal years ending April 27, 2018, and April 26, 2019?",
+        "gt": "0ee5b7131ba575a722b6142108145dfd",
+        "kg": "006ec02bf19d4128904aa2f001ababf8",
+        "tier": "REVIEW",
+        "reasons": [
+          "top fact: Proceeds from issuance of shares"
+        ]
+      },
+      {
+        "query": "rogers-communications-inc: What was the increase in Rogers Communications' wireless capital expenditures from 2018 to 2019, as reflected in the company's 2019 financial report?",
+        "gt": "1424e718ab72e7d0bc792bbed0f42df6",
+        "kg": "c879b6679a5d542ee56b45b1bc6135bd",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "matches concept: CapitalExpenditure",
+          "top fact: Capital expenditures"
+        ]
+      }
+    ],
+    "symbolic_fail": [
+      {
+        "query": "spirent-communications-plc: What percentage of the total non-current assets in Europe, Middle East and Africa did the United Kingdom's $6.9 million non-current assets represent in 2019?",
+        "gt": "01fdc2339641d7d4a8b06f32d937cffd",
+        "kg_doc": "71a02e93f0685b7c77ee617becc752cb",
+        "gold": [
+          "60.0",
+          "60"
+        ],
+        "symbolic_answer": 2.2549019607843137,
+        "confidence": 0.85,
+        "trace": "11.5 / 5.1 = 2.25490196078"
+      },
+      {
+        "query": "bce-inc: What percentage of BCE's total retail subscribers in 2019 were Wireless subscribers?",
+        "gt": "03a1386971da69e2cd625b87239694d4",
+        "kg_doc": "a8c11cade3237853c6a6869143f7ec37",
+        "gold": [
+          "52.48",
+          "52.48"
+        ],
+        "symbolic_answer": 1.002188033520688,
+        "confidence": 0.85,
+        "trace": "2772464 / 2766411 = 1.00218803352"
+      },
+      {
+        "query": "united-micro-electronics-corp: What is the percentage point increase in the proportion of UMC's wafer sales for communication devices from 2018 to 2019?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg_doc": "6e1111319702225e4b8b1b74c0236acb",
+        "gold": [
+          "7.0",
+          "7"
+        ],
+        "symbolic_answer": -17.357142857142858,
+        "confidence": 0.85,
+        "trace": "48.6 / -2.8 = -17.3571428571"
+      },
+      {
+        "query": "united-micro-electronics-corp: What was the percentage point increase in the 'Others' category of UMC's wafer sales from 2017 to 2018?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg_doc": "6e1111319702225e4b8b1b74c0236acb",
+        "gold": [
+          "1.0",
+          "1"
+        ],
+        "symbolic_answer": -3.178571428571429,
+        "confidence": 0.85,
+        "trace": "8.9 / -2.8 = -3.17857142857"
+      },
+      {
+        "query": "cts-corporation: What was the percentage point change in Equity securities' share of plan assets between December 31, 2018, and December 31, 2019, for cts-corporation's pension plan?",
+        "gt": "054153aec5a8b7066b1083f3ec3515ed",
+        "kg_doc": "56ca81e6bf0a99c20a0e513dbc39a42a",
+        "gold": [
+          "1.0",
+          "1"
+        ],
+        "symbolic_answer": 1.1760793720017444,
+        "confidence": 0.85,
+        "trace": "10787 / 9172 = 1.176079372"
+      }
+    ]
+  }
+}

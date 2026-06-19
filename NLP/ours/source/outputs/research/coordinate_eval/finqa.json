@@ -1,0 +1,32 @@
+{
+  "lookup": {
+    "n": 65,
+    "current": 0.1385,
+    "coord": 0.1231,
+    "either": 0.1385
+  },
+  "difference": {
+    "n": 80,
+    "current": 0.2125,
+    "coord": 0.1875,
+    "either": 0.2875
+  },
+  "percent_change": {
+    "n": 210,
+    "current": 0.4048,
+    "coord": 0.2619,
+    "either": 0.4333
+  },
+  "all": {
+    "n": 355,
+    "current": 0.3127,
+    "coord": 0.2197,
+    "either": 0.3465
+  },
+  "agreement": {
+    "coverage": 0.4056,
+    "nm_when_agree": 0.4583,
+    "n_agree": 144,
+    "n_total": 355
+  }
+}

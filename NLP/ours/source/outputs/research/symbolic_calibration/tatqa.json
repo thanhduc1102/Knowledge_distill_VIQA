@@ -1,0 +1,76 @@
+{
+  "dataset": "tatqa",
+  "n": 1144,
+  "raw_symbolic_coverage": 0.854,
+  "confidence>=0.8": {
+    "coverage": 0.6154,
+    "nm_when_available": 0.1491
+  },
+  "agreement_gating": {
+    ">=0": {
+      "coverage": 0.854,
+      "nm_when_available": 0.1146,
+      "n": 977
+    },
+    ">=1": {
+      "coverage": 0.854,
+      "nm_when_available": 0.1146,
+      "n": 977
+    },
+    ">=2": {
+      "coverage": 0.854,
+      "nm_when_available": 0.1146,
+      "n": 977
+    },
+    ">=3": {
+      "coverage": 0.8427,
+      "nm_when_available": 0.1162,
+      "n": 964
+    },
+    ">=4": {
+      "coverage": 0.7404,
+      "nm_when_available": 0.1228,
+      "n": 847
+    },
+    ">=5": {
+      "coverage": 0.4449,
+      "nm_when_available": 0.1395,
+      "n": 509
+    },
+    ">=6": {
+      "coverage": 0.0865,
+      "nm_when_available": 0.2121,
+      "n": 99
+    }
+  },
+  "per_bucket": {
+    "0": {
+      "n": 0,
+      "nm": 0.0
+    },
+    "1": {
+      "n": 0,
+      "nm": 0.0
+    },
+    "2": {
+      "n": 13,
+      "nm": 0.0
+    },
+    "3": {
+      "n": 117,
+      "nm": 0.0684
+    },
+    "4": {
+      "n": 338,
+      "nm": 0.0976
+    },
+    "5": {
+      "n": 410,
+      "nm": 0.122
+    },
+    "6": {
+      "n": 99,
+      "nm": 0.2121
+    }
+  }
+}

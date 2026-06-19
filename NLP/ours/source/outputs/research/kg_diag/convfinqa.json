@@ -1,0 +1,13 @@
+{
+  "dataset": "ConvFinQA",
+  "n_docs": 389,
+  "avg_facts_per_doc": 13.085,
+  "canonical_concept_coverage(frac of facts)": 0.214,
+  "grid_recoverable(frac of facts w/ row,col)": 1.0,
+  "distinct_canonical_concepts_seen": 34,
+  "identity_edge_firing(frac of docs)": 0.003,
+  "avg_identity_edges_per_firing_doc": 3.0,
+  "avg_identity_satisfied_frac": 1.0,
+  "temporal_edge_firing(frac of docs)": 0.581,
+  "avg_temporal_edges_per_firing_doc": 7.752
+}

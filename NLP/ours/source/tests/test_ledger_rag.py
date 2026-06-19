@@ -50,6 +50,10 @@ def test_verifier():
     # derivable: revenue - cogs = 400
     vr2 = verify("Answer: 400", led, "", gold=None)
     assert vr2.grounded or vr2.derivable
+    vr3 = verify("Use revenue 1000 and cost 600.\n1000 - 600 = 400.\nAnswer: 400",
+                 led, "gross profit 2019", gold=["400"])
+    assert vr3.grounding_fraction > 0.5
+    assert vr3.arithmetic_fraction == 1.0
 
 
 def test_equation_constraint_score():
@@ -193,6 +197,164 @@ def test_concept_equation_verifier():
         led_neg = extract_ledger(table_md=neg.table_md, doc_id="d1", meta={"company_name": "Acme"})
         bad = compute_concept_equation_score(led_neg)
         assert bad.constraint_score <= good.constraint_score
+
+
+def test_retrieval_bridge_arbitrates_top3_and_explains():
+    from gsr_cacl.generation.retrieval_bridge import build_evidence_pack, render_prompt_context
+
+    noisy = """| item | 2019 | 2018 |
+| --- | --- | --- |
+| revenue | 777 | 700 |
+| net income | 50 | 40 |
+"""
+    correct = """| item | 2019 | 2018 |
+| --- | --- | --- |
+| revenue | 1000 | 900 |
+| cost of goods sold | 600 | 550 |
+| gross profit | 400 | 350 |
+"""
+    retrieved = [
+        {"id": "noise_doc", "score": 0.99, "meta": {"company_name": "Acme"}, "table": noisy},
+        {"id": "gold_doc", "score": 0.80, "meta": {"company_name": "Acme"}, "table": correct},
+    ]
+    pack = build_evidence_pack("Acme: What was the gross profit in 2019?", retrieved)
+    assert pack.ranked[0].doc_id == "gold_doc"
+    assert pack.calculation["answer"] == 400.0
+    assert pack.provenance and pack.provenance[0]["cell"].startswith("gold_doc")
+    context = render_prompt_context(pack)
+    assert "KG_SELECTED_DOC: gold_doc" in context
+    assert "KG_SYMBOLIC_ANSWER: 400" in context
+
+
+def test_financial_rule_plans_balance_comparison_adjustment():
+    from gsr_cacl.ledger import extract_ledger, build_evidence_block
+    from gsr_cacl.ledger.select import calculation_plan, select_facts
+
+    tax_table = """| item | 2015 | 2014 | 2013 |
+| --- | --- | --- | --- |
+| balance january 1 | $ 1171 | $ 1701 | $ 1573 |
+| additions based on tax positions related to the current year | 67 | 63 | 90 |
+| reductions for tax positions of prior years | -84 ( 84 ) | -220 ( 220 ) | -141 ( 141 ) |
+| balance december 31 | $ 1136 | $ 1171 | $ 1701 |
+"""
+    tax = extract_ledger(table_md=tax_table, doc_id="tax", meta={"company_name": "Comcast"})
+    q_tax = "What was the change in unrecognized tax benefits from the end of 2014 to the end of 2015?"
+    tax_facts = select_facts(q_tax, [tax], top_n=8)
+    tax_plan = calculation_plan(q_tax, tax_facts)
+    assert tax_plan["answer"] == -35.0
+    assert "balance december 31" in tax_plan["trace"].lower() or tax_plan["confidence"] >= 0.8
+    tax_block = build_evidence_block(q_tax, [tax], facts=tax_facts)
+    assert "balance december 31" in tax_block.lower()
+    assert "additions based" not in tax_block.lower().split("FOCUS FACTS:")[0]
+
+    return_table = """| date | altria group inc . | altria group inc . peer group | s&p 500 |
+| --- | --- | --- | --- |
+| december 2011 | $ 100.00 | $ 100.00 | $ 100.00 |
+| december 2016 | $ 286.61 | $ 192.56 | $ 198.09 |
+"""
+    ret = extract_ledger(table_md=return_table, doc_id="ret", meta={"company_name": "Altria"})
+    q_ret = "Did Altria Group, Inc.'s cumulative total shareholder return exceed that of the S&P 500 over the five-year period ending December 31, 2016?"
+    ret_plan = calculation_plan(q_ret, select_facts(q_ret, [ret], top_n=8))
+    assert ret_plan["answer"] == 1.0
+    assert ret_plan["confidence"] >= 0.8
+
+    rev_table = """| item | amount ( in millions ) |
+| --- | --- |
+| 2015 net revenue | $ 5829 |
+| retail electric price | 289 |
+| 2016 net revenue | $ 6179 |
+"""
+    rev = extract_ledger(table_md=rev_table, doc_id="rev", meta={"company_name": "Entergy"})
+    q_adj = "Assuming there had been no sale, what would net revenue have been for 2015 without the $100 million net-of-tax gain?"
+    adj_plan = calculation_plan(q_adj, select_facts(q_adj, [rev], top_n=6))
+    assert adj_plan["answer"] == 5729.0
+    assert adj_plan["confidence"] >= 0.8
+
+    lease_table = """| item | operating leases | capital leases |
+| --- | --- | --- |
+| fiscal 2019 | $ 137.4 | $ 0.3 |
+| fiscal 2020 | 115.7 | 0.2 |
+| total noncancelable future lease commitments | $ 559.3 | $ 0.5 |
+"""
+    lease = extract_ledger(table_md=lease_table, doc_id="lease", meta={"company_name": "General Mills"})
+    q_lease = "What proportion of total noncancelable future lease commitments are scheduled to be paid in fiscal year 2019?"
+    lease_plan = calculation_plan(q_lease, select_facts(q_lease, [lease], top_n=8))
+    assert round(lease_plan["answer"], 6) == round(137.4 / 559.3, 6)
+    assert lease_plan["confidence"] >= 0.8
+
+    stock_table = """| item | 12/31/2010 | 12/31/2011 | 12/31/2014 |
+| --- | --- | --- | --- |
+| hum | $ 125 | $ 201 | $ 342 |
+| s&p 500 | $ 115 | $ 117 | $ 205 |
+"""
+    stock = extract_ledger(table_md=stock_table, doc_id="stock", meta={"company_name": "Humana"})
+    q_stock = "What was the percent change in Humana's stock price from $125 at the end of 2010 to $201 at the end of 2011, for the five years ended December 31, 2014?"
+    stock_plan = calculation_plan(q_stock, select_facts(q_stock, [stock], top_n=8))
+    assert round(stock_plan["answer"], 6) == 0.608
+
+
+def test_tat_context_bridge_periods_question_ratio_and_direct_percent():
+    from gsr_cacl.generation.generator import ExtractiveGenerator
+    from gsr_cacl.generation.retrieval_bridge import build_evidence_pack, render_prompt_context
+
+    spirent_context = """3. Operating segments continued
+
+|                | 2019 $ million | 2018 $ million |
+|----------------|---------------|---------------|
+| Americas       | 196.9         | 184.6         |
+| Asia Pacific   | 7.4           | 4.4           |
+| Europe, Middle East and Africa | 11.5 | 5.1 |
+| **Total**      | **215.8**     | **194.1**     |
+
+Europe, Middle East and Africa includes United Kingdom non-current assets of $6.9 million (2018 $2.0 million).
+"""
+    spirent_doc = {
+        "id": "spirent",
+        "meta": {"company_name": "spirent-communications-plc"},
+        "table": "",
+        "page_content": spirent_context,
+    }
+    q_year = (
+        "spirent-communications-plc: In which year did the non-current assets in the "
+        "Asia Pacific region exceed those of the previous year?"
+    )
+    year_pack = build_evidence_pack(q_year, [spirent_doc], top_n_facts=6)
+    assert year_pack.calculation["answer"] == 2019.0
+    assert any(op.get("concept") == "Asia Pacific" for op in year_pack.calculation["operands"])
+    assert any(f.period == "2019" for f in year_pack.selected_facts)
+
+    q_ratio = (
+        "spirent-communications-plc: What percentage of the total non-current assets "
+        "in Europe, Middle East and Africa did the United Kingdom's $6.9 million "
+        "non-current assets represent in 2019?"
+    )
+    ratio_pack = build_evidence_pack(q_ratio, [spirent_doc], top_n_facts=6)
+    assert round(ratio_pack.calculation["answer"], 6) == round(6.9 / 11.5, 6)
+    assert ratio_pack.calculation["operands"][0]["provenance"] == "question"
+    assert ExtractiveGenerator().generate(
+        q_ratio,
+        render_prompt_context(ratio_pack),
+        facts=ratio_pack.selected_facts,
+    ) == "Answer: 0.6"
+
+    bce_context = """At the end of 2019, BCE retail customer connections totaled 18,983,510, and were comprised of the following:
+
+- 9,957,962 wireless subscribers, up 3.6% compared to 2018.
+
+|       | 2019 | 2018 | $ CHANGE | % CHANGE |
+|-------|------|------|----------|----------|
+| Bell Wireless | 9,142 | 8,818 | 324 | 3.7% |
+"""
+    bce_doc = {
+        "id": "bce",
+        "meta": {"company_name": "bce-inc"},
+        "table": "",
+        "page_content": bce_context,
+    }
+    q_pct = "bce-inc: What percentage change occurred in the number of BCE retail wireless subscribers from 2018 to 2019?"
+    pct_pack = build_evidence_pack(q_pct, [bce_doc], top_n_facts=6)
+    assert pct_pack.calculation["answer"] == 3.6
+    assert pct_pack.calculation["operands"][0]["source"] == "text"
 
 
 def test_preference_reward_and_grpo():

@@ -25,6 +25,7 @@ import numpy as np
 from gsr_cacl.datasets.wrappers import load_t2ragbench_split
 from gsr_cacl.experts.base import minmax
 from gsr_cacl.experts.lexical import LexicalExpert, _toks
+from gsr_cacl.experts.local_lexical import LocalLexicalExpert
 from gsr_cacl.experts.concept import ConceptExpert
 from gsr_cacl.experts.cell import CellExpert
 from gsr_cacl.experts.entity import EntityExpert
@@ -38,13 +39,19 @@ from gsr_cacl.ontology.concepts import concepts_in_text
 SPLITS = {"FinQA": "test", "ConvFinQA": "turn_0", "TAT-DQA": "test"}
 
 
-def make_experts(spec: str, device: str, lateint_model: str | None = None):
+def make_experts(spec: str, device: str, lateint_model: str | None = None,
+                 company_pool: bool = False, meta_max_add: int = 15):
     """Build the requested experts. ``spec`` is a comma list of expert names."""
     want = [s.strip() for s in spec.split(",") if s.strip()]
     out = []
     for nm in want:
         if nm == "lexical":
             out.append(LexicalExpert(abbr_expand=True))
+        elif nm == "loclex":
+            out.append(LocalLexicalExpert(abbr_expand=True))
+        elif nm == "factlevel":
+            from gsr_cacl.experts.fact_level import FactLevelExpert
+            out.append(FactLevelExpert(device=device))
         elif nm == "entity":
             out.append(EntityExpert(device=device))
         elif nm == "concept":
@@ -56,7 +63,7 @@ def make_experts(spec: str, device: str, lateint_model: str | None = None):
         elif nm == "factgate":
             out.append(FactGateExpert())
         elif nm == "meta":
-            out.append(MetadataRetriever())
+            out.append(MetadataRetriever(company_pool=company_pool, max_add=meta_max_add))
         elif nm == "dense":
             from gsr_cacl.experts.dense import DenseExpert
             out.append(DenseExpert(device=device))
@@ -88,7 +95,8 @@ def metrics_from_ranks(ranks: list[int]) -> dict:
     }
 
 
-def build(dataset: str, sample: int, pool_size: int, expert_spec: str, device: str, lateint_model=None):
+def build(dataset: str, sample: int, pool_size: int, expert_spec: str, device: str,
+          lateint_model=None, company_pool: bool = False, meta_max_add: int = 15):
     split = SPLITS[dataset]
     data = load_t2ragbench_split(dataset, split=split, sample_size=(sample or None))
     corpus, gts, metas = data.corpus, data.ground_truth_ids, data.meta_data
@@ -101,22 +109,31 @@ def build(dataset: str, sample: int, pool_size: int, expert_spec: str, device: s
     doc_metas = [dict(d.meta_data) if isinstance(d.meta_data, dict) else {} for d in corpus]
 
     # ---- experts (independent) -------------------------------------------------
-    experts = make_experts(expert_spec, device, lateint_model)
+    experts = make_experts(expert_spec, device, lateint_model,
+                           company_pool=company_pool, meta_max_add=meta_max_add)
     for ex in experts:
         print(f"  prepare {ex.name} ...", flush=True)
         ex.prepare(corpus, doc_metas)
         ex.set_queries(raw_q, metas)
     names = [ex.name for ex in experts]
     retrievers = [ex for ex in experts if ex.is_retriever]
+    # In company-pool mode the pool is the company-complete set: only MetadataRetriever
+    # seeds it; every other expert (incl. lexical/loclex) re-scores within the company.
+    if company_pool:
+        seeders = [ex for ex in experts if ex.name == "meta"]
+        if not seeders:
+            raise ValueError("--company-pool requires the 'meta' expert in --experts")
+    else:
+        seeders = retrievers
 
     # ---- candidate pool per query (HONEST: never inject gold) ------------------
-    # Pool = retriever top-`pool` only. Gold may be absent → that query is a genuine miss
-    # (the BM25 recall ceiling). Training later uses only queries whose gold is in-pool;
+    # Pool = seeder candidates only. Gold may be absent → that query is a genuine miss
+    # (the recall ceiling). Training later uses only queries whose gold is in-pool;
     # test eval counts an out-of-pool gold as rank ∞.
     pools = []
     for qi in range(len(raw_q)):
         cand = set()
-        for ex in retrievers:
+        for ex in seeders:
             if hasattr(ex, "get_candidates"):
                 # Expert controls its own candidate selection (e.g. MetadataRetriever
                 # adds only genuinely-matching docs, ignoring pool_size to avoid noise).
@@ -166,14 +183,21 @@ def main():
     ap.add_argument("--experts", default="lexical,entity,concept,cell,graph,factgate")
     ap.add_argument("--cv", type=int, default=5, help="k-fold CV (0/1 = single 50/50 split)")
     ap.add_argument("--lateint-model", default=None, help="path/name for the lateint fact encoder")
+    ap.add_argument("--company-pool", action="store_true",
+                    help="Seed pool from MetadataRetriever company-complete set (recall→1.0); "
+                         "all other experts re-score within the company.")
+    ap.add_argument("--meta-max-add", type=int, default=15,
+                    help="Cap on docs MetadataRetriever adds (use ~200 with --company-pool).")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="outputs/modular")
     args = ap.parse_args()
 
-    print(f"### {args.dataset}  (experts={args.experts}) ###", flush=True)
+    print(f"### {args.dataset}  (experts={args.experts}) "
+          f"{'[company-pool]' if args.company_pool else ''} ###", flush=True)
     raw_q, names, feats, gold_pos, qfeats = build(
-        args.dataset, args.sample, args.pool, args.experts, args.device, args.lateint_model)
+        args.dataset, args.sample, args.pool, args.experts, args.device, args.lateint_model,
+        company_pool=args.company_pool, meta_max_add=args.meta_max_add)
     Q = len(raw_q)
     data = FusionData(feats=feats, gold_pos=gold_pos, qfeats=qfeats, expert_names=names)
 

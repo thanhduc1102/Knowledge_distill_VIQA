@@ -45,8 +45,8 @@ def ledger_reward(
     """Reward in [0, ~1.5]; accuracy dominates (λ_g + λ_a < 1)."""
     vr: VerificationResult = verify(prediction, ledger, query, gold=gold)
     r_answer = 1.0 if vr.answer_match else 0.0
-    r_ground = 1.0 if vr.grounded else 0.0
-    r_arith = 1.0 if vr.derivable else 0.0
+    r_ground = max(1.0 if vr.grounded else 0.0, vr.grounding_fraction)
+    r_arith = max(1.0 if vr.derivable else 0.0, vr.arithmetic_fraction)
     return r_answer + lambda_g * r_ground + lambda_a * r_arith
 
 

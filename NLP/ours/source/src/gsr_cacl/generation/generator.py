@@ -52,6 +52,14 @@ class ExtractiveGenerator(BaseGenerator):
     name = "extractive"
 
     def generate(self, query, evidence_block, meta=None, facts=None) -> str:
+        symbolic = re.search(
+            r"KG_SYMBOLIC_ANSWER:\s*([-+]?\d[\d,]*(?:\.\d+)?(?:e[-+]?\d+)?)",
+            evidence_block or "",
+            re.I,
+        )
+        if symbolic:
+            return f"Answer: {symbolic.group(1).replace(',', '')}"
+
         facts = [f for f in (facts or []) if f.value is not None]
         if not facts:
             return "Answer: "

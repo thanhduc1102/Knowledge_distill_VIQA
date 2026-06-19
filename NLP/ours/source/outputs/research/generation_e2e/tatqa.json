@@ -1,0 +1,17 @@
+{
+  "dataset": "tatqa",
+  "n": 120,
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "NM": {
+    "raw": 0.2167,
+    "kg": 0.2167,
+    "hybrid2": 0.1583,
+    "hybrid3": 0.1917,
+    "kg+verify": 0.1833
+  },
+  "fired": {
+    "hybrid2": 41,
+    "hybrid3": 9
+  },
+  "hallucination_caught": 20
+}

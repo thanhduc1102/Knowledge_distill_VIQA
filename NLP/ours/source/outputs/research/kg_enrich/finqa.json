@@ -1,0 +1,18 @@
+{
+  "dataset": "FinQA",
+  "before": {
+    "canonical_coverage": 0.204,
+    "identity_firing": 0.0,
+    "avg_identity_edges": 0.0,
+    "identity_satisfied_frac": 0.0,
+    "n_docs": 246
+  },
+  "after": {
+    "canonical_coverage": 0.58,
+    "identity_firing": 0.008,
+    "avg_identity_edges": 2.5,
+    "identity_satisfied_frac": 0.0,
+    "n_docs": 246
+  },
+  "threshold": 0.72
+}

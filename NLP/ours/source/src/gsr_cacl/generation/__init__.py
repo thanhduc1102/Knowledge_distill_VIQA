@@ -15,10 +15,12 @@ from gsr_cacl.generation.verifier import (
 )
 from gsr_cacl.generation.metrics import compute_number_match
 from gsr_cacl.generation.prompts import build_chat_messages, build_user_prompt, SYSTEM_PROMPT
+from gsr_cacl.generation.retrieval_bridge import build_evidence_pack, render_prompt_context
 
 __all__ = [
     "BaseGenerator", "ExtractiveGenerator", "HFGenerator", "build_generator",
     "VerificationResult", "verify", "is_grounded", "is_derivable", "extract_final_number",
     "compute_number_match",
     "build_chat_messages", "build_user_prompt", "SYSTEM_PROMPT",
+    "build_evidence_pack", "render_prompt_context",
 ]

@@ -1,0 +1,17 @@
+{
+  "dataset": "convfinqa",
+  "n": 100,
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "NM": {
+    "raw": 0.51,
+    "kg": 0.42,
+    "hybrid2": 0.35,
+    "hybrid3": 0.41,
+    "kg+verify": 0.4
+  },
+  "fired": {
+    "hybrid2": 50,
+    "hybrid3": 13
+  },
+  "hallucination_caught": 23
+}

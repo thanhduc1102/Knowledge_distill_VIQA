@@ -1,0 +1,76 @@
+{
+  "dataset": "finqa",
+  "n": 1147,
+  "raw_symbolic_coverage": 0.8413,
+  "confidence>=0.8": {
+    "coverage": 0.5937,
+    "nm_when_available": 0.2349
+  },
+  "agreement_gating": {
+    ">=0": {
+      "coverage": 0.8413,
+      "nm_when_available": 0.1741,
+      "n": 965
+    },
+    ">=1": {
+      "coverage": 0.8413,
+      "nm_when_available": 0.1741,
+      "n": 965
+    },
+    ">=2": {
+      "coverage": 0.8413,
+      "nm_when_available": 0.1741,
+      "n": 965
+    },
+    ">=3": {
+      "coverage": 0.8317,
+      "nm_when_available": 0.1761,
+      "n": 954
+    },
+    ">=4": {
+      "coverage": 0.7742,
+      "nm_when_available": 0.1824,
+      "n": 888
+    },
+    ">=5": {
+      "coverage": 0.551,
+      "nm_when_available": 0.2057,
+      "n": 632
+    },
+    ">=6": {
+      "coverage": 0.1604,
+      "nm_when_available": 0.2663,
+      "n": 184
+    }
+  },
+  "per_bucket": {
+    "0": {
+      "n": 0,
+      "nm": 0.0
+    },
+    "1": {
+      "n": 0,
+      "nm": 0.0
+    },
+    "2": {
+      "n": 11,
+      "nm": 0.0
+    },
+    "3": {
+      "n": 66,
+      "nm": 0.0909
+    },
+    "4": {
+      "n": 256,
+      "nm": 0.125
+    },
+    "5": {
+      "n": 448,
+      "nm": 0.1808
+    },
+    "6": {
+      "n": 184,
+      "nm": 0.2663
+    }
+  }
+}

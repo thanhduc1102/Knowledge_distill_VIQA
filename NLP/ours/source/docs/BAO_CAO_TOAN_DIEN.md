@@ -27,6 +27,7 @@
   - [13.7: Tối ưu hiệu năng (68.7×, 10.7×, 20-42×)](#137-tối-ưu-hiệu-năng--phiên-này)
   - [13.8: CHAP-E wiring fix](#138-chap-e-wiring--đã-sửa-)
   - [13.9: Pool Bottleneck Research & MetadataRetriever (+0.050 MRR@3)](#139-pool-bottleneck-research--metadataretriever--tối-ưu-chiến-lược-retrieval)
+  - [**13.10: ĐỘT PHÁ Company-Scoped Pool + Pool-Local IDF (TAT +0.173, avg +0.094)**](#1310-đột-phá-company-scoped-pool--pool-local-idf--tái-cấu-trúc-bài-toán-retrieval)
 
 ---
 
@@ -1075,10 +1076,10 @@ retrieval_top3.jsonl
 
 | Vấn đề | Trạng thái |
 |---|---|
-| Generator zero-shot vs finetune | Chưa quyết định (user: tập trung retrieval trước) |
-| Conflict `cacl_train.py:3` "NEVER finetuned" vs `preference.py` DPO/GRPO | Cần user quyết định |
-| C4 (GAT trên Financial Evidence Graph) | Chưa triển khai — phức tạp, đồng thuận sau |
-| GRPO/RLVR với C5 verifier reward | Cần quyết định về generator finetuning trước |
+| Generator zero-shot vs finetune | Đã quyết định cho giai đoạn hiện tại: **frozen Qwen**, không finetune/RL |
+| Conflict `cacl_train.py:3` "NEVER finetuned" vs `preference.py` DPO/GRPO | Không còn là blocker: DPO/GRPO để future optional, không thuộc pipeline hiện tại |
+| C4 (GAT trên Financial Evidence Graph) | Redirect: dùng typed Fact Ledger + KG bridge inference-time thay vì GAT generic |
+| GRPO/RLVR với C5 verifier reward | Defer; ưu tiên KG arbitration, symbolic plan, provenance và verifier tại inference |
 
 ---
 
@@ -1521,6 +1522,144 @@ Linear weights Exp-B: `lexical=0.658, meta=0.260, concept=0.248, entity=0.136, c
 
 MetadataRetriever đưa tổng hệ thống từ +0.0288 lên **+0.0724** so với FULL+C3 baseline — gần như gấp đôi đóng góp của toàn bộ MMER+FactGate redesign trước đó.
 
+### 13.10 ĐỘT PHÁ: Company-Scoped Pool + Pool-Local IDF — Tái cấu trúc Bài toán Retrieval
+
+> Đây là phần nghiên cứu sâu nhất, xuất phát từ quan sát bất thường: TAT-DQA luôn thấp (0.53) trong khi FinQA/ConvFinQA cao (~0.85). Việc đào sâu cấu trúc dữ liệu đã **định nghĩa lại toàn bộ bài toán** và mang lại bước nhảy lớn nhất từ trước đến nay.
+
+#### 13.10.1 Chẩn đoán cấu trúc dữ liệu — Bài toán thực sự là gì?
+
+Phân tích thực nghiệm trên corpus retrieval (KHÔNG phải chỉ test split):
+
+| Dataset | Corpus | #Companies | **Chunks/company (TB)** | Năm trong corpus |
+|---|---|---|---|---|
+| TAT-DQA | 2,723 | 173 | **23.3** (max 47) | **100% là FY2019** |
+| FinQA | 2,789 | 136 | 47.6 (max 144) | 1999–2019 |
+| ConvFinQA | 1,806 | 132 | 32.6 (max 103) | nhiều năm |
+
+**Ba phát hiện định nghĩa lại bài toán:**
+
+1. **Gold doc CHIA SẺ company với query metadata 100%** trên CẢ 3 datasets. Company name nằm ngay trong câu hỏi (loader tách prefix `company:` vào metadata) → dùng nó là NER hợp lệ trên câu hỏi, KHÔNG phải leakage (giống hệ thống "Metadata BM25" trên leaderboard).
+
+2. **TAT-DQA toàn FY2019** → tín hiệu year của MetaRetriever VÔ DỤNG (không phân biệt được gì). Đây là lý do meta chỉ giúp +0.025 trên TAT-DQA.
+
+3. **Mỗi công ty có ~23 chunk** (TAT-DQA là các "note" của báo cáo thường niên: Note 23 Trade payables, Note 25 Deferred income, Note 28 Provisions, segment analysis...). **Bài toán thực sự = chọn đúng chunk trong ~23 chunk cùng công ty** ("within-company chunk disambiguation"), KHÔNG phải truy xuất toàn corpus.
+
+**Bug nghiêm trọng phát hiện:** MetadataRetriever cũ dùng `CompanyIndex.detect()` trên câu hỏi đã strip prefix → chỉ tìm đúng company của gold **3.1%** (TAT) / **0%** (FinQA/Conv)! Nó hoạt động được trước đây chỉ nhờ year-match tình cờ. Sửa: dùng `normalize_company(query_meta["company_name"])` → khớp doc key **100%**.
+
+#### 13.10.2 Company-Complete Pool — Phá vỡ trần recall
+
+Vì gold luôn cùng company, **pool = toàn bộ chunk cùng công ty** đạt recall lý thuyết 100%:
+
+| Dataset | BM25 top-50 recall | **Company-pool recall** | Pool size | BM25-trong-pool MRR@3 | BM25 full-corpus MRR@3 |
+|---|---|---|---|---|---|
+| TAT-DQA | 86.9% | **100%** | 23.3 | **0.5644** | 0.4177 (+0.147) |
+| FinQA | 97.7% | **100%** | 47.6 | 0.7180 | 0.6661 (+0.052) |
+| ConvFinQA | 97.2% | **100%** | 32.6 | 0.6911 | 0.6408 (+0.050) |
+
+Chỉ riêng việc rerank BM25 trong pool sạch company đã **vượt toàn bộ hệ thống cũ trên TAT-DQA** (0.5644 > 0.5312). Nút thắt cổ chai recall biến mất hoàn toàn; mọi expert giờ làm việc trên pool 100% cùng company, không bị nhiễu wrong-company.
+
+Triển khai: `MetadataRetriever.get_candidates()` trả về toàn bộ company set (cap `max_add=200` cho công ty lớn, ưu tiên doc khớp year). Pool building thêm chế độ `--company-pool` trong `scripts/modular_retrieval.py`.
+
+#### 13.10.3 Pool-Local IDF (`loclex`) — Giải quyết within-company ranking
+
+**Insight domain cốt lõi:** BM25 chuẩn tính IDF trên TOÀN corpus (2.7k doc). Nhưng khi pool đã thu về 1 công ty, từ phân biệt là từ HIẾM *trong các chunk của công ty đó* — chủ đề note/bảng cụ thể ("compensation", "net operating loss carryforwards", "Asia Pacific"). Boilerplate dùng chung mọi chunk của filing (tên công ty, "for the year ended December 31, 2019", từ kế toán phổ thông) mang ~0 thông tin cục bộ nhưng vẫn được IDF toàn cục cộng điểm → làm mờ ranking.
+
+**`LocalLexicalExpert` (`experts/local_lexical.py`):** tính lại BM25 với **document frequency đo trên chính pool** (company chunks). Từ xuất hiện ở hầu hết chunk → IDF cục bộ ≈ 0; từ chỉ ở 1-2 chunk → áp đảo. Đây là re-scorer thuần (`is_retriever=False`).
+
+**Kết quả standalone trong company pool (đột phá đơn lẻ lớn nhất):**
+
+| Dataset | lexical (BM25 toàn cục) | **loclex (IDF cục bộ)** | Δ |
+|---|---|---|---|
+| TAT-DQA | 0.5653 | **0.6805** | **+0.115** |
+| FinQA | 0.7180 | **0.8175** | **+0.100** |
+| ConvFinQA | 0.6911 | **0.8246** | **+0.134** |
+
+`loclex` đơn lẻ (0.6805) đã vượt fusion 7-expert company-pool không có loclex (0.6339) trên TAT-DQA. Trong fusion, loclex chiếm trọng số áp đảo (0.56–0.81), lexical toàn cục sụt còn ~0.03–0.15 (gần như bị thay thế).
+
+#### 13.10.4 Kết quả Cuối cùng — Bước nhảy Toàn diện
+
+Cấu hình: **company-pool + 8 experts (lexical, loclex, meta, entity, concept, cell, graph, factgate) + learned fusion (5-fold CV)**, recall = 1.0 cả 3 datasets.
+
+| Dataset | Hệ thống cũ tốt nhất | **Company-pool + loclex (tốt nhất)** | Δ | Fusion |
+|---|---|---|---|---|
+| TAT-DQA | 0.5312 | **0.7041** | **+0.173 (+33%)** | gate |
+| FinQA | 0.8487 | **0.9013** | **+0.053** | linear |
+| ConvFinQA | 0.8535 | **0.9086** | **+0.055** | gate |
+| **Trung bình** | 0.7445 | **0.8380** | **+0.0935** | — |
+
+So với leaderboard #1 (GPT-5.4 + Metadata BM25): FinQA 90.3, ConvFinQA 84.5, TAT-DQA 67.9. **Hệ thống của chúng ta giờ ConvFinQA 90.9 (VƯỢT #1), FinQA 90.1 (xấp xỉ #1), TAT-DQA 70.4 (VƯỢT #1)** — chỉ dùng sparse retrieval + IDF cục bộ + fusion tuyến tính, KHÔNG cần LLM ở pha retrieval.
+
+#### 13.10.5 Phân tích đóng góp thực chất — đánh giá công bằng
+
+**Đóng góp THỰC SỰ (theo thứ tự tác động):**
+1. **Company-scoped pool** (+0.05 đến +0.10): phá trần recall, khử nhiễu wrong-company. Đơn giản, dựa trên cấu trúc dữ liệu, không cần model.
+2. **Pool-local IDF `loclex`** (+0.10 đến +0.13 standalone): giải quyết within-company ranking — đóng góp domain-aware lớn nhất.
+3. **Learned fusion** (+0.02 đến +0.07 trên loclex): kết hợp loclex với concept/graph (FinQA/ConvFinQA), cell.
+
+**KHÔNG đóng góp đáng kể (đánh giá trung thực):**
+- **Ontology IFRS/GAAP (concept, graph)**: ≈0 trên TAT-DQA (bảng phi chuẩn, note disclosures không khớp 42-concept). Chỉ hữu ích FinQA/ConvFinQA (concept weight 0.13–0.15).
+- **Dense (bge-small)**: 0.38 standalone, kết hợp LÀM GIẢM loclex (−0.005). Bảng tài chính phá embedding. Không thêm vào.
+- **LateInt, cell, factgate, entity**: trọng số fusion thấp (0.05–0.13), đóng góp biên.
+- **meta/entity trong company-pool**: cột hằng số (mọi doc cùng company) → trọng số fusion vô nghĩa với ranking.
+
+→ **Kết luận domain:** với QA tài liệu tài chính dài, "đột phá" KHÔNG đến từ ontology kinh tế phức tạp mà từ **hiểu cấu trúc tài liệu** (filing → chunk cùng company) và **phân biệt cục bộ** (IDF trong phạm vi công ty). Đây là bài học khớp với HierFinRAG / "Decomposing Retrieval Failures in RAG for Long Document Financial QA": vấn đề là chunk-level disambiguation trong tài liệu dài, không phải truy xuất ngữ nghĩa toàn cục.
+
+#### 13.10.6 Cầu nối Pha Generator — Giảm gánh nặng LLM trên top-3
+
+Vì MRR@3 → generator nhận **top-3 (≥2 nhiễu)**, và trong company-pool cả 3 đều cùng công ty (nhiễu "giống thật"). Hai tính chất đo được giúp giảm tải LLM:
+
+**1. Confidence margin dự đoán độ đúng** (margin tương đối = (s₁−s₂)/s₁ của điểm fusion):
+
+| Dataset | Top-1 acc tổng | Top-quartile margin → Top-1 acc |
+|---|---|---|
+| TAT-DQA | 55.0% | **90.6%** |
+| FinQA | 71.5% | **97.2%** |
+| ConvFinQA | 72.8% | **97.6%** |
+
+→ Với query margin cao, generator TIN doc-1 (context gọn, ít nhiễu); margin thấp → cân nhắc cả top-3.
+
+**2. Từ phân biệt đã biết** (loclex pool-local IDF): biết chính xác từ nào kéo mỗi candidate lên → annotate per-doc cho LLM, pre-localize evidence.
+
+**Triển khai:** `generation/retrieval_bridge.py` — `build_evidence_pack()` sinh ra:
+- `tier` (TRUST_TOP1 / PREFER_TOP1 / REVIEW) từ margin
+- `per_doc_terms`: từ query khớp mỗi doc, sắp theo độ hiếm cục bộ (từ phân biệt nhất trước)
+- `domain_lines`: statement family + concept + công thức identity (tái dùng `domain/financial.py`)
+- `matched_years`
+
+Ví dụ thực (q "change in compensation 2018–2019"): Doc-1 (gold) annotate "matched on: compensation, 2018, 2019"; Doc-2 chỉ khớp boilerplate "inc, aci, worldwide" → minh hoạ vì sao pool-local IDF cần thiết và LLM được chỉ thẳng tới bằng chứng.
+
+### 13.11 Đánh giá lại tính hợp lệ & Định hướng AAAI-27 (tóm tắt)
+
+> Chi tiết đầy đủ: [`docs/RESEARCH_AAAI27.md`](RESEARCH_AAAI27.md). Phần này tóm tắt kết quả nghiên cứu nâng cao và định vị đóng góp.
+
+**Vấn đề hợp lệ:** Câu hỏi T2-RAGBench *context-independent* → 100% chứa prefix `company:`, company còn trong thân câu 86–94%, gold luôn cùng company. Do đó company-scoping (recall 100%) là **khai thác hợp lệ** metadata nội tại (giống Metadata-BM25 #1), nhưng nó **trivialize retrieval cấp corpus**, đặc biệt FinQA/ConvFinQA (company+year → pool ~5–11). TAT-DQA toàn FY2019 nên không bị trivialize → là "canary" độ khó thật.
+
+**Difficulty Decomposition (C1):** độ khó *content-only* (company-masked) chỉ 0.31/0.53/0.51; company-scoping thổi lên 0.68/0.82/0.82. Khoảng cách = độ lớn artifact.
+
+**Conditional Salience `loclex` (C2):** BM25 với IDF tái-ước-lượng *trong pool company*. Standalone +0.10–0.13 vs BM25 toàn cục. Ablation trung thực: contrastive weight & schema expert **không cải thiện** → pool-local IDF first-order là đủ.
+
+**Killer experiment (C3):** `loclex` THUA BM25 ở full-corpus (0.345<0.418) nhưng THẮNG ở company-pool (0.681>0.565) — giá trị conditional salience *chỉ mở khoá bởi cluster pool*. Dense (bge-small, e5-base) & ColBERT thua decisively ở cả 2 regime, robust với model size → **neural toàn cục không bắt được phân biệt within-filing trên bảng số.**
+
+**Kết quả hệ thống đầy đủ:** TAT-DQA **0.7047** (+0.173), FinQA **0.9019** (+0.053), ConvFinQA **0.9086** (+0.055), recall 1.0 — vượt/xấp xỉ leaderboard #1 mà không dùng LLM ở retrieval.
+
+**Selective Generation (C4):** confidence margin calibrated — top-quartile margin → top-1 accuracy 91/97/98%; cho phép cấp phát context chọn lọc (giảm 13–16% token evidence, giảm distraction).
+
+**Định vị AAAI:** (1) chẩn đoán artifact (C1), (2) conditional salience cho within-filing (C2), (3) phát hiện phản trực giác neural<sparse (C3), (4) selective generation (C4). Khung tổng quát: *entity-clustered corpora* (finance/legal/medical). Gap cần bù: +1 benchmark khác (MultiHiertt/DocFinQA), neural lớn hơn, significance test, end-to-end generator thật.
+
+### 13.12 Cập nhật 2026-06-19: C4 chuyển sang KG bridge inference-time
+
+Theo định hướng mới, **không huấn luyện / RL generator tại thời điểm hiện tại**. C4 hiện là lớp KG hỗ trợ generator frozen: chọn/focus tài liệu đúng trong top-3 nhiễu, trích toán hạng, tính symbolic answer khi đủ tự tin, đưa trace/provenance và flag conflict để giảm tải Qwen3-4B/9B.
+
+Kết quả `rules4` đã chạy:
+
+| Dataset | Original top-1 | KG top-1 | Best KG policy | Symbolic coverage | NM when symbolic |
+|---|---:|---:|---:|---:|---:|
+| FinQA | 0.6417 | 0.6469 | **0.6600** | 0.5937 | 0.2349 |
+| ConvFinQA | 0.7279 | 0.7287 | **0.7420** | 0.5604 | 0.3782 |
+| TAT-DQA | 0.3260 | 0.3628 | **0.3820** | 0.6154 | 0.1491 |
+
+Frozen Qwen3-4B sample cải thiện từ rules2→rules4: FinQA 0.21→**0.22**, TAT-DQA 0.18→**0.20**, TAT grounded fraction 0.32→**0.43**. Đây là bằng chứng ban đầu rằng KG không chỉ giúp retrieval mà đã giảm tải generator và tăng minh bạch bằng trace/provenance.
+
 ---
 
 ## PHỤ LỤC A: Cấu trúc Files Thay đổi
@@ -1542,8 +1681,16 @@ MetadataRetriever đưa tổng hệ thống từ +0.0288 lên **+0.0724** so v�
 | `docs/RESULTS_V2.md` | — | Verified results document |
 | `docs/BAO_CAO_TOAN_DIEN.md` | — | Báo cáo này (tiếng Việt) |
 | `experts/factgate.py` | **C6** | FactGate: fact-level gated multiplicative joint score |
-| `experts/meta_retriever.py` | **C7** | MetadataRetriever: company+year exact-match recall booster + hard-filter signal |
-| `scripts/modular_retrieval.py` | — | MMER harness (updated: +factgate, +meta, per-retriever get_candidates()) |
+| `experts/meta_retriever.py` | **C7** | MetadataRetriever: company-scoped pool builder (metadata company → 100% recall) + year scorer |
+| `experts/local_lexical.py` | **C8** | LocalLexicalExpert: pool-local (company-local) IDF re-scorer — within-company chunk disambiguation |
+| `experts/schema.py` | C8b | SchemaExpert: table-schema (row-label × period) matcher (ablation — không cải thiện fusion) |
+| `generation/retrieval_bridge.py` | **C9** | Retrieval→generator bridge: KG arbitration, symbolic answer, trace, provenance, conflict flags |
+| `scripts/research/difficulty_decomposition.py` | — | C1 difficulty decomposition (4 regime) |
+| `scripts/research/neural_baselines.py` | — | C3 sparse-vs-neural × 2 regime |
+| `scripts/research/selective_generation.py` | — | C4 selective generation calibration/Pareto |
+| `scripts/research/kg_bridge_eval.py` | — | C4 KG arbitration + symbolic-plan evaluation |
+| `docs/RESEARCH_AAAI27.md` | — | Tài liệu nghiên cứu AAAI-27 đầy đủ |
+| `scripts/modular_retrieval.py` | — | MMER harness (updated: +loclex, +schema, --company-pool, --meta-max-add) |
 
 ### Files SỬA (không phá baseline)
 
@@ -1601,7 +1748,7 @@ python scripts/full_eval2_with_cacl.py --dataset convfinqa --device cuda:0
 python scripts/full_eval2_with_cacl.py --dataset tatqa --device cuda:0
 
 # 5. Tests
-python tests/test_ledger_rag.py  # 13/13 pass
+python tests/test_ledger_rag.py  # 16/16 pass
 ```
 
 **Outputs quan trọng:**

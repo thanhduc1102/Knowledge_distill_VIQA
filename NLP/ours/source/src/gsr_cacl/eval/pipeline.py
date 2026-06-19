@@ -29,8 +29,8 @@ from datasets import load_dataset, DatasetDict
 
 from gsr_cacl.core import Document, RetrievalResult
 from gsr_cacl.benchmark_gsr import compute_mrr, compute_recall, compute_ndcg
-from gsr_cacl.ledger import extract_ledger, select_facts, build_evidence_block
 from gsr_cacl.generation import build_generator, verify, compute_number_match
+from gsr_cacl.generation.retrieval_bridge import build_evidence_pack, render_prompt_context
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("ledger_eval")
@@ -126,16 +126,16 @@ def stage_retrieval(data, args, out_dir: Path) -> list[list]:
         for scored, q, m, gt, gold in zip(scored_all, data["queries"], data["metas"],
                                           data["gt_ids"], data["golds"]):
             top = scored[: args.top_k]
-            ledgers = [extract_ledger(table_md=data["ctx_to_table"].get(str(d.id), ""),
-                                      context=d.page_content, doc_id=str(d.id), meta=d.meta_data)
-                       for d, _ in top]
-            evidence = build_evidence_block(q, ledgers, top_n=args.fact_top_n)
+            retrieved = [{"id": str(d.id), "score": s, "meta": d.meta_data,
+                          "table": data["ctx_to_table"].get(str(d.id), ""),
+                          "page_content": d.page_content} for d, s in top]
+            pack = build_evidence_pack(q, retrieved, top_n_facts=args.fact_top_n)
+            evidence = render_prompt_context(pack)
             f.write(json.dumps({
                 "query": q, "query_meta": m, "ground_truth_id": gt, "gold": gold,
-                "retrieved": [{"id": str(d.id), "score": s, "meta": d.meta_data,
-                               "table": data["ctx_to_table"].get(str(d.id), ""),
-                               "page_content": d.page_content} for d, s in top],
+                "retrieved": retrieved,
                 "evidence_block": evidence,
+                "evidence_pack": pack.to_dict(),
             }) + "\n")
     return metrics, str(out_dir / "retrieval_topk.jsonl")
 
@@ -187,29 +187,18 @@ def stage_generation(retrieval_jsonl: str, args, out_dir: Path) -> dict:
     for start in range(0, len(records), batch_size):
         batch = records[start:start + batch_size]
         retrieved_batch = [_get_retrieved(rec) for rec in batch]
-        ledgers_batch = [
-            [
-                extract_ledger(
-                    table_md=d.get("table", ""),
-                    context=d.get("page_content", ""),
-                    doc_id=d.get("id", d.get("context_id", "")),
-                    meta=d.get("meta", d.get("metadata", {})),
-                )
-                for d in retrieved
-            ]
-            for retrieved in retrieved_batch
+        packs = [
+            build_evidence_pack(rec["query"], retrieved, top_n_facts=args.fact_top_n)
+            for rec, retrieved in zip(batch, retrieved_batch)
         ]
-        facts_batch = [select_facts(rec["query"], ledgers, top_n=args.fact_top_n)
-                       for rec, ledgers in zip(batch, ledgers_batch)]
-        evidence_batch = [
-            build_evidence_block(rec["query"], ledgers, top_n=args.fact_top_n, facts=facts)
-            for rec, ledgers, facts in zip(batch, ledgers_batch, facts_batch)
-        ]
+        ledgers_batch = [[d.ledger for d in pack.ranked] for pack in packs]
+        facts_batch = [pack.selected_facts for pack in packs]
+        evidence_batch = [render_prompt_context(pack) for pack in packs]
         meta_batch = [rec.get("query_meta", rec.get("meta", {})) for rec in batch]
         query_batch = [rec["query"] for rec in batch]
         pred_batch = generator.generate_batch(query_batch, evidence_batch, meta_batch, facts_batch)
 
-        for rec, ledgers, evidence, pred in zip(batch, ledgers_batch, evidence_batch, pred_batch):
+        for rec, ledgers, evidence, pred, pack in zip(batch, ledgers_batch, evidence_batch, pred_batch, packs):
             union = ledgers[0] if ledgers else None
             if union is not None:
                 for lg in ledgers[1:]:
@@ -228,6 +217,7 @@ def stage_generation(retrieval_jsonl: str, args, out_dir: Path) -> dict:
                 "grounded": vr.grounded if vr else False,
                 "explanation": vr.explanation if vr else "",
                 "evidence_block": evidence,
+                "evidence_pack": pack.to_dict(),
             })
 
         if len(preds) % 25 == 0:

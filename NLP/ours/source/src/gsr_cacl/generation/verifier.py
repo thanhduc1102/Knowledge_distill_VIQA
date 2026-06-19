@@ -14,12 +14,23 @@ without requiring any human annotation — only the symbolic ledger.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import combinations
 from typing import Optional
 
 from gsr_cacl.ledger.fact import FactLedger
 from gsr_cacl.ledger.numeric import parse_financial_number, extract_numbers, numbers_close
+
+
+@dataclass
+class StepVerification:
+    """One deterministic check over a generated reasoning step."""
+    text: str
+    numbers: list[float] = field(default_factory=list)
+    grounded: int = 0
+    total_numbers: int = 0
+    arithmetic_ok: Optional[bool] = None
+    explanation: str = ""
 
 
 @dataclass
@@ -30,6 +41,9 @@ class VerificationResult:
     answer_match: bool      # answer matches the provided gold (eval only)
     reward: float           # in [0, 1]
     explanation: str = ""
+    grounding_fraction: float = 0.0
+    arithmetic_fraction: float = 0.0
+    step_checks: list[StepVerification] = field(default_factory=list)
 
 
 def _ledger_values(ledger: FactLedger) -> list[float]:
@@ -85,6 +99,98 @@ def extract_final_number(prediction: str) -> Optional[float]:
     return nums[-1] if nums else None
 
 
+def _is_year_like(value: float) -> bool:
+    return value == int(value) and 1900 <= int(value) <= 2049
+
+
+def _split_steps(prediction: str) -> list[str]:
+    """Small, model-agnostic segmentation for process checks."""
+    if prediction is None:
+        return []
+    rough = []
+    for line in str(prediction).replace("=>", "=").splitlines():
+        rough.extend(part.strip() for part in line.split(";"))
+    return [s for s in rough if s]
+
+
+def _arith_matches(step: str, nums: list[float], rel_tol: float) -> tuple[Optional[bool], str]:
+    """Check common financial arithmetic forms in one generated step.
+
+    This intentionally stays deterministic and conservative. It verifies only statements
+    with an explicit equality marker, e.g. ``1000 - 900 = 100`` or
+    ``(1000 - 900) / abs(900) = 0.111``. Unrecognised prose returns ``None``.
+    """
+    if "=" not in step or len(nums) < 3:
+        return None, ""
+
+    lhs_txt = step.split("=", 1)[0].lower()
+    target = nums[-1]
+    args = nums[:-1]
+    # The generic number regex treats the subtraction operator in "1000 - 600" as the
+    # sign of the second literal. For expression checking, the operator already carries
+    # that sign, so normalise the second operand back to its magnitude.
+    if "-" in lhs_txt and len(args) >= 2 and args[1] < 0:
+        args = [args[0], abs(args[1]), *args[2:]]
+
+    if "sum" in lhs_txt or "+" in lhs_txt:
+        expected = sum(args)
+        return numbers_close(target, expected, rel_tol), f"sum={expected}"
+
+    if "/" in lhs_txt and "-" in lhs_txt and len(args) >= 2:
+        new, old = args[0], args[1]
+        if old == 0:
+            return False, "division by zero"
+        expected = (new - old) / abs(old)
+        expected_pct = expected * 100.0
+        ok = numbers_close(target, expected, rel_tol) or numbers_close(target, expected_pct, rel_tol)
+        return ok, f"percent_change={expected}"
+
+    if "/" in lhs_txt and len(args) >= 2:
+        a, b = args[0], args[1]
+        if b == 0:
+            return False, "division by zero"
+        expected = a / b
+        return numbers_close(target, expected, rel_tol), f"ratio={expected}"
+
+    if "*" in lhs_txt and len(args) >= 2:
+        expected = args[0] * args[1]
+        return numbers_close(target, expected, rel_tol), f"product={expected}"
+
+    if "-" in lhs_txt and len(args) >= 2:
+        expected = args[0] - args[1]
+        return numbers_close(target, expected, rel_tol), f"difference={expected}"
+
+    return None, ""
+
+
+def verify_process(prediction: str, ledger: FactLedger, rel_tol: float = 1e-2) -> list[StepVerification]:
+    """Verify generated intermediate steps against the ledger.
+
+    Returns per-step grounding and arithmetic checks. Period years are ignored as values,
+    because ``2019`` is usually a coordinate rather than an answer operand.
+    """
+    checks: list[StepVerification] = []
+    for step in _split_steps(prediction):
+        nums = [n for n in extract_numbers(step) if not _is_year_like(n)]
+        if not nums and "=" not in step:
+            continue
+        grounded = sum(
+            1 for n in nums
+            if is_grounded(n, ledger, rel_tol) is not None
+            or (n < 0 and is_grounded(abs(n), ledger, rel_tol) is not None)
+        )
+        ar_ok, ar_exp = _arith_matches(step, nums, rel_tol)
+        checks.append(StepVerification(
+            text=step,
+            numbers=nums,
+            grounded=grounded,
+            total_numbers=len(nums),
+            arithmetic_ok=ar_ok,
+            explanation=ar_exp,
+        ))
+    return checks
+
+
 def verify(
     prediction: str,
     ledger: FactLedger,
@@ -94,6 +200,7 @@ def verify(
 ) -> VerificationResult:
     """Verify a prediction against the ledger (+ optional gold for eval)."""
     pred_value = extract_final_number(prediction)
+    step_checks = verify_process(prediction, ledger, rel_tol)
 
     grounded_prov = is_grounded(pred_value, ledger, rel_tol) if pred_value is not None else None
     derivable_exp = None
@@ -117,6 +224,17 @@ def verify(
     else:
         reward = 0.0
 
+    total_step_nums = sum(s.total_numbers for s in step_checks)
+    grounded_step_nums = sum(s.grounded for s in step_checks)
+    grounding_fraction = grounded_step_nums / total_step_nums if total_step_nums else (
+        1.0 if grounded_prov is not None else 0.0
+    )
+    arith_steps = [s for s in step_checks if s.arithmetic_ok is not None]
+    arithmetic_fraction = (
+        sum(1 for s in arith_steps if s.arithmetic_ok) / len(arith_steps)
+        if arith_steps else (1.0 if derivable_exp is not None else 0.0)
+    )
+
     parts = []
     if grounded_prov:
         parts.append(f"grounded@{grounded_prov}")
@@ -124,6 +242,11 @@ def verify(
         parts.append(derivable_exp)
     if gold is not None:
         parts.append(f"gold_match={answer_match}")
+    if step_checks:
+        parts.append(
+            f"process_grounding={grounding_fraction:.2f}; "
+            f"process_arithmetic={arithmetic_fraction:.2f}"
+        )
 
     return VerificationResult(
         pred_value=pred_value,
@@ -132,4 +255,7 @@ def verify(
         answer_match=answer_match,
         reward=reward,
         explanation="; ".join(parts),
+        grounding_fraction=grounding_fraction,
+        arithmetic_fraction=arithmetic_fraction,
+        step_checks=step_checks,
     )

@@ -4,7 +4,7 @@ Public API::
 
     from gsr_cacl.ledger import (
         Fact, FactLedger, extract_ledger, extract_ledger_from_table,
-        select_facts, build_evidence_block,
+        select_facts, build_evidence_block, calculation_plan,
     )
 """
 
@@ -16,7 +16,7 @@ from gsr_cacl.ledger.extract import (
     detect_scale,
     detect_unit,
 )
-from gsr_cacl.ledger.select import select_facts, build_evidence_block, score_fact
+from gsr_cacl.ledger.select import select_facts, build_evidence_block, calculation_plan, score_fact
 from gsr_cacl.ledger.numeric import (
     parse_financial_number,
     extract_numbers,
@@ -35,6 +35,7 @@ __all__ = [
     "detect_unit",
     "select_facts",
     "build_evidence_block",
+    "calculation_plan",
     "score_fact",
     "parse_financial_number",
     "extract_numbers",

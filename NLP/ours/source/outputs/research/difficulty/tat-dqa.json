@@ -1,0 +1,54 @@
+{
+  "dataset": "TAT-DQA",
+  "n_queries": 1144,
+  "corpus_size": 2723,
+  "coverage": {
+    "q_has_company_frac": 1.0,
+    "q_has_year_frac": 1.0,
+    "avg_company_pool": 23.31,
+    "avg_company_year_pool": 23.31,
+    "D_eligible_frac": 1.0
+  },
+  "pool_recall": {
+    "B": 1.0,
+    "C": 1.0,
+    "D": 1.0
+  },
+  "regimes": {
+    "A_corpus_bm25": {
+      "MRR@3": 0.4177,
+      "R@1": 0.3191,
+      "R@3": 0.5411,
+      "R@5": 0.618,
+      "n": 1144
+    },
+    "A_corpus_bm25_company_masked": {
+      "MRR@3": 0.3942,
+      "R@1": 0.3077,
+      "R@3": 0.5026,
+      "R@5": 0.576,
+      "n": 1144
+    },
+    "B_companypool_bm25": {
+      "MRR@3": 0.5653,
+      "R@1": 0.4379,
+      "R@3": 0.7255,
+      "R@5": 0.8278,
+      "n": 1144
+    },
+    "C_companypool_loclex": {
+      "MRR@3": 0.6805,
+      "R@1": 0.5498,
+      "R@3": 0.8409,
+      "R@5": 0.9266,
+      "n": 1144
+    },
+    "D_within_company_year_loclex": {
+      "MRR@3": 0.6805,
+      "R@1": 0.5498,
+      "R@3": 0.8409,
+      "R@5": 0.9266,
+      "n": 1144
+    }
+  }
+}

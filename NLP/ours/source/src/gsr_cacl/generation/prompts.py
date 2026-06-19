@@ -11,8 +11,10 @@ from gsr_cacl.ledger.numeric import extract_years
 from gsr_cacl.ontology.concepts import concepts_in_text
 
 SYSTEM_PROMPT = (
-    "You are a precise financial QA model. Use only the provided facts, TASK, FORMULA, "
-    "and CALCULATION HINT if present. Do not reveal reasoning. Return exactly one line "
+    "You are a precise financial QA model. Use only the provided KG-selected document, "
+    "facts, operands, TASK, FORMULA, and CALCULATION HINT. If KG_SYMBOLIC_ANSWER is "
+    "present, treat it as the primary computed result and copy it unless the evidence "
+    "block explicitly shows a conflict. Do not reveal reasoning. Return exactly one line "
     "only: Answer: <number>. For percentage questions, prefer the decimal fraction (for "
     "example 0.1446) rather than multiplying by 100."
 )
@@ -49,9 +51,11 @@ def build_user_prompt(query: str, evidence_block: str, meta: dict | None = None)
         sections.append(evidence_block.strip())
     sections.append(f"Question: {query}")
     sections.append(
-        "Instructions: follow TASK, FORMULA, and CALCULATION HINT exactly, use only the "
-        "facts above, and return a single numeric line in the form Answer: <number>. "
-        "No explanation, no bullets, and no extra text."
+        "Instructions: if KG_SYMBOLIC_ANSWER is present, return that value as "
+        "Answer: <number> after checking it against KG_OPERAND_PROVENANCE. Otherwise "
+        "follow TASK, FORMULA, and CALCULATION HINT exactly, use only the facts above, "
+        "and return a single numeric line in the form Answer: <number>. No explanation, "
+        "no bullets, and no extra text."
     )
     return "\n\n".join(sections)
 

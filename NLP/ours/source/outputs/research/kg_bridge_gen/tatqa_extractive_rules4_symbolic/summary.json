@@ -1,0 +1,13 @@
+{
+  "dataset": "tatqa",
+  "stage": "generation",
+  "generation": {
+    "number_match": 0.11800699300699301,
+    "correct": 135,
+    "total": 1144,
+    "mean_verifier_reward": 0.5378496503496503,
+    "grounded_rate": 0.4554195804195804,
+    "generator": "extractive",
+    "seconds": 23.6
+  }
+}

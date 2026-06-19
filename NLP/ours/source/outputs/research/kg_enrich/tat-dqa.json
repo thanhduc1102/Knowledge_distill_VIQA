@@ -1,0 +1,18 @@
+{
+  "dataset": "TAT-DQA",
+  "before": {
+    "canonical_coverage": 0.244,
+    "identity_firing": 0.021,
+    "avg_identity_edges": 2.4,
+    "identity_satisfied_frac": 0.7,
+    "n_docs": 239
+  },
+  "after": {
+    "canonical_coverage": 0.627,
+    "identity_firing": 0.038,
+    "avg_identity_edges": 2.44,
+    "identity_satisfied_frac": 0.278,
+    "n_docs": 239
+  },
+  "threshold": 0.72
+}
