@@ -73,16 +73,16 @@
 → Đồng thuận = tín hiệu precision tất định, minh bạch. **Nhưng precision tối đa ~0.65–0.79 và coverage thấp.**
 
 ### 3.3 End-to-end NM (Qwen frozen) — KẾT QUẢ QUAN TRỌNG NHẤT
-| Policy | FinQA-3B | FinQA-7B | ConvFinQA-3B | ConvFinQA-7B |
-|---|---|---|---|---|
-| raw top-3 | 0.125 | **0.250** | 0.383 | **0.510** |
-| KG-evidence | **0.142** | 0.190 | 0.383 | 0.420 |
-| hybrid@votes≥2 | 0.133 | 0.170 | 0.317 | 0.350 |
-| hybrid@votes≥3 | 0.142 | 0.190 | 0.375 | 0.410 |
-| kg+verify | 0.133 | 0.170 | 0.367 | 0.400 |
+| Policy | FinQA-3B | FinQA-7B | ConvFinQA-3B | ConvFinQA-7B | TAT-DQA-7B |
+|---|---|---|---|---|---|
+| raw top-3 | 0.125 | **0.250** | 0.383 | **0.510** | 0.260 |
+| KG-evidence | **0.142** | 0.190 | 0.383 | 0.420 | **0.270** |
+| hybrid@votes≥2 | 0.133 | 0.170 | 0.317 | 0.350 | 0.190 |
+| hybrid@votes≥3 | 0.142 | 0.190 | 0.375 | 0.410 | 0.240 |
+| kg+verify | 0.133 | 0.170 | 0.367 | 0.400 | 0.220 |
 
-**VẤN ĐỀ CỐT LÕI (đánh giá khách quan):**
-- **KG-evidence chỉ giúp model YẾU (3B FinQA +0.017); với model MẠNH (7B) nó HẠI** (FinQA −0.06, ConvFinQA −0.09). Lý do: filtering evidence đôi khi bỏ ô cần thiết / focus sai, trong khi model mạnh đọc bảng thô tốt hơn.
+**VẤN ĐỀ CỐT LÕI (đánh giá khách quan) — quy luật mới phát hiện:**
+- **KG-evidence giúp nơi LLM VẬT LỘN với bảng, hại nơi LLM đọc bảng TỐT.** Bằng chứng: giúp FinQA-3B (+0.017) và **TAT-DQA-7B (+0.010, bảng phi chuẩn)**; nhưng **hại FinQA-7B (−0.06) và ConvFinQA-7B (−0.09)** (bảng chuẩn, model mạnh đọc tốt hơn evidence đã lọc — filtering đôi khi bỏ ô cần thiết). → KG-evidence là dao hai lưỡi, **chỉ nên bật theo độ-khó-bảng / độ-mạnh-model**, không bật cứng.
 - **Symbolic override / hybrid LUÔN ≤ LLM.** LLM grounding ô tốt hơn bộ symbolic tất định.
 - **NM tuyệt đối bị chặn bởi model** (leaderboard 72–76 NM dùng GPT-5.4/QwQ-32B/LLaMA-70B). Trong phạm vi Qwen-4B/7B, NM ~0.25–0.51.
 
