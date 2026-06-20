@@ -1,0 +1,23 @@
+### FinQA  (experts=meta,loclex,concept,cell) [company-pool] ###
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  prepare meta ...
+  prepare loclex ...
+  prepare concept ...
+  prepare cell ...
+
+pool recall = 1.0 | avg pool = 47.6 | CV=5-fold | experts=['meta', 'loclex', 'concept', 'cell']
+
+method                       MRR@3     R@1     R@3     R@5  NDCG@3
+-- standalone experts (all queries) --
+meta                        0.1545  0.0602  0.2929  0.4664  0.1897
+loclex                      0.8175  0.7158   0.939  0.9765  0.8488
+concept                     0.1286   0.075  0.2031  0.3243  0.1476
+cell                        0.4067  0.2964  0.5466  0.6652  0.4427
+-- learned fusion (5-fold CV, full set) --
+fusion:linear               0.9288  0.8762  0.9869  0.9974  0.9439
+fusion:mlp                  0.9289  0.8771  0.9869  0.9974   0.944
+fusion:gate                 0.9287  0.8762  0.9887  0.9974  0.9442
+
+linear weights (CV-avg): {'meta': 1.538, 'loclex': 0.959, 'concept': 0.327, 'cell': 0.178}
+
+Saved to outputs/cp_fusion/finqa/modular.json

@@ -1,0 +1,14 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating turn_0 split:   0%|          | 0/3458 [00:00<?, ? examples/s]Generating turn_0 split:  70%|██████▉   | 2409/3458 [00:00<00:00, 18884.65 examples/s]Generating turn_0 split: 100%|██████████| 3458/3458 [00:00<00:00, 20379.15 examples/s]
+
+=== C1 Difficulty Decomposition — ConvFinQA (N=3458, corpus=1806) ===
+company in Q: 100.0% | year in Q: 100.0% | avg company pool: 32.64 | avg (company,year) pool: 6.17
+regime                                   MRR@3     R@1     R@3   recall
+A  corpus BM25                          0.6408  0.5393  0.7678   1.0000
+A' corpus BM25 (company masked)         0.5903  0.4933   0.714   1.0000
+B  company-pool + global BM25           0.6918   0.581    0.83   1.0000
+C  company-pool + loclex                0.8254  0.7302  0.9361   1.0000
+D  within (company,year) + loclex       0.9193  0.8641  0.9815   1.0000
+
+Artifact magnitude (C − A'): +0.2351
+Saved → outputs/research/difficulty/convfinqa.json

@@ -1,17 +1,25 @@
 {
   "dataset": "tatqa",
-  "n": 120,
-  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "n": 100,
+  "model": "Qwen/Qwen2.5-7B-Instruct",
   "NM": {
-    "raw": 0.2167,
-    "kg": 0.2167,
-    "hybrid2": 0.1583,
-    "hybrid3": 0.1917,
-    "kg+verify": 0.1833
+    "raw": 0.26,
+    "kg": 0.27,
+    "hybrid2": 0.19,
+    "hybrid3": 0.24,
+    "kg+verify": 0.22,
+    "selective": 0.22
   },
   "fired": {
-    "hybrid2": 41,
-    "hybrid3": 9
+    "hybrid2": 36,
+    "hybrid3": 8,
+    "selective": 86
   },
-  "hallucination_caught": 20
+  "hallucination_caught": 23,
+  "faithfulness": {
+    "grounded_n": 14,
+    "grounded_nm": 0.4286,
+    "ungrounded_n": 86,
+    "ungrounded_nm": 0.2326
+  }
 }

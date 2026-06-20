@@ -1,0 +1,23 @@
+### TAT-DQA  (experts=meta,loclex,concept,cell) [company-pool] ###
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  prepare meta ...
+  prepare loclex ...
+  prepare concept ...
+  prepare cell ...
+
+pool recall = 1.0 | avg pool = 23.3 | CV=5-fold | experts=['meta', 'loclex', 'concept', 'cell']
+
+method                       MRR@3     R@1     R@3     R@5  NDCG@3
+-- standalone experts (all queries) --
+meta                        0.0028     0.0   0.007  0.0376  0.0038
+loclex                      0.6805  0.5498  0.8409  0.9266  0.7218
+concept                     0.1087  0.0612  0.1801  0.2928  0.1268
+cell                        0.3569  0.2491     0.5  0.6084  0.3936
+-- learned fusion (5-fold CV, full set) --
+fusion:linear               0.6968  0.5621  0.8628  0.9362  0.7395
+fusion:mlp                  0.7015  0.5691  0.8645  0.9388  0.7434
+fusion:gate                 0.7008  0.5743  0.8584  0.9344  0.7413
+
+linear weights (CV-avg): {'meta': 0.11, 'loclex': 0.582, 'concept': 0.255, 'cell': 0.092}
+
+Saved to outputs/cp_fusion/tat-dqa/modular.json

@@ -1,0 +1,23 @@
+### ConvFinQA  (experts=meta,loclex,concept,cell) [company-pool] ###
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  prepare meta ...
+  prepare loclex ...
+  prepare concept ...
+  prepare cell ...
+
+pool recall = 1.0 | avg pool = 32.6 | CV=5-fold | experts=['meta', 'loclex', 'concept', 'cell']
+
+method                       MRR@3     R@1     R@3     R@5  NDCG@3
+-- standalone experts (all queries) --
+meta                        0.4931  0.3444  0.6828  0.8412  0.5418
+loclex                      0.8246   0.729  0.9355  0.9659  0.8532
+concept                     0.4047  0.2805  0.5688  0.7027  0.4467
+cell                         0.511  0.3982  0.6527  0.7504  0.5474
+-- learned fusion (5-fold CV, full set) --
+fusion:linear                0.939  0.8979  0.9844  0.9939  0.9508
+fusion:mlp                  0.9397  0.8988  0.9844  0.9939  0.9513
+fusion:gate                 0.9377  0.8959  0.9838  0.9936  0.9497
+
+linear weights (CV-avg): {'meta': 1.585, 'loclex': 0.932, 'concept': 0.311, 'cell': 0.158}
+
+Saved to outputs/cp_fusion/convfinqa/modular.json

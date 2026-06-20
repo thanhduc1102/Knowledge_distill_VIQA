@@ -7,11 +7,19 @@
     "kg": 0.19,
     "hybrid2": 0.17,
     "hybrid3": 0.19,
-    "kg+verify": 0.17
+    "kg+verify": 0.17,
+    "selective": 0.18
   },
   "fired": {
     "hybrid2": 23,
-    "hybrid3": 5
+    "hybrid3": 5,
+    "selective": 90
   },
-  "hallucination_caught": 18
+  "hallucination_caught": 18,
+  "faithfulness": {
+    "grounded_n": 10,
+    "grounded_nm": 0.4,
+    "ungrounded_n": 90,
+    "ungrounded_nm": 0.2333
+  }
 }
