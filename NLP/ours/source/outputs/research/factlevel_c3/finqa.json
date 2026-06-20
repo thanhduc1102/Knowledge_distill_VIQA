@@ -1,0 +1,9 @@
+{
+  "dataset": "FinQA",
+  "n_test": 572,
+  "factlevel_trained_MRR@3": 0.5699,
+  "loclex_MRR@3": 0.8208,
+  "fusion_MRR@3": 0.7987,
+  "factlevel_R@1": 0.4685,
+  "loclex_R@1": 0.7185
+}

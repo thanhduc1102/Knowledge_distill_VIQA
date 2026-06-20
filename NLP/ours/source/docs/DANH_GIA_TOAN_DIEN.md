@@ -127,6 +127,32 @@
 
 ---
 
+## 7b. TRẠNG THÁI TỐI ƯU TRIỆT ĐỂ — đã kiểm hết các đòn bẩy
+
+Sau khi test **toàn bộ** các đòn bẩy, đây là trần thật và cấu hình tối ưu:
+
+**Retrieval — đã chạm trần.** Đã thử: dense (e5/bge), ColBERT, BM25, loclex, company-pool, trained fusion, fact-level zero-shot, **fact-level TRAINED (C3)**. Kết quả C3:
+| | loclex | factlevel-trained | fusion(ft+loclex) |
+|---|---|---|---|
+| FinQA | **0.821** | 0.570 | 0.799 (giảm!) |
+| TAT-DQA | **0.685** | 0.596 | 0.700 (+0.015) |
+→ **Neural fact-level (zero-shot VÀ trained) đều THUA loclex.** Within-company disambiguation là **lexical-bound**. Trần retrieval = trained fusion **0.929/0.940/0.702**. (Phát hiện "neural < sparse conditional-salience within-filing" xác nhận 3 lần.)
+
+**Generation — đã chạm trần.** Đã thử: raw, KG-evidence, hybrid@2, hybrid@3, kg+verify, **selective (KG chỉ can thiệp khi raw ungrounded)**. Kết quả selective (Qwen-7B): FinQA 0.160, ConvFinQA 0.480, TAT 0.220 — **đều < raw** (0.250/0.510/0.260). → **MỌI can thiệp KG lên đáp án đều ≤ raw với LLM mạnh.** Trần NM bị chặn bởi model (Qwen-7B 0.25/0.51/0.26; cần model lớn hơn).
+
+**Cấu hình tối ưu cuối cùng:**
+1. Retrieval: **company-pool + loclex + trained fusion** (0.929/0.940/0.702).
+2. Generation: **raw-table + model mạnh nhất**; KG-evidence bật **có điều kiện** (chỉ bảng phi chuẩn/model yếu — TAT-7B +0.01, FinQA-3B +0.017).
+3. KG: lớp **provenance + abstention + faithfulness** (bắt 18–23% LLM ungrounded), KHÔNG can thiệp đáp án.
+
+**Đóng góp khoa học đứng vững (không phải NM SOTA):**
+- **C1** artifact-controlled difficulty decomposition (tách metadata khỏi residual thật).
+- **Conditional-salience retrieval** + phát hiện phản trực giác **neural < sparse within-filing** (xác nhận 3 lần).
+- **Multipath calibrated abstention** (votes→precision đơn điệu).
+- **Cell-level provenance / faithfulness** cho miền tài chính.
+
+---
+
 ## 7. Hiện vật (code/scripts/outputs)
 - **Retrieval:** `experts/{local_lexical,meta_retriever,fact_level}.py`, `scripts/modular_retrieval.py --company-pool`.
 - **KG:** `kg/fact_graph.py`, `ledger/{coordinate,multipath,semantic_concepts}.py`.

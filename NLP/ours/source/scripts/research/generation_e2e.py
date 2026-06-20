@@ -85,8 +85,8 @@ def main():
                                  pad_token_id=tok.eos_token_id)
         return tok.decode(out[0][inp.input_ids.shape[1]:], skip_special_tokens=True)
 
-    nm = {"raw": 0, "kg": 0, "hybrid2": 0, "hybrid3": 0, "kg+verify": 0}
-    fired = {"hybrid2": 0, "hybrid3": 0}
+    nm = {"raw": 0, "kg": 0, "hybrid2": 0, "hybrid3": 0, "kg+verify": 0, "selective": 0}
+    fired = {"hybrid2": 0, "hybrid3": 0, "selective": 0}
     hallucination_caught = 0
     n = 0
     for rec in recs:
@@ -97,7 +97,9 @@ def main():
         n += 1
         pack = build_evidence_pack(q, retrieved)
 
-        nm["raw"] += int(number_match(parse_answer(gen(raw_block(retrieved), q, meta)), gold))
+        raw_ans = parse_answer(gen(raw_block(retrieved), q, meta))
+        raw_ok = int(number_match(raw_ans, gold))
+        nm["raw"] += raw_ok
         kg_ans = parse_answer(gen(render_prompt_context(pack), q, meta))
         kg_ok = int(number_match(kg_ans, gold))
         nm["kg"] += kg_ok
@@ -132,8 +134,24 @@ def main():
         else:
             nm["kg+verify"] += kg_ok
 
+        # selective: TRUST raw (best baseline) unless it is ungrounded — then KG steps in.
+        try:
+            rv = float(str(parse_answer(raw_ans)).replace('%', ''))
+            raw_grounded = any(abs(rv - v) <= 1e-2 * max(abs(v), 1.0) for v in vals) or \
+                (mp.answer is not None and abs(rv - float(mp.answer)) <= 1e-2 * max(abs(float(mp.answer)), 1.0))
+        except (ValueError, TypeError):
+            raw_grounded = False
+        if raw_grounded:
+            nm["selective"] += raw_ok
+        else:
+            fired["selective"] += 1
+            if mp.answer is not None and mp.votes >= 2:
+                nm["selective"] += int(number_match(mp.answer, gold))
+            else:
+                nm["selective"] += kg_ok
+
     print(f"\n=== End-to-end generation — {args.dataset} (n={n}, model={args.model}) ===")
-    for k in ("raw", "kg", "hybrid2", "hybrid3", "kg+verify"):
+    for k in ("raw", "kg", "hybrid2", "hybrid3", "kg+verify", "selective"):
         print(f"   {k:<11} NM = {nm[k]/max(n,1):.3f}")
     print(f"   override fired: votes>=2 {fired['hybrid2']}/{n} ({fired['hybrid2']/max(n,1):.0%}), "
           f"votes>=3 {fired['hybrid3']}/{n} ({fired['hybrid3']/max(n,1):.0%})")

@@ -1,0 +1,9 @@
+{
+  "dataset": "TAT-DQA",
+  "n_test": 572,
+  "factlevel_trained_MRR@3": 0.5962,
+  "loclex_MRR@3": 0.6853,
+  "fusion_MRR@3": 0.6999,
+  "factlevel_R@1": 0.479,
+  "loclex_R@1": 0.5559
+}
