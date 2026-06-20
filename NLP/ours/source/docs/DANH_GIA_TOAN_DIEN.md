@@ -151,6 +151,17 @@ Sau khi test **toàn bộ** các đòn bẩy, đây là trần thật và cấu 
 - **Multipath calibrated abstention** (votes→precision đơn điệu).
 - **Cell-level provenance / faithfulness** cho miền tài chính.
 
+### 7b.1 Faithfulness flag — đóng góp KG DƯƠNG, đo được (quan trọng)
+KG grounding-check (đáp án LLM có khớp một ô ledger không) là **tín hiệu độ-tin-cậy calibrated**, phân vùng correctness của đáp án raw (Qwen-7B):
+
+| Dataset | grounded (n, NM) | ungrounded (n, NM) | Tách biệt |
+|---|---|---|---|
+| **ConvFinQA** | 42%, **0.857** | 58%, **0.259** | **+0.60** (rất mạnh) |
+| TAT-DQA | 14%, 0.429 | 86%, 0.233 | +0.20 |
+| FinQA | 8%, 0.250 | 92%, 0.250 | ~0 (yếu) |
+
+**Ý nghĩa:** KG biến đáp án LLM hộp-đen thành **có thể chọn lọc/kiểm toán**: tin đáp án grounded (ConvFinQA 86% đúng), gắn cờ/escalate đáp án ungrounded. Đây là giá trị đúng cho tài chính (biết đáp án nào đáng tin > vài điểm NM) — **không LLM thô nào tự cung cấp được**. *Hạn chế:* yếu trên FinQA (đáp án phần lớn là số TÍNH, không phải ô đơn → grounding-check ít kích hoạt). **Hướng cải tiến:** mở rộng grounding-check để xác minh cả KẾT QUẢ TÍNH (đáp án = phép tính hợp lệ trên các ô) chứ không chỉ ô đơn — sẽ nâng coverage faithfulness trên FinQA.
+
 ---
 
 ## 7. Hiện vật (code/scripts/outputs)

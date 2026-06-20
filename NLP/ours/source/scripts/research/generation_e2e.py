@@ -88,6 +88,8 @@ def main():
     nm = {"raw": 0, "kg": 0, "hybrid2": 0, "hybrid3": 0, "kg+verify": 0, "selective": 0}
     fired = {"hybrid2": 0, "hybrid3": 0, "selective": 0}
     hallucination_caught = 0
+    # faithfulness: does the KG grounding-flag predict raw-answer correctness?
+    faith = {"grounded_n": 0, "grounded_nm": 0, "ungrounded_n": 0, "ungrounded_nm": 0}
     n = 0
     for rec in recs:
         q = rec["query"]; gold = rec.get("gold"); meta = (rec.get("retrieved") or [{}])[0].get("meta") or {}
@@ -135,16 +137,20 @@ def main():
             nm["kg+verify"] += kg_ok
 
         # selective: TRUST raw (best baseline) unless it is ungrounded — then KG steps in.
+        # grounded = raw answer matches a ledger CELL value OR any task-aware multipath
+        # candidate (covers COMPUTED answers: difference/ratio/%change/sum), not just single cells.
+        cand_vals = list(vals) + [c["answer"] for c in (mp.candidates or [])]
         try:
             rv = float(str(parse_answer(raw_ans)).replace('%', ''))
-            raw_grounded = any(abs(rv - v) <= 1e-2 * max(abs(v), 1.0) for v in vals) or \
-                (mp.answer is not None and abs(rv - float(mp.answer)) <= 1e-2 * max(abs(float(mp.answer)), 1.0))
+            raw_grounded = any(abs(rv - v) <= 1e-2 * max(abs(v), 1.0) for v in cand_vals)
         except (ValueError, TypeError):
             raw_grounded = False
         if raw_grounded:
             nm["selective"] += raw_ok
+            faith["grounded_n"] += 1; faith["grounded_nm"] += raw_ok
         else:
             fired["selective"] += 1
+            faith["ungrounded_n"] += 1; faith["ungrounded_nm"] += raw_ok
             if mp.answer is not None and mp.votes >= 2:
                 nm["selective"] += int(number_match(mp.answer, gold))
             else:
@@ -156,9 +162,15 @@ def main():
     print(f"   override fired: votes>=2 {fired['hybrid2']}/{n} ({fired['hybrid2']/max(n,1):.0%}), "
           f"votes>=3 {fired['hybrid3']}/{n} ({fired['hybrid3']/max(n,1):.0%})")
     print(f"   hallucinations caught (ungrounded LLM → symbolic): {hallucination_caught}/{n}")
+    gn, un = faith["grounded_n"], faith["ungrounded_n"]
+    print(f"   FAITHFULNESS — KG grounding-flag vs raw correctness:")
+    print(f"      grounded   : n={gn:4} ({gn/max(n,1):.0%})  NM={faith['grounded_nm']/max(gn,1):.3f}")
+    print(f"      ungrounded : n={un:4} ({un/max(n,1):.0%})  NM={faith['ungrounded_nm']/max(un,1):.3f}")
     out = {"dataset": args.dataset, "n": n, "model": args.model,
            "NM": {k: round(nm[k]/max(n,1), 4) for k in nm},
-           "fired": fired, "hallucination_caught": hallucination_caught}
+           "fired": fired, "hallucination_caught": hallucination_caught,
+           "faithfulness": {"grounded_n": gn, "grounded_nm": round(faith['grounded_nm']/max(gn,1), 4),
+                            "ungrounded_n": un, "ungrounded_nm": round(faith['ungrounded_nm']/max(un,1), 4)}}
     Path(args.out).mkdir(parents=True, exist_ok=True)
     (Path(args.out) / f"{args.dataset}.json").write_text(json.dumps(out, indent=2))
     print(f"Saved → {Path(args.out)/(args.dataset+'.json')}")
