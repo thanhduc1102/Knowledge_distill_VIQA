@@ -1,0 +1,82 @@
+{
+  "benchmark": "FinanceBench open-source evidence retrieval",
+  "setting_note": "Corpus is built from annotated evidence snippets/pages, not full PDFs.",
+  "n_queries": 150,
+  "n_corpus": 172,
+  "avg_company_pool": 6.69,
+  "avg_company_year_pool": 3.47,
+  "metrics": {
+    "bm25": {
+      "MRR@3": 0.3211,
+      "R@1": 0.2533,
+      "R@3": 0.4133,
+      "R@5": 0.4867,
+      "NDCG@3": 0.3447
+    },
+    "company_loclex": {
+      "MRR@3": 0.6867,
+      "R@1": 0.5533,
+      "R@3": 0.8533,
+      "R@5": 0.9467,
+      "NDCG@3": 0.7295
+    },
+    "company_year_loclex": {
+      "MRR@3": 0.8144,
+      "R@1": 0.7267,
+      "R@3": 0.92,
+      "R@5": 0.9933,
+      "NDCG@3": 0.8417
+    },
+    "bm25_rerank": {
+      "MRR@3": 0.4556,
+      "R@1": 0.3667,
+      "R@3": 0.5733,
+      "R@5": 0.6667,
+      "NDCG@3": 0.4857
+    }
+  },
+  "examples": [
+    {
+      "query": "What is the FY2018 capital expenditure amount (in USD millions) for 3M? Give a response to the question by relying on the details shown in the cash flow statement.",
+      "gold_ids": [
+        "3M_2018_10K::p59::0"
+      ],
+      "bm25_top1": "3M_2018_10K::p57::0",
+      "company_loclex_top1": "3M_2018_10K::p57::0"
+    },
+    {
+      "query": "Assume that you are a public equities analyst. Answer the following question by primarily using information that is shown in the balance sheet: what is the year end FY2018 net PPNE for 3M? Answer in USD billions.",
+      "gold_ids": [
+        "3M_2018_10K::p57::0"
+      ],
+      "bm25_top1": "ULTABEAUTY_2023Q4_EARNINGS::p2::0",
+      "company_loclex_top1": "3M_2022_10K::p49::1"
+    },
+    {
+      "query": "Is 3M a capital-intensive business based on FY2022 data?",
+      "gold_ids": [
+        "3M_2022_10K::p47::0",
+        "3M_2022_10K::p49::1",
+        "3M_2022_10K::p51::2"
+      ],
+      "bm25_top1": "3M_2022_10K::p51::2",
+      "company_loclex_top1": "3M_2022_10K::p51::2"
+    },
+    {
+      "query": "What drove operating margin change as of FY2022 for 3M? If operating margin is not a useful metric for a company like this, then please state that and explain why.",
+      "gold_ids": [
+        "3M_2022_10K::p26::0"
+      ],
+      "bm25_top1": "BESTBUY_2023_10K::p50::0",
+      "company_loclex_top1": "3M_2022_10K::p24::0"
+    },
+    {
+      "query": "If we exclude the impact of M&A, which segment has dragged down 3M's overall growth in 2022?",
+      "gold_ids": [
+        "3M_2022_10K::p24::0"
+      ],
+      "bm25_top1": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30::p3::0",
+      "company_loclex_top1": "3M_2022_10K::p26::0"
+    }
+  ]
+}

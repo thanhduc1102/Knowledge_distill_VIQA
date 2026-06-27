@@ -1,0 +1,46 @@
+{
+  "dataset": "convfinqa",
+  "n_train": 1535,
+  "n_test_total": 1536,
+  "weights": [
+    -3.1971,
+    2.2558,
+    1.3452,
+    -0.0888,
+    1.5415,
+    1.3399,
+    0.5915,
+    -0.0,
+    -1.3085
+  ],
+  "all": {
+    "n": 876,
+    "heuristic": 0.4189,
+    "coord": 0.347,
+    "learned": 0.379,
+    "either": 0.4817
+  },
+  "by_task": {
+    "difference": {
+      "n": 348,
+      "heuristic": 0.4454,
+      "coord": 0.3678,
+      "learned": 0.3506,
+      "either": 0.5057
+    },
+    "lookup": {
+      "n": 471,
+      "heuristic": 0.4183,
+      "coord": 0.3397,
+      "learned": 0.4183,
+      "either": 0.4798
+    },
+    "percent_change": {
+      "n": 57,
+      "heuristic": 0.2632,
+      "coord": 0.2807,
+      "learned": 0.2281,
+      "either": 0.3509
+    }
+  }
+}

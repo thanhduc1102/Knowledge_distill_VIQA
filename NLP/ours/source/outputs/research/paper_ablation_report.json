@@ -1,0 +1,133 @@
+{
+  "retrieval_ablation_mrr3": {
+    "FinQA": {
+      "no_metadata_corpus_bm25": 0.6661,
+      "company_pool_only_meta_rank": 0.1545,
+      "company_pool_global_bm25": 0.7194,
+      "company_pool_loclex": 0.8189,
+      "concept": 0.1286,
+      "cell": 0.4067,
+      "fusion_meta_loclex_concept_cell": 0.9289,
+      "dense": 0.3756,
+      "full_entity_meta": 0.7104,
+      "full_plus_concept_coverage": 0.7432
+    },
+    "ConvFinQA": {
+      "no_metadata_corpus_bm25": 0.6408,
+      "company_pool_only_meta_rank": 0.4931,
+      "company_pool_global_bm25": 0.6918,
+      "company_pool_loclex": 0.8254,
+      "concept": 0.4047,
+      "cell": 0.511,
+      "fusion_meta_loclex_concept_cell": 0.9397,
+      "dense": 0.3905,
+      "full_entity_meta": 0.7686,
+      "full_plus_concept_coverage": 0.8176
+    },
+    "TAT-DQA": {
+      "no_metadata_corpus_bm25": 0.4177,
+      "company_pool_only_meta_rank": 0.0028,
+      "company_pool_global_bm25": 0.5653,
+      "company_pool_loclex": 0.6805,
+      "concept": 0.1087,
+      "cell": 0.3569,
+      "fusion_meta_loclex_concept_cell": 0.7015,
+      "dense": 0.235,
+      "full_entity_meta": 0.4008,
+      "full_plus_concept_coverage": 0.4554
+    }
+  },
+  "external_financebench": {
+    "bm25": {
+      "MRR@3": 0.3211,
+      "R@1": 0.2533,
+      "R@3": 0.4133,
+      "R@5": 0.4867,
+      "NDCG@3": 0.3447
+    },
+    "company_loclex": {
+      "MRR@3": 0.6867,
+      "R@1": 0.5533,
+      "R@3": 0.8533,
+      "R@5": 0.9467,
+      "NDCG@3": 0.7295
+    },
+    "company_year_loclex": {
+      "MRR@3": 0.8144,
+      "R@1": 0.7267,
+      "R@3": 0.92,
+      "R@5": 0.9933,
+      "NDCG@3": 0.8417
+    },
+    "bm25_rerank": {
+      "MRR@3": 0.4556,
+      "R@1": 0.3667,
+      "R@3": 0.5733,
+      "R@5": 0.6667,
+      "NDCG@3": 0.4857
+    }
+  },
+  "faithfulness": {
+    "finqa": {
+      "grounded_accuracy": 0.0966,
+      "ungrounded_accuracy": 0.0999,
+      "separation": -0.0033,
+      "hallucination_catch_rate": 0.8461
+    },
+    "convfinqa": {
+      "grounded_accuracy": 0.4504,
+      "ungrounded_accuracy": 0.1073,
+      "separation": 0.3431,
+      "hallucination_catch_rate": 0.7123
+    },
+    "tatqa": {
+      "grounded_accuracy": 0.2696,
+      "ungrounded_accuracy": 0.0952,
+      "separation": 0.1744,
+      "hallucination_catch_rate": 0.7825
+    }
+  },
+  "verify_then_reask": {
+    "finqa": {
+      "raw_nm": 0.0994,
+      "verify_reask_nm": 0.1526,
+      "reasked": 971,
+      "n": 1147
+    },
+    "convfinqa": {
+      "raw_nm": 0.2432,
+      "verify_reask_nm": 0.284,
+      "reasked": 2088,
+      "n": 3458
+    },
+    "tatqa": {
+      "raw_nm": 0.1399,
+      "verify_reask_nm": 0.1407,
+      "reasked": 851,
+      "n": 1144
+    }
+  },
+  "learned_coordinate": {
+    "finqa": {
+      "n": 159,
+      "heuristic": 0.3459,
+      "coord": 0.2579,
+      "learned": 0.2642,
+      "either": 0.3836
+    },
+    "convfinqa": {
+      "n": 876,
+      "heuristic": 0.4189,
+      "coord": 0.347,
+      "learned": 0.379,
+      "either": 0.4817
+    },
+    "tatqa": {
+      "n": 277,
+      "heuristic": 0.0975,
+      "coord": 0.1191,
+      "learned": 0.0939,
+      "either": 0.148
+    }
+  }
+}

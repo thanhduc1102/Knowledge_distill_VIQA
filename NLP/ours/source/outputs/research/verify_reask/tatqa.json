@@ -1,0 +1,99 @@
+{
+  "dataset": "tatqa",
+  "generator": "extractive",
+  "n": 1144,
+  "kept_raw_grounded": 293,
+  "reasked": 851,
+  "raw_nm": 0.1399,
+  "verify_reask_nm": 0.1407,
+  "examples": [
+    {
+      "query": "spirent-communications-plc: In which year did the non-current assets in the Asia Pacific region exceed those of the previous year, as reported by Spirent Communications Plc in their 2019 financial report?",
+      "gold": [
+        "2019.0",
+        "['2019']"
+      ],
+      "raw_prediction": "Answer: 0",
+      "reask_prediction": "Answer: 2019",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "71a02e93f0685b7c77ee617becc752cb"
+    },
+    {
+      "query": "spirent-communications-plc: What was the percentage change in Spirent Communications Plc's non-current assets in the Asia Pacific region from 2018 to 2019?",
+      "gold": [
+        "68.18",
+        "68.18"
+      ],
+      "raw_prediction": "Answer: 2.45",
+      "reask_prediction": "Answer: 0.681818181818",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "71a02e93f0685b7c77ee617becc752cb"
+    },
+    {
+      "query": "bce-inc: What percentage change occurred in the number of BCE retail wireless subscribers from 2018 to 2019?",
+      "gold": [
+        "3.6",
+        "['+3.6%']"
+      ],
+      "raw_prediction": "Answer: 385.751417555",
+      "reask_prediction": "Answer: 3.6",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "97713ac81607b0c80435cf611d04bba3"
+    },
+    {
+      "query": "bce-inc: In what year did BCE welcome the highest number of new subscribers for retail Internet, IPTV, and wireless, with a total of 16.29 million subscribers?",
+      "gold": [
+        "2019.0",
+        "['2019']"
+      ],
+      "raw_prediction": "Answer: 7111206.3",
+      "reask_prediction": "Answer: 7111206.3",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "97713ac81607b0c80435cf611d04bba3"
+    },
+    {
+      "query": "bce-inc: What is the difference in the number of BCE retail subscribers between Wireless and High-speed Internet in 2018?",
+      "gold": [
+        "6.2",
+        "6.2"
+      ],
+      "raw_prediction": "Answer: 3293775",
+      "reask_prediction": "Answer: 19262",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "a8c11cade3237853c6a6869143f7ec37"
+    },
+    {
+      "query": "bce-inc: What is the combined total of Television and Local residential telephone services subscribers for BCE in 2019?",
+      "gold": [
+        "5.47",
+        "5.47"
+      ],
+      "raw_prediction": "Answer: 6255110.9",
+      "reask_prediction": "Answer: 23964.0",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "97713ac81607b0c80435cf611d04bba3"
+    },
+    {
+      "query": "bce-inc: What percentage of BCE's total retail subscribers in 2019 were Wireless subscribers?",
+      "gold": [
+        "52.48",
+        "52.48"
+      ],
+      "raw_prediction": "Answer: 0.7079",
+      "reask_prediction": "Answer: 4.3",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "97713ac81607b0c80435cf611d04bba3"
+    },
+    {
+      "query": "united-micro-electronics-corp: What is the percentage point increase in the proportion of UMC's wafer sales for communication devices from 2018 to 2019?",
+      "gold": [
+        "7.0",
+        "7"
+      ],
+      "raw_prediction": "Answer: 0",
+      "reask_prediction": "Answer: 1.45806451613",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "03a98443a7286862ffe1b6bcc2193e54"
+    }
+  ]
+}

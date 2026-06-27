@@ -1,39 +1,44 @@
-# GSR-CACL → LEDGER-RAG: Fact-Ledger Retrieval & Generation for Financial Documents
+# GSR-CACL → LEDGER-RAG: Auditable Conditional-Salience Retrieval for Financial RAG
 
-> **Paper:** Structured Knowledge-Enhanced Retrieval for Financial Documents
-> **Venue:** EMNLP / SIGIR | **Benchmark:** T²-RAGBench (EACL 2026)
+> **Current paper direction (AAAI-27):** conditional-salience retrieval + Fact-Ledger
+> verification/provenance for financial RAG.  The system no longer claims that KG evidence
+> universally improves end-to-end Number Match; KG is used as an audit/calibration layer.
 
 ---
 
-## 🆕 LEDGER-RAG upgrade (read this first)
+## Current AAAI-27 narrative (read this first)
 
-The original GSR-CACL benchmark numbers did **not** reflect a trained pipeline (the GAT + scorer
-were randomly initialized at inference, the trained text encoder was discarded, the "entity score"
-was string-matching, CHAP-E was a stub, and there was **no generator at all**). The LEDGER-RAG
-upgrade fixes these and adds the full generation phase. **Start here:**
+The strongest evidence in this repository supports the following claims:
 
-- **[docs/ASSESSMENT.md](docs/ASSESSMENT.md)** — đánh giá toàn diện code cũ + phân tích SOTA/leaderboard (6 lỗi nghiêm trọng B1–B6).
-- **[docs/LEDGER_RAG.md](docs/LEDGER_RAG.md)** — kiến trúc & cách chạy hệ thống mới (KG dùng chung cho retrieve + generate).
-- **[docs/RESULTS.md](docs/RESULTS.md)** — kết quả **đã kiểm chứng thật**.
-- **[docs/ROADMAP.md](docs/ROADMAP.md)** — kế hoạch phiên bản v1→v4 + việc reviewer yêu cầu.
+- **Conditional salience:** pool-local IDF (`loclex`) is a robust signal for choosing the
+  right financial evidence inside an entity/company cluster.
+- **External validity:** the same pattern holds on FinanceBench evidence retrieval, outside
+  T²-RAGBench.
+- **Faithfulness, not hard override:** Fact Ledger is most useful for grounding flags,
+  provenance, risk-coverage, and verify-then-reask; filtered KG evidence can hurt raw LLM
+  accuracy on some datasets.
 
-**Verified (FinQA, e5-large, 300 queries, corpus 2,789):** dense-only MRR@3 **0.381** → FULL
-(trained entity-embedding + metadata-aware candidates) MRR@3 **0.732**, R@3 **0.873**, R@5 **0.933**
-(+0.35 MRR@3). Generation đo bằng **Number-Match** với Qwen. Smoke tests:
-`python tests/test_ledger_rag.py` → 7/7.
+Start with:
 
-New modules (all under `src/gsr_cacl/`): `ledger/` (Fact Ledger = KG-for-generator),
-`entity/` (trained metadata embedding + SupCon), `generation/` (Qwen generator + Ledger Verifier +
-Number-Match), `methods/ledger_retrieval.py` (metadata-aware retrieval),
-`negative_sampler/channel_aligned.py` (5 channel-aligned negatives), `training/preference.py`
-(DPO/ORPO/GRPO), `eval/pipeline.py` (end-to-end harness).
+- **[docs/AAAI27_FINAL_DIRECTION.md](docs/AAAI27_FINAL_DIRECTION.md)** — final paper
+  direction, safe claims, negative results, and required remaining work.
+- **[docs/DANH_GIA_TOAN_DIEN.md](docs/DANH_GIA_TOAN_DIEN.md)** — broader historical
+  assessment of all system generations.
+- **[outputs/research/paper_ablation_report.json](outputs/research/paper_ablation_report.json)**
+  — consolidated result artifact for the current narrative.
 
 ```bash
 cd ours/source && export HF_DATASETS_OFFLINE=1 PYTHONPATH=src
-python tests/test_ledger_rag.py                                            # smoke tests
-python scripts/retrieval_ablation.py --dataset finqa --sample 300          # retrieval ablation
-python -m gsr_cacl.eval.pipeline --dataset finqa --sample 200 --stage all \
-       --generator hf --gen-model Qwen/Qwen2.5-3B-Instruct                  # end-to-end + Number-Match
+python tests/test_ledger_rag.py
+python scripts/research/external_financebench_eval.py --with-reranker
+python scripts/research/faithfulness_risk_eval.py \
+  --input outputs/final_generation/qwen3_5/convfinqa/predictions.jsonl \
+  --dataset convfinqa
+python scripts/research/verify_then_reask.py \
+  --dataset convfinqa \
+  --raw-predictions outputs/final_generation/qwen3_5/convfinqa/predictions.jsonl \
+  --top3 outputs/final_retrieval/convfinqa/retrieval_top3.jsonl
+python scripts/research/paper_ablation_report.py
 ```
 
 ---

@@ -1,0 +1,99 @@
+{
+  "dataset": "convfinqa",
+  "generator": "extractive",
+  "n": 3458,
+  "kept_raw_grounded": 1370,
+  "reasked": 2088,
+  "raw_nm": 0.2432,
+  "verify_reask_nm": 0.284,
+  "examples": [
+    {
+      "query": "United Parcel Service: What was the percentage change in the cumulative total return on investment for United Parcel Service Inc.'s Class B common stock from December 31, 2004 to December 31, 2009, assuming a $100 initial investment?",
+      "gold": [
+        "-24.05",
+        "-24.05"
+      ],
+      "raw_prediction": "Answer: 3.6403712297",
+      "reask_prediction": "Answer: 0.0775",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "convfinqa_ctx_7"
+    },
+    {
+      "query": "United Parcel Service: What was the percentage change in the performance price of United Parcel Service's Class B common stock from December 31, 2004 to December 31, 2006, as reflected in the shareowner return performance graph?",
+      "gold": [
+        "-8.94",
+        "-8.94"
+      ],
+      "raw_prediction": "Answer: 0",
+      "reask_prediction": "Answer: 0.117443",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "convfinqa_ctx_7"
+    },
+    {
+      "query": "JPMorgan Chase: What was the net change in the value of litigation reserves for JPMorgan Chase during 2012, considering the additional expenses for mortgage-related matters?",
+      "gold": [
+        "0.5",
+        "0.5"
+      ],
+      "raw_prediction": "Answer: 0",
+      "reask_prediction": "Answer: -5096",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "convfinqa_ctx_902"
+    },
+    {
+      "query": "Masco: What was the change in Masco's warranty liability from 2011 to 2012?",
+      "gold": [
+        "16.0",
+        "16.0"
+      ],
+      "raw_prediction": "Answer: 38",
+      "reask_prediction": "Answer: -20.0",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "convfinqa_ctx_978"
+    },
+    {
+      "query": "Hartford (The): What is the total value of Hartford's contractual obligations due within 1 year, as disclosed in the company's 2004 report?",
+      "gold": [
+        "27729.0",
+        "27729.0"
+      ],
+      "raw_prediction": "Answer: 341477",
+      "reask_prediction": "Answer: 341477.0",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "convfinqa_ctx_1609"
+    },
+    {
+      "query": "SL Green Realty Corp.: What was the total amount, in millions, capitalized to assets associated with compensation expense related to SL Green Realty Corp.'s long-term compensation plans, restricted stock, and stock options for the year ended December 31, 2013?",
+      "gold": [
+        "4.5",
+        "4.5"
+      ],
+      "raw_prediction": "Answer: 48395886",
+      "reask_prediction": "Answer: 48395886.0",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "convfinqa_ctx_493"
+    },
+    {
+      "query": "AES Corporation: What was the total foreign currency transaction loss for AES Corporation in 2015, in millions?",
+      "gold": [
+        "-31.0",
+        "-31.0"
+      ],
+      "raw_prediction": "Answer: -91",
+      "reask_prediction": "Answer: 386.0",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "convfinqa_ctx_1547"
+    },
+    {
+      "query": "Entergy: What is the difference between Entergy Mississippi, Inc.'s net revenue in 2008 and 2007, as reported in the 2008 Management's Financial Discussion and Analysis?",
+      "gold": [
+        "11.9",
+        "11.9"
+      ],
+      "raw_prediction": "Answer: 504.2",
+      "reask_prediction": "Answer: 472.3",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "convfinqa_ctx_561"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "dataset": "finqa",
+  "generator": "extractive",
+  "n": 1147,
+  "kept_raw_grounded": 176,
+  "reasked": 971,
+  "raw_nm": 0.0994,
+  "verify_reask_nm": 0.1526,
+  "examples": [
+    {
+      "query": "Intel: As of December 26, 2015, what percentage of Intel's total facilities, measured in square feet, were leased?",
+      "gold": [
+        "0.14464285714285713",
+        "14%"
+      ],
+      "raw_prediction": "Answer: 0.1446",
+      "reask_prediction": "Answer: 0.144642857143",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "finqa_test_ctx_159"
+    },
+    {
+      "query": "Analog Devices: What is the percentage change in the total notional amount of cash flow hedges denominated in euros, British pounds, and other currencies for Analog Devices as reported in their 2011 financial statements compared to the previous year?",
+      "gold": [
+        "0.09864188706218716",
+        "9.9%"
+      ],
+      "raw_prediction": "Answer: -0.79032258064",
+      "reask_prediction": "Answer: 6.59878419453",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "finqa_train_ctx_298"
+    },
+    {
+      "query": "Fidelity National Information Services: What percentage of the total purchase price for the Metavante acquisition does the value of Metavante stock awards represent?",
+      "gold": [
+        "0.0289889679545346",
+        "2.9%"
+      ],
+      "raw_prediction": "Answer: 1.42694063927",
+      "reask_prediction": "Answer: 1.4269",
+      "kg_tier": "REVIEW",
+      "kg_selected_doc": "finqa_test_ctx_77"
+    },
+    {
+      "query": "Masco: What was the difference in percentage cumulative total shareholder return on Masco common stock versus the S&P 500 Index for the five-year period ended 2017, given that a $100 investment in Masco common stock on December 31, 2012, would have grown to $318.46 by December 31, 2017, while the same investment in the S&P 500 Index would have grown to $206.49 over the same period?",
+      "gold": [
+        "1.1196999999999995",
+        null
+      ],
+      "raw_prediction": "Answer: 0.4394",
+      "reask_prediction": "Answer: 0.314011178798",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "finqa_test_ctx_261"
+    },
+    {
+      "query": "Sysco: What was the percentage change in total rental expense under operating leases for Sysco from July 2, 2005, to July 1, 2006, given that the total rental expense was $92,710,000 in 2005 and $100,690,000 in 2006?",
+      "gold": [
+        "0.0675709909951406",
+        "7%"
+      ],
+      "raw_prediction": "Answer: 0.00533760603",
+      "reask_prediction": "Answer: 0.00533760603946",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "finqa_train_ctx_161"
+    },
+    {
+      "query": "AES Corporation: What percentage of the total recourse debt of $4,612 million, as disclosed in the AES Corporation's Notes to Consolidated Financial Statements for 2010, is scheduled to be paid in 2011, which is $463 million?",
+      "gold": [
+        "0.10039028620988726",
+        "10%"
+      ],
+      "raw_prediction": "Answer: 0.0067",
+      "reask_prediction": "Answer: 0.10039028621",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "finqa_test_ctx_321"
+    },
+    {
+      "query": "Goldman Sachs: What percentage of the total future minimum rental payments of $2,575 million, as disclosed in the leases section of Goldman Sachs' 2015 Form 10-K, are due in 2018?",
+      "gold": [
+        "0.11689320388349514",
+        "12%"
+      ],
+      "raw_prediction": "Answer: 0.00127730233",
+      "reask_prediction": "Answer: 0.116893203883",
+      "kg_tier": "PREFER_TOP1",
+      "kg_selected_doc": "finqa_test_ctx_338"
+    },
+    {
+      "query": "Altria: Did Altria Group, Inc.'s cumulative total shareholder return exceed that of the S&P 500 over the five-year period ending December 31, 2016?",
+      "gold": [
+        "1",
+        "yes"
+      ],
+      "raw_prediction": "Answer: 978.17",
+      "reask_prediction": "Answer: 1",
+      "kg_tier": "TRUST_TOP1",
+      "kg_selected_doc": "finqa_test_ctx_19"
+    }
+  ]
+}

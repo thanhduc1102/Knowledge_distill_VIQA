@@ -1,0 +1,166 @@
+{
+  "dataset": "finqa",
+  "input": "outputs/final_generation/qwen3_5/finqa/predictions.jsonl",
+  "n": 1147,
+  "grouped_correctness": {
+    "n": 1147,
+    "grounded_n": 176,
+    "grounded_accuracy": 0.0966,
+    "ungrounded_n": 971,
+    "ungrounded_accuracy": 0.0999,
+    "separation": -0.0033
+  },
+  "hallucination_proxy": {
+    "ungrounded_wrong_n": 874,
+    "wrong_n": 1033,
+    "hallucination_catch_rate": 0.8461,
+    "ungrounded_wrong_frac": 0.762
+  },
+  "provenance": {
+    "provenance_coverage": 0.1534,
+    "provenance_judged_n": 176,
+    "provenance_precision_proxy": 0.0966
+  },
+  "risk_coverage": [
+    {
+      "coverage": 0.0497,
+      "accuracy": 1.0,
+      "risk": 0.0,
+      "threshold": 1.0,
+      "n": 57
+    },
+    {
+      "coverage": 0.1003,
+      "accuracy": 0.9913,
+      "risk": 0.0087,
+      "threshold": 0.6,
+      "n": 115
+    },
+    {
+      "coverage": 0.15,
+      "accuracy": 0.6628,
+      "risk": 0.3372,
+      "threshold": 0.6,
+      "n": 172
+    },
+    {
+      "coverage": 0.1997,
+      "accuracy": 0.4978,
+      "risk": 0.5022,
+      "threshold": 0.6,
+      "n": 229
+    },
+    {
+      "coverage": 0.2502,
+      "accuracy": 0.3972,
+      "risk": 0.6028,
+      "threshold": 0.5,
+      "n": 287
+    },
+    {
+      "coverage": 0.2999,
+      "accuracy": 0.3314,
+      "risk": 0.6686,
+      "threshold": 0.5,
+      "n": 344
+    },
+    {
+      "coverage": 0.3496,
+      "accuracy": 0.2843,
+      "risk": 0.7157,
+      "threshold": 0.5,
+      "n": 401
+    },
+    {
+      "coverage": 0.4002,
+      "accuracy": 0.2484,
+      "risk": 0.7516,
+      "threshold": 0.5,
+      "n": 459
+    },
+    {
+      "coverage": 0.4499,
+      "accuracy": 0.2209,
+      "risk": 0.7791,
+      "threshold": 0.5,
+      "n": 516
+    },
+    {
+      "coverage": 0.5004,
+      "accuracy": 0.1986,
+      "risk": 0.8014,
+      "threshold": 0.5,
+      "n": 574
+    },
+    {
+      "coverage": 0.5501,
+      "accuracy": 0.1807,
+      "risk": 0.8193,
+      "threshold": 0.5,
+      "n": 631
+    },
+    {
+      "coverage": 0.5998,
+      "accuracy": 0.1657,
+      "risk": 0.8343,
+      "threshold": 0.5,
+      "n": 688
+    },
+    {
+      "coverage": 0.6504,
+      "accuracy": 0.1528,
+      "risk": 0.8472,
+      "threshold": 0.5,
+      "n": 746
+    },
+    {
+      "coverage": 0.7001,
+      "accuracy": 0.142,
+      "risk": 0.858,
+      "threshold": 0.5,
+      "n": 803
+    },
+    {
+      "coverage": 0.7498,
+      "accuracy": 0.1326,
+      "risk": 0.8674,
+      "threshold": 0.5,
+      "n": 860
+    },
+    {
+      "coverage": 0.8003,
+      "accuracy": 0.1242,
+      "risk": 0.8758,
+      "threshold": 0.1,
+      "n": 918
+    },
+    {
+      "coverage": 0.85,
+      "accuracy": 0.1169,
+      "risk": 0.8831,
+      "threshold": 0.1,
+      "n": 975
+    },
+    {
+      "coverage": 0.8997,
+      "accuracy": 0.1105,
+      "risk": 0.8895,
+      "threshold": 0.1,
+      "n": 1032
+    },
+    {
+      "coverage": 0.9503,
+      "accuracy": 0.1046,
+      "risk": 0.8954,
+      "threshold": 0.1,
+      "n": 1090
+    },
+    {
+      "coverage": 1.0,
+      "accuracy": 0.0994,
+      "risk": 0.9006,
+      "threshold": 0.1,
+      "n": 1147
+    }
+  ]
+}
