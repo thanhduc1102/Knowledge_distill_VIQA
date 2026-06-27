@@ -1,0 +1,110 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 400,
+    "number_match": {
+      "raw_only": 0.2825,
+      "kg_only": 0.25,
+      "legacy_router": 0.2925,
+      "cpr_router_argmax": 0.265,
+      "cpr_router_conservative": 0.2775,
+      "oracle_best_of": 0.405
+    },
+    "conservative_vs_raw": -0.005,
+    "argmax_vs_raw": -0.0175,
+    "switching_argmax": {
+      "n_switched": 225,
+      "helped": 37,
+      "hurt": 44
+    },
+    "switching_conservative": {
+      "n_switched": 156,
+      "helped": 29,
+      "hurt": 31
+    },
+    "selective_nm_cpr_router": {
+      "cov0.25": 0.34,
+      "cov0.5": 0.28,
+      "cov0.75": 0.2867,
+      "cov1.0": 0.265
+    },
+    "reliability_signal_auroc": {
+      "legacy_value_only": 0.5764,
+      "raw_kg_agreement": 0.5214,
+      "cpr": 0.6532,
+      "cpr_plus_agreement": 0.6288
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 400,
+    "number_match": {
+      "raw_only": 0.44,
+      "kg_only": 0.4025,
+      "legacy_router": 0.4325,
+      "cpr_router_argmax": 0.435,
+      "cpr_router_conservative": 0.4325,
+      "oracle_best_of": 0.5325
+    },
+    "conservative_vs_raw": -0.0075,
+    "argmax_vs_raw": -0.005,
+    "switching_argmax": {
+      "n_switched": 139,
+      "helped": 27,
+      "hurt": 29
+    },
+    "switching_conservative": {
+      "n_switched": 92,
+      "helped": 15,
+      "hurt": 18
+    },
+    "selective_nm_cpr_router": {
+      "cov0.25": 0.58,
+      "cov0.5": 0.51,
+      "cov0.75": 0.5067,
+      "cov1.0": 0.435
+    },
+    "reliability_signal_auroc": {
+      "legacy_value_only": 0.6377,
+      "raw_kg_agreement": 0.6751,
+      "cpr": 0.7513,
+      "cpr_plus_agreement": 0.7803
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 400,
+    "number_match": {
+      "raw_only": 0.2775,
+      "kg_only": 0.2075,
+      "legacy_router": 0.28,
+      "cpr_router_argmax": 0.2525,
+      "cpr_router_conservative": 0.275,
+      "oracle_best_of": 0.355
+    },
+    "conservative_vs_raw": -0.0025,
+    "argmax_vs_raw": -0.025,
+    "switching_argmax": {
+      "n_switched": 203,
+      "helped": 26,
+      "hurt": 36
+    },
+    "switching_conservative": {
+      "n_switched": 152,
+      "helped": 21,
+      "hurt": 22
+    },
+    "selective_nm_cpr_router": {
+      "cov0.25": 0.27,
+      "cov0.5": 0.245,
+      "cov0.75": 0.2767,
+      "cov1.0": 0.2525
+    },
+    "reliability_signal_auroc": {
+      "legacy_value_only": 0.6615,
+      "raw_kg_agreement": 0.5432,
+      "cpr": 0.6804,
+      "cpr_plus_agreement": 0.6407
+    }
+  }
+}

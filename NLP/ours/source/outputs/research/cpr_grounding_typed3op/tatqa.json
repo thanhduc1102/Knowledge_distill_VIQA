@@ -1,0 +1,117 @@
+{
+  "dataset": "tatqa",
+  "n": 400,
+  "missing_join": 0,
+  "raw_accuracy": 0.2725,
+  "legacy_value_only": {
+    "supported_n": 342,
+    "acc_supported": 0.3099,
+    "unsupported_n": 58,
+    "acc_unsupported": 0.0517,
+    "separation": 0.2582,
+    "supported_but_wrong": 236,
+    "auroc": 0.6765,
+    "risk_coverage": {
+      "curve": [
+        {
+          "coverage": 0.25,
+          "accuracy": 0.45,
+          "risk": 0.55
+        },
+        {
+          "coverage": 0.5,
+          "accuracy": 0.355,
+          "risk": 0.645
+        },
+        {
+          "coverage": 0.75,
+          "accuracy": 0.31,
+          "risk": 0.69
+        },
+        {
+          "coverage": 1.0,
+          "accuracy": 0.2725,
+          "risk": 0.7275
+        }
+      ],
+      "selective_acc_auc": 0.3469
+    }
+  },
+  "cpr": {
+    "supported_n": 148,
+    "acc_supported": 0.4595,
+    "unsupported_n": 252,
+    "acc_unsupported": 0.1627,
+    "separation": 0.2968,
+    "supported_but_wrong": 80,
+    "auroc": 0.7252,
+    "risk_coverage": {
+      "curve": [
+        {
+          "coverage": 0.25,
+          "accuracy": 0.46,
+          "risk": 0.54
+        },
+        {
+          "coverage": 0.5,
+          "accuracy": 0.405,
+          "risk": 0.595
+        },
+        {
+          "coverage": 0.75,
+          "accuracy": 0.3333,
+          "risk": 0.6667
+        },
+        {
+          "coverage": 1.0,
+          "accuracy": 0.2725,
+          "risk": 0.7275
+        }
+      ],
+      "selective_acc_auc": 0.3677
+    }
+  },
+  "bootstrap_ci95": {
+    "legacy_auroc": [
+      0.6236,
+      0.7274
+    ],
+    "cpr_auroc": [
+      0.6737,
+      0.7792
+    ],
+    "d_auroc": [
+      -0.0163,
+      0.1147
+    ],
+    "legacy_sep": [
+      0.1784,
+      0.3294
+    ],
+    "cpr_sep": [
+      0.2083,
+      0.3898
+    ],
+    "d_sep": [
+      -0.063,
+      0.1469
+    ],
+    "d_auroc_p_gt_0": 0.9285,
+    "d_sep_p_gt_0": 0.768
+  },
+  "over_firing_reduction": {
+    "legacy_supported_wrong": 236,
+    "cpr_downgraded_of_those": 164,
+    "downgrade_precision": 0.6949,
+    "legacy_supported_correct": 106,
+    "wrongly_dropped_correct": 39
+  },
+  "cpr_level_distribution": {
+    "cpr_derivable": 120,
+    "weak_value_only": 219,
+    "unsupported": 26,
+    "no_answer": 7,
+    "cpr_grounded": 27,
+    "scaled_grounded": 1
+  }
+}

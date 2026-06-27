@@ -1,0 +1,118 @@
+Loading Qwen/Qwen2.5-3B-Instruct on device=cuda:1 dtype=float16 ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   0%|          | 1/434 [00:01<07:42,  1.07s/it]Loading weights:  15%|█▍        | 63/434 [00:01<00:05, 73.17it/s]Loading weights:  22%|██▏       | 97/434 [00:01<00:03, 88.80it/s]Loading weights:  28%|██▊       | 121/434 [00:01<00:03, 92.63it/s]Loading weights:  32%|███▏      | 140/434 [00:01<00:03, 92.10it/s]Loading weights:  37%|███▋      | 159/434 [00:02<00:02, 100.97it/s]Loading weights:  40%|████      | 174/434 [00:02<00:02, 98.12it/s] Loading weights:  45%|████▍     | 195/434 [00:02<00:02, 95.45it/s]Loading weights:  50%|█████     | 219/434 [00:02<00:01, 111.82it/s]Loading weights:  54%|█████▎    | 233/434 [00:02<00:01, 113.67it/s]Loading weights:  57%|█████▋    | 246/434 [00:02<00:01, 105.74it/s]Loading weights:  62%|██████▏   | 267/434 [00:03<00:01, 113.54it/s]Loading weights:  65%|██████▍   | 280/434 [00:03<00:01, 107.10it/s]Loading weights:  70%|██████▉   | 303/434 [00:03<00:01, 110.81it/s]Loading weights:  73%|███████▎  | 317/434 [00:03<00:01, 114.02it/s]Loading weights:  76%|███████▌  | 329/434 [00:03<00:01, 103.48it/s]Loading weights:  79%|███████▉  | 345/434 [00:03<00:00, 115.94it/s]Loading weights:  84%|████████▎ | 363/434 [00:03<00:00, 115.27it/s]Loading weights:  86%|████████▋ | 375/434 [00:04<00:00, 102.50it/s]Loading weights:  90%|████████▉ | 389/434 [00:04<00:00, 110.36it/s]Loading weights:  95%|█████████▍| 411/434 [00:04<00:00, 117.90it/s]Loading weights:  98%|█████████▊| 424/434 [00:04<00:00, 117.98it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 98.49it/s] 
+Generating RAW for 3458 examples ...
+Generating KG audit prompt for 3458 examples ...
+Generating verifier-triggered REASK for 315 examples ...
+{
+  "dataset": "convfinqa",
+  "input": "outputs/final_retrieval/convfinqa/retrieval_top3.jsonl",
+  "n": 3458,
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "sample": 0,
+  "seed": 42,
+  "device": "cuda:1",
+  "dtype": "float16",
+  "batch_size": 16,
+  "max_new_tokens": 32,
+  "max_input_tokens": 3072,
+  "seconds": 3527.7,
+  "hardware": {
+    "torch": "2.10.0+cu128",
+    "cuda_available": true,
+    "device_count": 2,
+    "devices": [
+      {
+        "index": 0,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      },
+      {
+        "index": 1,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      }
+    ]
+  },
+  "number_match": {
+    "raw": 0.3274,
+    "kg_audit_prompt": 0.3551,
+    "verify_then_reask": 0.3366
+  },
+  "grounded_vs_ungrounded_raw": {
+    "supported_n": 3143,
+    "supported_accuracy": 0.3519,
+    "unsupported_n": 315,
+    "unsupported_accuracy": 0.0825
+  },
+  "verifier": {
+    "raw_supported_rate": 0.9089,
+    "raw_cell_grounded_rate": 0.4558,
+    "raw_derivable_rate": 0.4532,
+    "support_precision_proxy": 0.3519,
+    "support_recall_on_correct": 0.977
+  },
+  "reask": {
+    "triggered": 315,
+    "trigger_rate": 0.0911,
+    "rescued_raw_errors": 51,
+    "harmed_raw_correct": 19,
+    "hallucination_catch_rate_proxy": 0.1765
+  },
+  "risk_coverage": {
+    "raw_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.4965,
+        "accuracy": 0.5035,
+        "n": 864
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.5286,
+        "accuracy": 0.4714,
+        "n": 1729
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.6118,
+        "accuracy": 0.3882,
+        "n": 2594
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.6726,
+        "accuracy": 0.3274,
+        "n": 3458
+      }
+    ],
+    "final_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.5127,
+        "accuracy": 0.4873,
+        "n": 864
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.5269,
+        "accuracy": 0.4731,
+        "n": 1729
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.6076,
+        "accuracy": 0.3924,
+        "n": 2594
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.6634,
+        "accuracy": 0.3366,
+        "n": 3458
+      }
+    ]
+  }
+}
+Saved -> outputs/research/generation_system_q25_3b_full/convfinqa.json
+Saved -> outputs/research/generation_system_q25_3b_full/convfinqa_predictions.jsonl

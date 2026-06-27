@@ -1,0 +1,36 @@
+{
+  "dataset": "tatqa",
+  "n": 400,
+  "number_match": {
+    "raw_only": 0.2775,
+    "kg_only": 0.2075,
+    "legacy_router": 0.28,
+    "cpr_router_argmax": 0.2525,
+    "cpr_router_conservative": 0.275,
+    "oracle_best_of": 0.355
+  },
+  "conservative_vs_raw": -0.0025,
+  "argmax_vs_raw": -0.025,
+  "switching_argmax": {
+    "n_switched": 203,
+    "helped": 26,
+    "hurt": 36
+  },
+  "switching_conservative": {
+    "n_switched": 152,
+    "helped": 21,
+    "hurt": 22
+  },
+  "selective_nm_cpr_router": {
+    "cov0.25": 0.27,
+    "cov0.5": 0.245,
+    "cov0.75": 0.2767,
+    "cov1.0": 0.2525
+  },
+  "reliability_signal_auroc": {
+    "legacy_value_only": 0.6615,
+    "raw_kg_agreement": 0.5432,
+    "cpr": 0.6804,
+    "cpr_plus_agreement": 0.6407
+  }
+}

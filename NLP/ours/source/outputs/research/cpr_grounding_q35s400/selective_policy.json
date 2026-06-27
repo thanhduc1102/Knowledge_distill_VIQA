@@ -78,5 +78,45 @@
         ]
       }
     }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 400,
+    "raw_accuracy": 0.2725,
+    "aurc": {
+      "legacy": 0.6408,
+      "cpr": 0.5839,
+      "cpr_calibrated": 0.578
+    },
+    "coverage_at_target_risk": {
+      "risk<=0.3": {
+        "legacy": [
+          0.01,
+          0.75
+        ],
+        "cpr": [
+          0.0675,
+          0.7037
+        ],
+        "cpr_calibrated": [
+          0.1125,
+          0.7111
+        ]
+      },
+      "risk<=0.4": {
+        "legacy": [
+          0.0125,
+          0.6
+        ],
+        "cpr": [
+          0.0775,
+          0.6129
+        ],
+        "cpr_calibrated": [
+          0.1875,
+          0.6
+        ]
+      }
+    }
   }
 }

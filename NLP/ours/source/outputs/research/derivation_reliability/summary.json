@@ -1,0 +1,101 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 394,
+    "accuracy_by_depth": {
+      "0_grounded": {
+        "n": 47,
+        "accuracy": 0.2766
+      },
+      "1_two_op": {
+        "n": 177,
+        "accuracy": 0.2542
+      },
+      "2_three_op": {
+        "n": 146,
+        "accuracy": 0.3356
+      },
+      "3_none": {
+        "n": 24,
+        "accuracy": 0.1667
+      }
+    },
+    "monotone_decreasing": false,
+    "grounded_typed_vs_untyped": {
+      "typed": {
+        "n": 33,
+        "accuracy": 0.2727
+      },
+      "untyped": {
+        "n": 14,
+        "accuracy": 0.2857
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 398,
+    "accuracy_by_depth": {
+      "0_grounded": {
+        "n": 135,
+        "accuracy": 0.6222
+      },
+      "1_two_op": {
+        "n": 141,
+        "accuracy": 0.2908
+      },
+      "2_three_op": {
+        "n": 110,
+        "accuracy": 0.4273
+      },
+      "3_none": {
+        "n": 12,
+        "accuracy": 0.3333
+      }
+    },
+    "monotone_decreasing": false,
+    "grounded_typed_vs_untyped": {
+      "typed": {
+        "n": 129,
+        "accuracy": 0.6357
+      },
+      "untyped": {
+        "n": 6,
+        "accuracy": 0.3333
+      }
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 393,
+    "accuracy_by_depth": {
+      "0_grounded": {
+        "n": 96,
+        "accuracy": 0.4167
+      },
+      "1_two_op": {
+        "n": 205,
+        "accuracy": 0.1463
+      },
+      "2_three_op": {
+        "n": 77,
+        "accuracy": 0.3896
+      },
+      "3_none": {
+        "n": 15,
+        "accuracy": 0.6
+      }
+    },
+    "monotone_decreasing": false,
+    "grounded_typed_vs_untyped": {
+      "typed": {
+        "n": 73,
+        "accuracy": 0.5068
+      },
+      "untyped": {
+        "n": 23,
+        "accuracy": 0.1304
+      }
+    }
+  }
+}

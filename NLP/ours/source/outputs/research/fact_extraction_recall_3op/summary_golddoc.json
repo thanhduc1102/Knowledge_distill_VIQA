@@ -1,0 +1,219 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "gold_doc_only": true,
+    "multi_op": true,
+    "overall": {
+      "n": 300,
+      "grounded": 0.0467,
+      "derivable": 0.4367,
+      "certifiable": 0.4833,
+      "certifiable_3op": 0.7967
+    },
+    "by_task": {
+      "ratio": {
+        "n": 104,
+        "grounded": 0.0,
+        "derivable": 0.6058,
+        "certifiable": 0.6058,
+        "certifiable_3op": 0.9135
+      },
+      "percent_change": {
+        "n": 63,
+        "grounded": 0.0317,
+        "derivable": 0.2857,
+        "certifiable": 0.3175,
+        "certifiable_3op": 0.8571
+      },
+      "average": {
+        "n": 30,
+        "grounded": 0.1,
+        "derivable": 0.2333,
+        "certifiable": 0.3333,
+        "certifiable_3op": 0.7
+      },
+      "difference": {
+        "n": 23,
+        "grounded": 0.087,
+        "derivable": 0.6957,
+        "certifiable": 0.7826,
+        "certifiable_3op": 0.8261
+      },
+      "sum": {
+        "n": 23,
+        "grounded": 0.0,
+        "derivable": 0.3478,
+        "certifiable": 0.3478,
+        "certifiable_3op": 0.6522
+      },
+      "lookup": {
+        "n": 22,
+        "grounded": 0.2273,
+        "derivable": 0.3636,
+        "certifiable": 0.5909,
+        "certifiable_3op": 0.7273
+      },
+      "adjustment": {
+        "n": 13,
+        "grounded": 0.0769,
+        "derivable": 0.5385,
+        "certifiable": 0.6154,
+        "certifiable_3op": 0.7692
+      },
+      "factor_sum": {
+        "n": 9,
+        "grounded": 0.1111,
+        "derivable": 0.1111,
+        "certifiable": 0.2222,
+        "certifiable_3op": 0.5556
+      },
+      "comparison": {
+        "n": 5,
+        "grounded": 0.0,
+        "derivable": 0.6,
+        "certifiable": 0.6,
+        "certifiable_3op": 0.8
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "gold_doc_only": true,
+    "multi_op": true,
+    "overall": {
+      "n": 300,
+      "grounded": 0.28,
+      "derivable": 0.3933,
+      "certifiable": 0.6733,
+      "certifiable_3op": 0.8233
+    },
+    "by_task": {
+      "lookup": {
+        "n": 89,
+        "grounded": 0.4719,
+        "derivable": 0.1573,
+        "certifiable": 0.6292,
+        "certifiable_3op": 0.809
+      },
+      "difference": {
+        "n": 70,
+        "grounded": 0.0143,
+        "derivable": 0.7,
+        "certifiable": 0.7143,
+        "certifiable_3op": 0.8857
+      },
+      "sum": {
+        "n": 63,
+        "grounded": 0.4286,
+        "derivable": 0.3016,
+        "certifiable": 0.7302,
+        "certifiable_3op": 0.8413
+      },
+      "ratio": {
+        "n": 31,
+        "grounded": 0.0645,
+        "derivable": 0.7097,
+        "certifiable": 0.7742,
+        "certifiable_3op": 0.9355
+      },
+      "percent_change": {
+        "n": 13,
+        "grounded": 0.0,
+        "derivable": 0.6923,
+        "certifiable": 0.6923,
+        "certifiable_3op": 0.9231
+      },
+      "average": {
+        "n": 11,
+        "grounded": 0.3636,
+        "derivable": 0.0,
+        "certifiable": 0.3636,
+        "certifiable_3op": 0.4545
+      },
+      "factor_sum": {
+        "n": 10,
+        "grounded": 0.3,
+        "derivable": 0.5,
+        "certifiable": 0.8,
+        "certifiable_3op": 0.9
+      },
+      "adjustment": {
+        "n": 5,
+        "grounded": 1.0,
+        "derivable": 0.0,
+        "certifiable": 1.0,
+        "certifiable_3op": 1.0
+      }
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "gold_doc_only": true,
+    "multi_op": true,
+    "overall": {
+      "n": 300,
+      "grounded": 0.15,
+      "derivable": 0.4867,
+      "certifiable": 0.6367,
+      "certifiable_3op": 0.8233
+    },
+    "by_task": {
+      "lookup": {
+        "n": 69,
+        "grounded": 0.2609,
+        "derivable": 0.3188,
+        "certifiable": 0.5797,
+        "certifiable_3op": 0.7101
+      },
+      "difference": {
+        "n": 68,
+        "grounded": 0.1176,
+        "derivable": 0.5294,
+        "certifiable": 0.6471,
+        "certifiable_3op": 0.8676
+      },
+      "percent_change": {
+        "n": 54,
+        "grounded": 0.1111,
+        "derivable": 0.5,
+        "certifiable": 0.6111,
+        "certifiable_3op": 0.8519
+      },
+      "average": {
+        "n": 41,
+        "grounded": 0.0244,
+        "derivable": 0.6829,
+        "certifiable": 0.7073,
+        "certifiable_3op": 0.8537
+      },
+      "ratio": {
+        "n": 39,
+        "grounded": 0.1026,
+        "derivable": 0.5641,
+        "certifiable": 0.6667,
+        "certifiable_3op": 0.8974
+      },
+      "sum": {
+        "n": 14,
+        "grounded": 0.2143,
+        "derivable": 0.4286,
+        "certifiable": 0.6429,
+        "certifiable_3op": 0.7143
+      },
+      "comparison": {
+        "n": 13,
+        "grounded": 0.3846,
+        "derivable": 0.3077,
+        "certifiable": 0.6923,
+        "certifiable_3op": 0.8462
+      },
+      "factor_sum": {
+        "n": 2,
+        "grounded": 0.0,
+        "derivable": 0.5,
+        "certifiable": 0.5,
+        "certifiable_3op": 1.0
+      }
+    }
+  }
+}

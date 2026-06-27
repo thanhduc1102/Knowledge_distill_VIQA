@@ -1,0 +1,118 @@
+Loading Qwen/Qwen2.5-3B-Instruct on device=cuda:0 dtype=float16 ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   0%|          | 1/434 [00:01<13:22,  1.85s/it]Loading weights:  31%|███       | 135/434 [00:01<00:03, 95.93it/s]Loading weights:  48%|████▊     | 210/434 [00:02<00:02, 101.15it/s]Loading weights:  59%|█████▉    | 256/434 [00:03<00:01, 93.41it/s] Loading weights:  66%|██████▌   | 287/434 [00:04<00:02, 60.88it/s]Loading weights:  71%|███████   | 308/434 [00:05<00:02, 43.91it/s]Loading weights:  74%|███████▍  | 323/434 [00:05<00:02, 43.10it/s]Loading weights:  77%|███████▋  | 334/434 [00:06<00:02, 41.96it/s]Loading weights:  79%|███████▉  | 343/434 [00:06<00:02, 42.91it/s]Loading weights:  81%|████████  | 351/434 [00:06<00:02, 38.21it/s]Loading weights:  84%|████████▎ | 363/434 [00:06<00:01, 45.13it/s]Loading weights:  85%|████████▌ | 371/434 [00:07<00:01, 41.39it/s]Loading weights:  87%|████████▋ | 378/434 [00:07<00:02, 24.43it/s]Loading weights:  89%|████████▉ | 387/434 [00:08<00:01, 27.48it/s]Loading weights:  92%|█████████▏| 399/434 [00:08<00:01, 27.51it/s]Loading weights:  95%|█████████▍| 411/434 [00:08<00:00, 32.07it/s]Loading weights:  96%|█████████▌| 416/434 [00:09<00:00, 26.35it/s]Loading weights:  97%|█████████▋| 423/434 [00:09<00:00, 28.11it/s]Loading weights: 100%|██████████| 434/434 [00:09<00:00, 46.04it/s]
+Generating RAW for 1147 examples ...
+Generating KG audit prompt for 1147 examples ...
+Generating verifier-triggered REASK for 132 examples ...
+{
+  "dataset": "finqa",
+  "input": "outputs/final_retrieval/finqa/retrieval_top3.jsonl",
+  "n": 1147,
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "sample": 0,
+  "seed": 42,
+  "device": "cuda:0",
+  "dtype": "float16",
+  "batch_size": 16,
+  "max_new_tokens": 32,
+  "max_input_tokens": 3072,
+  "seconds": 1205.0,
+  "hardware": {
+    "torch": "2.10.0+cu128",
+    "cuda_available": true,
+    "device_count": 2,
+    "devices": [
+      {
+        "index": 0,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      },
+      {
+        "index": 1,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      }
+    ]
+  },
+  "number_match": {
+    "raw": 0.1168,
+    "kg_audit_prompt": 0.1883,
+    "verify_then_reask": 0.1264
+  },
+  "grounded_vs_ungrounded_raw": {
+    "supported_n": 1015,
+    "supported_accuracy": 0.1261,
+    "unsupported_n": 132,
+    "unsupported_accuracy": 0.0455
+  },
+  "verifier": {
+    "raw_supported_rate": 0.8849,
+    "raw_cell_grounded_rate": 0.2162,
+    "raw_derivable_rate": 0.6687,
+    "support_precision_proxy": 0.1261,
+    "support_recall_on_correct": 0.9552
+  },
+  "reask": {
+    "triggered": 132,
+    "trigger_rate": 0.1151,
+    "rescued_raw_errors": 17,
+    "harmed_raw_correct": 6,
+    "hallucination_catch_rate_proxy": 0.1349
+  },
+  "risk_coverage": {
+    "raw_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.8676,
+        "accuracy": 0.1324,
+        "n": 287
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.8746,
+        "accuracy": 0.1254,
+        "n": 574
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.8779,
+        "accuracy": 0.1221,
+        "n": 860
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.8832,
+        "accuracy": 0.1168,
+        "n": 1147
+      }
+    ],
+    "final_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.8746,
+        "accuracy": 0.1254,
+        "n": 287
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.8763,
+        "accuracy": 0.1237,
+        "n": 574
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.8802,
+        "accuracy": 0.1198,
+        "n": 860
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.8736,
+        "accuracy": 0.1264,
+        "n": 1147
+      }
+    ]
+  }
+}
+Saved -> outputs/research/generation_system_q25_3b_full/finqa.json
+Saved -> outputs/research/generation_system_q25_3b_full/finqa_predictions.jsonl

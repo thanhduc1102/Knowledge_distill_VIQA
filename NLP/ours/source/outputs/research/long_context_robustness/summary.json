@@ -1,0 +1,68 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 394,
+    "by_distractors": {
+      "m=0": {
+        "legacy_auroc": 0.5696,
+        "cpr_auroc": 0.6548
+      },
+      "m=25": {
+        "legacy_auroc": 0.5701,
+        "cpr_auroc": 0.6223
+      },
+      "m=75": {
+        "legacy_auroc": 0.5513,
+        "cpr_auroc": 0.6557
+      },
+      "m=150": {
+        "legacy_auroc": 0.5873,
+        "cpr_auroc": 0.6789
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 398,
+    "by_distractors": {
+      "m=0": {
+        "legacy_auroc": 0.6368,
+        "cpr_auroc": 0.7633
+      },
+      "m=25": {
+        "legacy_auroc": 0.6273,
+        "cpr_auroc": 0.7738
+      },
+      "m=75": {
+        "legacy_auroc": 0.6112,
+        "cpr_auroc": 0.7652
+      },
+      "m=150": {
+        "legacy_auroc": 0.6497,
+        "cpr_auroc": 0.7872
+      }
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 393,
+    "by_distractors": {
+      "m=0": {
+        "legacy_auroc": 0.6686,
+        "cpr_auroc": 0.726
+      },
+      "m=25": {
+        "legacy_auroc": 0.6696,
+        "cpr_auroc": 0.7382
+      },
+      "m=75": {
+        "legacy_auroc": 0.6702,
+        "cpr_auroc": 0.7679
+      },
+      "m=150": {
+        "legacy_auroc": 0.6698,
+        "cpr_auroc": 0.7381
+      }
+    }
+  }
+}

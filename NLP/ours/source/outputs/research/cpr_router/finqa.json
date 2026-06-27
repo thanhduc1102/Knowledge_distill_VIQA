@@ -1,0 +1,36 @@
+{
+  "dataset": "finqa",
+  "n": 400,
+  "number_match": {
+    "raw_only": 0.2825,
+    "kg_only": 0.25,
+    "legacy_router": 0.2925,
+    "cpr_router_argmax": 0.265,
+    "cpr_router_conservative": 0.2775,
+    "oracle_best_of": 0.405
+  },
+  "conservative_vs_raw": -0.005,
+  "argmax_vs_raw": -0.0175,
+  "switching_argmax": {
+    "n_switched": 225,
+    "helped": 37,
+    "hurt": 44
+  },
+  "switching_conservative": {
+    "n_switched": 156,
+    "helped": 29,
+    "hurt": 31
+  },
+  "selective_nm_cpr_router": {
+    "cov0.25": 0.34,
+    "cov0.5": 0.28,
+    "cov0.75": 0.2867,
+    "cov1.0": 0.265
+  },
+  "reliability_signal_auroc": {
+    "legacy_value_only": 0.5764,
+    "raw_kg_agreement": 0.5214,
+    "cpr": 0.6532,
+    "cpr_plus_agreement": 0.6288
+  }
+}

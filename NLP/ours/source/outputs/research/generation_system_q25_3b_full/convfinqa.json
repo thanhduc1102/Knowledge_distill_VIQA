@@ -1,0 +1,110 @@
+{
+  "dataset": "convfinqa",
+  "input": "outputs/final_retrieval/convfinqa/retrieval_top3.jsonl",
+  "n": 3458,
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "sample": 0,
+  "seed": 42,
+  "device": "cuda:1",
+  "dtype": "float16",
+  "batch_size": 16,
+  "max_new_tokens": 32,
+  "max_input_tokens": 3072,
+  "seconds": 3527.7,
+  "hardware": {
+    "torch": "2.10.0+cu128",
+    "cuda_available": true,
+    "device_count": 2,
+    "devices": [
+      {
+        "index": 0,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      },
+      {
+        "index": 1,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      }
+    ]
+  },
+  "number_match": {
+    "raw": 0.3274,
+    "kg_audit_prompt": 0.3551,
+    "verify_then_reask": 0.3366
+  },
+  "grounded_vs_ungrounded_raw": {
+    "supported_n": 3143,
+    "supported_accuracy": 0.3519,
+    "unsupported_n": 315,
+    "unsupported_accuracy": 0.0825
+  },
+  "verifier": {
+    "raw_supported_rate": 0.9089,
+    "raw_cell_grounded_rate": 0.4558,
+    "raw_derivable_rate": 0.4532,
+    "support_precision_proxy": 0.3519,
+    "support_recall_on_correct": 0.977
+  },
+  "reask": {
+    "triggered": 315,
+    "trigger_rate": 0.0911,
+    "rescued_raw_errors": 51,
+    "harmed_raw_correct": 19,
+    "hallucination_catch_rate_proxy": 0.1765
+  },
+  "risk_coverage": {
+    "raw_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.4965,
+        "accuracy": 0.5035,
+        "n": 864
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.5286,
+        "accuracy": 0.4714,
+        "n": 1729
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.6118,
+        "accuracy": 0.3882,
+        "n": 2594
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.6726,
+        "accuracy": 0.3274,
+        "n": 3458
+      }
+    ],
+    "final_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.5127,
+        "accuracy": 0.4873,
+        "n": 864
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.5269,
+        "accuracy": 0.4731,
+        "n": 1729
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.6076,
+        "accuracy": 0.3924,
+        "n": 2594
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.6634,
+        "accuracy": 0.3366,
+        "n": 3458
+      }
+    ]
+  }
+}

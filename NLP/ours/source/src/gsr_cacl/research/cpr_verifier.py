@@ -37,6 +37,7 @@ from gsr_cacl.ledger.select import (
 )
 from gsr_cacl.ontology.concepts import concepts_in_text
 from gsr_cacl.generation.verifier import _support_variants, extract_final_number
+from gsr_cacl.research.derivation import derivation_depth
 
 
 # Support levels, ordered. The point of CPR is to move concept/period-mismatched
@@ -168,9 +169,21 @@ def _consistent_pairs(value: float, facts: list[Fact], task: str,
     return None
 
 
+_ALL_COMPONENTS = frozenset({"concept", "period", "role", "3op"})
+
+
 def verify_cpr(prediction: str, ledger: FactLedger, query: str = "", gold=None,
-               rel_tol: float = 1e-2, selected_facts: Optional[list[Fact]] = None) -> CPRResult:
-    """Concept-period-role aware verification of a generated answer."""
+               rel_tol: float = 1e-2, selected_facts: Optional[list[Fact]] = None,
+               components: frozenset = _ALL_COMPONENTS) -> CPRResult:
+    """Concept-period-role aware verification of a generated answer.
+
+    ``components`` enables ablation: drop "concept"/"period" to force that consistency to 1.0,
+    drop "role" to fall back to value-only derivability (any-pair, no role check).
+    """
+    use_concept = "concept" in components
+    use_period = "period" in components
+    use_role = "role" in components
+    use_3op = "3op" in components
     value = extract_final_number(prediction)
     if value is None:
         return CPRResult(pred_value=None, level="no_answer", confidence=0.0,
@@ -234,9 +247,14 @@ def verify_cpr(prediction: str, ledger: FactLedger, query: str = "", gold=None,
             continue
         ambiguity = 1.0 / (len(matches) ** 0.5)
         for f in matches:
-            cc = _concept_consistency(f, q_concepts, q_tokens)
-            pc = _period_consistency(f, q_years, pfloor)
-            s = cc * pc * ambiguity * (1.0 if vlabel == "identity" else 0.8)
+            cc = _concept_consistency(f, q_concepts, q_tokens) if use_concept else 1.0
+            pc = _period_consistency(f, q_years, pfloor) if use_period else 1.0
+            # Period is PARTIAL-CREDIT (modulates, never zeros): ablation showed a multiplicative
+            # period factor lets a mis-parsed period destroy a good concept+role match (period was
+            # the weak/harmful criterion). 0.5+0.5*pc keeps a period MATCH as a boost without a
+            # mismatch being fatal.
+            pc_eff = (0.5 + 0.5 * pc) if use_period else 1.0
+            s = cc * pc_eff * ambiguity * (1.0 if vlabel == "identity" else 0.8)
             if s > grounded_score:
                 grounded_score = s
                 best_concept, best_period = cc, pc
@@ -247,33 +265,54 @@ def verify_cpr(prediction: str, ledger: FactLedger, query: str = "", gold=None,
                            f"(cc={cc:.2f}, pc={pc:.2f}, amb={len(matches)})"]
         break  # identity variant first; only fall through if no match
 
-    # derivable_score: answer = role-consistent task formula over consistent operands
+    # derivable_score: answer = role-consistent task formula over consistent operands.
+    # Ablation: with role disabled, fall back to value-only any-pair derivability.
     derivable_score = 0.0
-    facts = selected_facts or select_facts(query, [ledger], top_n=8)
-    plan = calculation_plan(query, facts)
-    plan_ans = plan.get("answer")
-    plan_conf = float(plan.get("confidence", 0.0) or 0.0)
-    if plan_ans is not None and plan_conf >= 0.5:
-        for v, vlabel in _support_variants(value, query):
-            if numbers_close(v, plan_ans, rel_tol):
-                derivable_score = plan_conf * (1.0 if vlabel == "identity" else 0.8)
-                if derivable_score > grounded_score:
-                    role = "+".join(str(op.get("role")) for op in (plan.get("operands") or [])[:3])
-                    reasons = [f"role-consistent plan ({plan.get('task')}, conf={plan_conf:.2f}): "
-                               + str(plan.get("trace", ""))[:120]]
-                break
-    if derivable_score == 0.0:
-        cand = _consistent_pairs(value, ledger.numeric_facts(), task, q_years,
-                                 q_concepts, q_tokens, rel_tol, enforce_year=enforce_year)
-        if cand is not None:
-            a, b, kind = cand
-            ccp = max(_concept_consistency(a, q_concepts, q_tokens),
-                      _concept_consistency(b, q_concepts, q_tokens))
-            pcp = max(_period_consistency(a, q_years, pfloor), _period_consistency(b, q_years, pfloor))
-            derivable_score = 0.75 * ccp * pcp
-            if derivable_score > grounded_score and not role:
-                role = kind
-                reasons = [f"role-consistent {kind}: {a.concept}={a.value}, {b.concept}={b.value}"]
+    if not use_role:
+        if vo_derivable:
+            derivable_score = 0.5
+    else:
+        facts = selected_facts or select_facts(query, [ledger], top_n=8)
+        plan = calculation_plan(query, facts)
+        plan_ans = plan.get("answer")
+        plan_conf = float(plan.get("confidence", 0.0) or 0.0)
+        if plan_ans is not None and plan_conf >= 0.5:
+            for v, vlabel in _support_variants(value, query):
+                if numbers_close(v, plan_ans, rel_tol):
+                    derivable_score = plan_conf * (1.0 if vlabel == "identity" else 0.8)
+                    if derivable_score > grounded_score:
+                        role = "+".join(str(op.get("role")) for op in (plan.get("operands") or [])[:3])
+                        reasons = [f"role-consistent plan ({plan.get('task')}, conf={plan_conf:.2f}): "
+                                   + str(plan.get("trace", ""))[:120]]
+                    break
+        if derivable_score == 0.0:
+            cand = _consistent_pairs(value, ledger.numeric_facts(), task, q_years,
+                                     q_concepts, q_tokens, rel_tol, enforce_year=enforce_year)
+            if cand is not None:
+                a, b, kind = cand
+                ccp = max(_concept_consistency(a, q_concepts, q_tokens),
+                          _concept_consistency(b, q_concepts, q_tokens)) if use_concept else 1.0
+                pcp = max(_period_consistency(a, q_years, pfloor),
+                          _period_consistency(b, q_years, pfloor)) if use_period else 1.0
+                derivable_score = 0.75 * ccp * (0.5 + 0.5 * pcp)
+                if derivable_score > grounded_score and not role:
+                    role = kind
+                    reasons = [f"role-consistent {kind}: {a.concept}={a.value}, {b.concept}={b.value}"]
+
+    # 3-operand derivation: many financial answers (ratio of a difference, part over a sum-total,
+    # sum of 3 line items) need a third operand. This lifts the auditable ceiling a lot (FinQA
+    # 0.48->0.80). Confidence is deliberately LOWER than a role-consistent 2-op match because a
+    # 3-operand match is more likely to be coincidental. Only consulted when nothing stronger fired.
+    if use_role and use_3op and derivable_score < 0.5 and grounded_score < 0.5:
+        vals3 = [f.value for f in ledger.numeric_facts() if f.value is not None]
+        # NB: operand-level typing of a 3-op path was tried and slightly HURT AUROC — a value can
+        # map to multiple cells, so multi-operand attribution is ambiguous and typing adds noise.
+        # Framework Law 2 (typing>existence) holds for unambiguous depth-0 grounding, not here.
+        if derivation_depth(value, vals3, rel_tol, max_ops=3) == "3op":
+            derivable_score = 0.5
+            if not role:
+                role = "3op_chain"
+                reasons = ["3-operand derivation chain over ledger cells"]
 
     # value-only floor: a number at least present in the ledger beats a pure hallucination,
     # but a value matching many cells is weak evidence.

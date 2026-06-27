@@ -1,0 +1,36 @@
+{
+  "dataset": "convfinqa",
+  "n": 400,
+  "number_match": {
+    "raw_only": 0.44,
+    "kg_only": 0.4025,
+    "legacy_router": 0.4325,
+    "cpr_router_argmax": 0.435,
+    "cpr_router_conservative": 0.4325,
+    "oracle_best_of": 0.5325
+  },
+  "conservative_vs_raw": -0.0075,
+  "argmax_vs_raw": -0.005,
+  "switching_argmax": {
+    "n_switched": 139,
+    "helped": 27,
+    "hurt": 29
+  },
+  "switching_conservative": {
+    "n_switched": 92,
+    "helped": 15,
+    "hurt": 18
+  },
+  "selective_nm_cpr_router": {
+    "cov0.25": 0.58,
+    "cov0.5": 0.51,
+    "cov0.75": 0.5067,
+    "cov1.0": 0.435
+  },
+  "reliability_signal_auroc": {
+    "legacy_value_only": 0.6377,
+    "raw_kg_agreement": 0.6751,
+    "cpr": 0.7513,
+    "cpr_plus_agreement": 0.7803
+  }
+}

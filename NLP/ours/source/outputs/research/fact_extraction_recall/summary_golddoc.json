@@ -1,0 +1,200 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "gold_doc_only": true,
+    "overall": {
+      "n": 500,
+      "grounded": 0.046,
+      "derivable": 0.424,
+      "certifiable": 0.47
+    },
+    "by_task": {
+      "ratio": {
+        "n": 175,
+        "grounded": 0.0057,
+        "derivable": 0.5657,
+        "certifiable": 0.5714
+      },
+      "percent_change": {
+        "n": 102,
+        "grounded": 0.0196,
+        "derivable": 0.3039,
+        "certifiable": 0.3235
+      },
+      "average": {
+        "n": 46,
+        "grounded": 0.087,
+        "derivable": 0.2391,
+        "certifiable": 0.3261
+      },
+      "sum": {
+        "n": 46,
+        "grounded": 0.0217,
+        "derivable": 0.3478,
+        "certifiable": 0.3696
+      },
+      "difference": {
+        "n": 38,
+        "grounded": 0.0526,
+        "derivable": 0.6579,
+        "certifiable": 0.7105
+      },
+      "lookup": {
+        "n": 37,
+        "grounded": 0.2432,
+        "derivable": 0.3243,
+        "certifiable": 0.5676
+      },
+      "factor_sum": {
+        "n": 18,
+        "grounded": 0.1111,
+        "derivable": 0.3333,
+        "certifiable": 0.4444
+      },
+      "adjustment": {
+        "n": 17,
+        "grounded": 0.0588,
+        "derivable": 0.5294,
+        "certifiable": 0.5882
+      },
+      "comparison": {
+        "n": 6,
+        "grounded": 0.1667,
+        "derivable": 0.5,
+        "certifiable": 0.6667
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "gold_doc_only": true,
+    "overall": {
+      "n": 500,
+      "grounded": 0.3,
+      "derivable": 0.394,
+      "certifiable": 0.694
+    },
+    "by_task": {
+      "lookup": {
+        "n": 154,
+        "grounded": 0.4805,
+        "derivable": 0.1753,
+        "certifiable": 0.6558
+      },
+      "difference": {
+        "n": 112,
+        "grounded": 0.0357,
+        "derivable": 0.7232,
+        "certifiable": 0.7589
+      },
+      "sum": {
+        "n": 103,
+        "grounded": 0.4369,
+        "derivable": 0.2816,
+        "certifiable": 0.7184
+      },
+      "ratio": {
+        "n": 55,
+        "grounded": 0.0909,
+        "derivable": 0.6909,
+        "certifiable": 0.7818
+      },
+      "average": {
+        "n": 20,
+        "grounded": 0.4,
+        "derivable": 0.1,
+        "certifiable": 0.5
+      },
+      "percent_change": {
+        "n": 16,
+        "grounded": 0.0,
+        "derivable": 0.625,
+        "certifiable": 0.625
+      },
+      "factor_sum": {
+        "n": 15,
+        "grounded": 0.2667,
+        "derivable": 0.4667,
+        "certifiable": 0.7333
+      },
+      "adjustment": {
+        "n": 12,
+        "grounded": 0.75,
+        "derivable": 0.25,
+        "certifiable": 1.0
+      },
+      "comparison": {
+        "n": 1,
+        "grounded": 1.0,
+        "derivable": 0.0,
+        "certifiable": 1.0
+      }
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "gold_doc_only": true,
+    "overall": {
+      "n": 500,
+      "grounded": 0.154,
+      "derivable": 0.458,
+      "certifiable": 0.612
+    },
+    "by_task": {
+      "lookup": {
+        "n": 117,
+        "grounded": 0.2821,
+        "derivable": 0.265,
+        "certifiable": 0.547
+      },
+      "difference": {
+        "n": 109,
+        "grounded": 0.1101,
+        "derivable": 0.5046,
+        "certifiable": 0.6147
+      },
+      "percent_change": {
+        "n": 88,
+        "grounded": 0.0909,
+        "derivable": 0.5114,
+        "certifiable": 0.6023
+      },
+      "average": {
+        "n": 67,
+        "grounded": 0.0896,
+        "derivable": 0.6119,
+        "certifiable": 0.7015
+      },
+      "ratio": {
+        "n": 62,
+        "grounded": 0.0968,
+        "derivable": 0.5645,
+        "certifiable": 0.6613
+      },
+      "sum": {
+        "n": 30,
+        "grounded": 0.2,
+        "derivable": 0.3667,
+        "certifiable": 0.5667
+      },
+      "comparison": {
+        "n": 23,
+        "grounded": 0.2609,
+        "derivable": 0.4348,
+        "certifiable": 0.6957
+      },
+      "factor_sum": {
+        "n": 3,
+        "grounded": 0.0,
+        "derivable": 0.3333,
+        "certifiable": 0.3333
+      },
+      "adjustment": {
+        "n": 1,
+        "grounded": 0.0,
+        "derivable": 0.0,
+        "certifiable": 0.0
+      }
+    }
+  }
+}

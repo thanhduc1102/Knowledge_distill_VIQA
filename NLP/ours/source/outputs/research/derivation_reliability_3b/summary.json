@@ -1,0 +1,68 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 1141,
+    "accuracy_by_depth": {
+      "0_grounded": {
+        "n": 176,
+        "accuracy": 0.1136
+      },
+      "1_two_op": {
+        "n": 385,
+        "accuracy": 0.1065
+      },
+      "2_three_op": {
+        "n": 511,
+        "accuracy": 0.1311
+      },
+      "3_none": {
+        "n": 69,
+        "accuracy": 0.087
+      }
+    },
+    "monotone_decreasing": false,
+    "grounded_typed_vs_untyped": {
+      "typed": {
+        "n": 155,
+        "accuracy": 0.1097
+      },
+      "untyped": {
+        "n": 21,
+        "accuracy": 0.1429
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 3453,
+    "accuracy_by_depth": {
+      "0_grounded": {
+        "n": 1466,
+        "accuracy": 0.515
+      },
+      "1_two_op": {
+        "n": 985,
+        "accuracy": 0.2132
+      },
+      "2_three_op": {
+        "n": 840,
+        "accuracy": 0.169
+      },
+      "3_none": {
+        "n": 162,
+        "accuracy": 0.1543
+      }
+    },
+    "monotone_decreasing": true,
+    "grounded_typed_vs_untyped": {
+      "typed": {
+        "n": 1341,
+        "accuracy": 0.5451
+      },
+      "untyped": {
+        "n": 125,
+        "accuracy": 0.192
+      }
+    }
+  }
+}

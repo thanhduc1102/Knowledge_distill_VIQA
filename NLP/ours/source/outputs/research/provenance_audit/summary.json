@@ -1,0 +1,29 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "grounded_n": 47,
+    "provenance_precision_concept": 0.7021,
+    "provenance_precision_period": 1.0,
+    "provenance_precision_both": 0.7021,
+    "of_grounded_correct": 0.2766,
+    "precision_when_well_cited": 0.2727
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "grounded_n": 135,
+    "provenance_precision_concept": 0.9556,
+    "provenance_precision_period": 1.0,
+    "provenance_precision_both": 0.9556,
+    "of_grounded_correct": 0.6222,
+    "precision_when_well_cited": 0.6357
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "grounded_n": 96,
+    "provenance_precision_concept": 0.7604,
+    "provenance_precision_period": 1.0,
+    "provenance_precision_both": 0.7604,
+    "of_grounded_correct": 0.4167,
+    "precision_when_well_cited": 0.5068
+  }
+}
