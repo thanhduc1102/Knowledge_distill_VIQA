@@ -1,0 +1,8 @@
+
+=== finqa (n=1147, raw_acc=0.2302) ===
+  legacy: sep=+0.147 auroc=0.522 sup=992 sup_wrong=744
+  CPR   : sep=+0.167 auroc=0.679 sup=707 sup_wrong=499
+  over-firing: downgraded 307/744 legacy-wrong (prec=0.4126), dropped 48 correct
+  bootstrap: dAUROC=[0.1156, 0.1964] (P(>0)=1.0) dSep=[-0.0435, 0.0833] (P(>0)=0.7375)
+
+Saved -> outputs/research/cpr_grounding_q3_4b/
