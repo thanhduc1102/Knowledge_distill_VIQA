@@ -75,12 +75,39 @@ def _local_bm25_scores(query: str, pool: list[int], corpus_tokens: list[list[str
     return bm25.scores(tokenize(query))
 
 
+def _mask_query(query: str, company: str, doc_period: str) -> str:
+    toks = tokenize(query)
+    company_toks = set(tokenize(company))
+    year_toks = {str(doc_period)} if doc_period else set()
+    keep = [t for t in toks if t not in company_toks and t not in year_toks]
+    return " ".join(keep)
+
+
+def _bootstrap_delta(a: list[int], b: list[int], n_boot: int = 2000, seed: int = 0) -> dict:
+    rng = np.random.default_rng(seed)
+    a = np.asarray([1.0 / (r + 1) if r < 3 else 0.0 for r in a], dtype=np.float64)
+    b = np.asarray([1.0 / (r + 1) if r < 3 else 0.0 for r in b], dtype=np.float64)
+    diff = b - a
+    boots = []
+    n = len(diff)
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        boots.append(float(diff[idx].mean()))
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    return {
+        "delta_mrr3": round(float(diff.mean()), 4),
+        "ci95": [round(float(lo), 4), round(float(hi), 4)],
+        "p_delta_le_0": round(float(np.mean(np.asarray(boots) <= 0.0)), 4),
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sample", type=int, default=0)
     ap.add_argument("--with-reranker", action="store_true",
                     help="Optionally add a cross-encoder reranker if the model is available.")
     ap.add_argument("--reranker-model", default="cross-encoder/ms-marco-MiniLM-L-6-v2")
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="outputs/research/external_financebench")
     args = ap.parse_args()
 
@@ -104,7 +131,17 @@ def main():
         except Exception as e:
             print(f"[warn] reranker unavailable: {e}", flush=True)
 
-    ranks = {"bm25": [], "company_loclex": [], "company_year_loclex": [], "bm25_rerank": []}
+    rng = np.random.default_rng(args.seed)
+    ranks = {
+        "bm25": [],
+        "bm25_masked_company_year": [],
+        "company_random": [],
+        "company_year_random": [],
+        "company_loclex": [],
+        "company_year_loclex": [],
+        "bm25_rerank": [],
+        "company_loclex_rerank": [],
+    }
     pool_stats = {"company": [], "company_year": []}
     examples = []
 
@@ -113,15 +150,25 @@ def main():
         full_order = np.argsort(-scores)
         ranks["bm25"].append(min(rank_of_gold(full_order, g) for g in q["gold"]))
 
+        masked_scores = bm25.scores(_mask_query(q["question"], q["company"], q["doc_period"]))
+        masked_order = np.argsort(-masked_scores)
+        ranks["bm25_masked_company_year"].append(min(rank_of_gold(masked_order, g) for g in q["gold"]))
+
         ck = normalize_company(q["company"])
         comp_pool = comp2idx.get(ck, list(range(len(corpus))))
         pool_stats["company"].append(len(comp_pool))
+        comp_random = comp_pool.copy()
+        rng.shuffle(comp_random)
+        ranks["company_random"].append(min(rank_of_gold(comp_random, g) for g in q["gold"]))
         loc_scores = _local_bm25_scores(q["question"], comp_pool, corpus_tokens)
         comp_order = [comp_pool[i] for i in np.argsort(-loc_scores)]
         ranks["company_loclex"].append(min(rank_of_gold(comp_order, g) for g in q["gold"]))
 
         cypool = period2idx.get((ck, q["doc_period"]), comp_pool)
         pool_stats["company_year"].append(len(cypool))
+        cy_random = cypool.copy()
+        rng.shuffle(cy_random)
+        ranks["company_year_random"].append(min(rank_of_gold(cy_random, g) for g in q["gold"]))
         cy_scores = _local_bm25_scores(q["question"], cypool, corpus_tokens)
         cy_order = [cypool[i] for i in np.argsort(-cy_scores)]
         ranks["company_year_loclex"].append(min(rank_of_gold(cy_order, g) for g in q["gold"]))
@@ -133,6 +180,12 @@ def main():
             fused = minmax(scores[cand]) + minmax(rr)
             order = [cand[i] for i in np.argsort(-fused)]
             ranks["bm25_rerank"].append(min(rank_of_gold(order, g) for g in q["gold"]))
+
+            pairs_local = [(q["question"], corpus[i]["text"][:3000]) for i in comp_pool]
+            rr_local = np.asarray(reranker.predict(pairs_local), dtype=np.float64)
+            fused_local = minmax(loc_scores) + minmax(rr_local)
+            local_order = [comp_pool[i] for i in np.argsort(-fused_local)]
+            ranks["company_loclex_rerank"].append(min(rank_of_gold(local_order, g) for g in q["gold"]))
 
         if len(examples) < 5:
             examples.append({
@@ -150,6 +203,19 @@ def main():
         "avg_company_pool": round(float(np.mean(pool_stats["company"])), 2),
         "avg_company_year_pool": round(float(np.mean(pool_stats["company_year"])), 2),
         "metrics": {k: ranking_metrics(v) for k, v in ranks.items() if v},
+        "bootstrap": {
+            "company_loclex_vs_bm25": _bootstrap_delta(ranks["bm25"], ranks["company_loclex"], seed=args.seed),
+            "company_year_loclex_vs_company_random": _bootstrap_delta(
+                ranks["company_year_random"], ranks["company_year_loclex"], seed=args.seed
+            ),
+            "company_year_loclex_vs_company_loclex": _bootstrap_delta(
+                ranks["company_loclex"], ranks["company_year_loclex"], seed=args.seed
+            ),
+        },
+        "per_query_ranks": [
+            {name: int(vals[i]) for name, vals in ranks.items() if vals}
+            for i in range(len(queries))
+        ],
         "examples": examples,
     }
     Path(args.out).mkdir(parents=True, exist_ok=True)
@@ -161,6 +227,9 @@ def main():
     for name, m in out["metrics"].items():
         print(f"{name:<24} MRR@3={m['MRR@3']:.4f} R@1={m['R@1']:.4f} "
               f"R@3={m['R@3']:.4f} R@5={m['R@5']:.4f}")
+    print("bootstrap:")
+    for k, v in out["bootstrap"].items():
+        print(f"  {k:<40} Δ={v['delta_mrr3']:+.4f} CI={v['ci95']} p<=0={v['p_delta_le_0']}")
     print(f"Saved -> {Path(args.out) / 'financebench_retrieval.json'}")
 
 

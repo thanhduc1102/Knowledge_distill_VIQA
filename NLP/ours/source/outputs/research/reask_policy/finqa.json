@@ -1,0 +1,47 @@
+{
+  "dataset": "finqa",
+  "n": 1147,
+  "policies": {
+    "keep_raw": {
+      "nm": 0.0994,
+      "reask_frac": 0.0,
+      "reask_n": 0
+    },
+    "reask_if_ungrounded": {
+      "nm": 0.1526,
+      "reask_frac": 0.8466,
+      "reask_n": 971
+    },
+    "oracle_reward_lt_0.2": {
+      "nm": 0.136,
+      "reask_frac": 0.2371,
+      "reask_n": 272
+    },
+    "oracle_reward_lt_0.5": {
+      "nm": 0.136,
+      "reask_frac": 0.2371,
+      "reask_n": 272
+    },
+    "oracle_reward_lt_0.6": {
+      "nm": 0.2058,
+      "reask_frac": 0.762,
+      "reask_n": 874
+    },
+    "oracle_reward_lt_0.8": {
+      "nm": 0.2058,
+      "reask_frac": 0.9006,
+      "reask_n": 1033
+    },
+    "oracle_reask_if_improves": {
+      "nm": 0.2058,
+      "reask_frac": 0.1064,
+      "reask_n": 122
+    }
+  },
+  "transitions": {
+    "raw_wrong_to_reask_correct": 122,
+    "raw_correct_to_reask_wrong": 61,
+    "raw_correct_ungrounded": 97,
+    "raw_wrong_grounded": 159
+  }
+}

@@ -55,13 +55,17 @@ KG evidence.  KG is valuable as an audit and calibration layer, not as a hard an
 | Method | MRR@3 | R@1 | R@3 | R@5 |
 |---|---:|---:|---:|---:|
 | BM25 | 0.3211 | 0.2533 | 0.4133 | 0.4867 |
+| BM25 masked company/year | 0.2056 | 0.1733 | 0.2533 | 0.3200 |
+| company-year random | 0.6300 | 0.4800 | 0.8133 | 0.9600 |
 | BM25 + cross-encoder rerank | 0.4556 | 0.3667 | 0.5733 | 0.6667 |
 | company loclex | 0.6867 | 0.5533 | 0.8533 | 0.9467 |
 | company-year loclex | 0.8144 | 0.7267 | 0.9200 | 0.9933 |
 
 This is not T2-RAGBench and therefore reduces the artifact-only concern.  It is an
 evidence-retrieval benchmark rather than full-PDF retrieval, so the paper must label it
-accurately.
+accurately.  The random-within-company-year baseline is already high because the pool is
+small; the defensible claim is the paired improvement over that random pool, not metadata
+itself.
 
 ### Faithfulness
 
@@ -72,7 +76,9 @@ accurately.
 | TAT-DQA | 0.2696 | 0.0952 | 0.1744 | 0.7825 |
 
 Faithfulness is strong on ConvFinQA and TAT-DQA, but not on FinQA for the current Qwen3.5
-run.  This must be reported as a limitation.
+run.  This must be reported as a limitation.  The paper-facing confidence metric was
+corrected to avoid gold-label leakage from the saved reward field; after correction AUROC is
+0.4976 / 0.7230 / 0.6381 for FinQA / ConvFinQA / TAT-DQA.
 
 ### Verify-then-reask
 
@@ -84,7 +90,9 @@ run.  This must be reported as a limitation.
 
 The new policy improves FinQA/ConvFinQA and is neutral on TAT-DQA using deterministic
 extractive re-ask.  It is the correct direction because it does not discard raw table
-context when the model already produced a grounded answer.
+context when the model already produced a grounded answer.  Offline/oracle policy sweeps show
+additional headroom, but reward-threshold policies are not deployable because saved reward
+uses gold-match.
 
 ### Learned coordinate matcher
 
@@ -120,3 +128,6 @@ not another single-path heuristic.
 - Add confidence intervals / bootstrap significance.
 - Add human or semi-automatic audit for provenance precision on a 100-sample subset.
 - Consolidate old docs so reviewers and collaborators do not see conflicting claims.
+
+See `docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md` for the full Vietnamese global audit and claim
+registry.

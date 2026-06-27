@@ -22,8 +22,6 @@ class FaithfulnessRecord:
     def confidence(self) -> float:
         base = 0.55 * float(self.grounded) + 0.25 * self.grounding_fraction
         base += 0.15 * self.arithmetic_fraction + 0.05 * float(self.has_provenance)
-        if self.reward:
-            base = max(base, min(float(self.reward), 1.0))
         return float(max(0.0, min(1.0, base)))
 
 
@@ -60,6 +58,72 @@ def risk_coverage_curve(records: Iterable[FaithfulnessRecord], steps: int = 20) 
             "n": cut,
         })
     return out
+
+
+def auc_risk_coverage(records: Iterable[FaithfulnessRecord]) -> dict:
+    """Area under the selective risk-coverage curve.
+
+    Lower AURC is better.  We also report the full-coverage accuracy so the value is
+    interpretable next to the base model's error rate.
+    """
+    recs = sorted(list(records), key=lambda r: r.confidence, reverse=True)
+    if not recs:
+        return {"aurc": 0.0, "base_accuracy": 0.0, "base_risk": 0.0}
+    risks, covs = [], []
+    for k in range(1, len(recs) + 1):
+        acc = float(np.mean([r.correct for r in recs[:k]]))
+        covs.append(k / len(recs))
+        risks.append(1.0 - acc)
+    area = 0.0
+    for i in range(1, len(covs)):
+        area += 0.5 * (risks[i - 1] + risks[i]) * (covs[i] - covs[i - 1])
+    return {
+        "aurc": round(float(area), 4),
+        "base_accuracy": round(float(np.mean([r.correct for r in recs])), 4),
+        "base_risk": round(1.0 - float(np.mean([r.correct for r in recs])), 4),
+    }
+
+
+def binary_auc(records: Iterable[FaithfulnessRecord]) -> float:
+    """AUROC of verifier confidence as a correctness classifier."""
+    recs = list(records)
+    pos = [r.confidence for r in recs if r.correct]
+    neg = [r.confidence for r in recs if not r.correct]
+    if not pos or not neg:
+        return 0.0
+    wins = 0.0
+    for p in pos:
+        for n in neg:
+            if p > n:
+                wins += 1.0
+            elif p == n:
+                wins += 0.5
+    return round(wins / (len(pos) * len(neg)), 4)
+
+
+def bootstrap_group_gap(records: Iterable[FaithfulnessRecord], n_boot: int = 2000, seed: int = 0) -> dict:
+    recs = list(records)
+    rng = np.random.default_rng(seed)
+    if not recs:
+        return {"gap": 0.0, "ci95": [0.0, 0.0], "p_gap_le_0": 1.0}
+
+    def gap(sample):
+        g = [r.correct for r in sample if r.grounded]
+        u = [r.correct for r in sample if not r.grounded]
+        return (float(np.mean(g)) if g else 0.0) - (float(np.mean(u)) if u else 0.0)
+
+    base = gap(recs)
+    boots = []
+    n = len(recs)
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        boots.append(gap([recs[i] for i in idx]))
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    return {
+        "gap": round(base, 4),
+        "ci95": [round(float(lo), 4), round(float(hi), 4)],
+        "p_gap_le_0": round(float(np.mean(np.asarray(boots) <= 0.0)), 4),
+    }
 
 
 def hallucination_proxy(records: Iterable[FaithfulnessRecord]) -> dict:

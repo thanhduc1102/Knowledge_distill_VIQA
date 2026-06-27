@@ -10,6 +10,20 @@
     "ungrounded_accuracy": 0.1073,
     "separation": 0.3431
   },
+  "grounded_gap_bootstrap": {
+    "gap": 0.3431,
+    "ci95": [
+      0.3135,
+      0.3715
+    ],
+    "p_gap_le_0": 0.0
+  },
+  "selective_risk": {
+    "aurc": 0.6234,
+    "base_accuracy": 0.2432,
+    "base_risk": 0.7568
+  },
+  "confidence_auroc": 0.723,
   "hallucination_proxy": {
     "ungrounded_wrong_n": 1864,
     "wrong_n": 2617,
@@ -24,142 +38,142 @@
   "risk_coverage": [
     {
       "coverage": 0.05,
-      "accuracy": 1.0,
-      "risk": 0.0,
-      "threshold": 1.0,
+      "accuracy": 0.474,
+      "risk": 0.526,
+      "threshold": 0.6,
       "n": 173
     },
     {
       "coverage": 0.1001,
-      "accuracy": 1.0,
-      "risk": 0.0,
-      "threshold": 1.0,
+      "accuracy": 0.4624,
+      "risk": 0.5376,
+      "threshold": 0.6,
       "n": 346
     },
     {
       "coverage": 0.1501,
-      "accuracy": 1.0,
-      "risk": 0.0,
-      "threshold": 1.0,
+      "accuracy": 0.4721,
+      "risk": 0.5279,
+      "threshold": 0.6,
       "n": 519
     },
     {
       "coverage": 0.2001,
-      "accuracy": 1.0,
-      "risk": 0.0,
-      "threshold": 1.0,
+      "accuracy": 0.461,
+      "risk": 0.539,
+      "threshold": 0.6,
       "n": 692
     },
     {
       "coverage": 0.2499,
-      "accuracy": 0.9734,
-      "risk": 0.0266,
+      "accuracy": 0.4537,
+      "risk": 0.5463,
       "threshold": 0.6,
       "n": 864
     },
     {
       "coverage": 0.2999,
-      "accuracy": 0.811,
-      "risk": 0.189,
+      "accuracy": 0.4494,
+      "risk": 0.5506,
       "threshold": 0.6,
       "n": 1037
     },
     {
       "coverage": 0.3499,
-      "accuracy": 0.695,
-      "risk": 0.305,
+      "accuracy": 0.4521,
+      "risk": 0.5479,
       "threshold": 0.6,
       "n": 1210
     },
     {
       "coverage": 0.3999,
-      "accuracy": 0.6081,
-      "risk": 0.3919,
-      "threshold": 0.6,
+      "accuracy": 0.4461,
+      "risk": 0.5539,
+      "threshold": 0.0,
       "n": 1383
     },
     {
       "coverage": 0.45,
-      "accuracy": 0.5405,
-      "risk": 0.4595,
-      "threshold": 0.6,
+      "accuracy": 0.412,
+      "risk": 0.588,
+      "threshold": 0.0,
       "n": 1556
     },
     {
       "coverage": 0.5,
-      "accuracy": 0.4864,
-      "risk": 0.5136,
-      "threshold": 0.5,
+      "accuracy": 0.3794,
+      "risk": 0.6206,
+      "threshold": 0.0,
       "n": 1729
     },
     {
       "coverage": 0.55,
-      "accuracy": 0.4422,
-      "risk": 0.5578,
-      "threshold": 0.5,
+      "accuracy": 0.3559,
+      "risk": 0.6441,
+      "threshold": 0.0,
       "n": 1902
     },
     {
       "coverage": 0.6001,
-      "accuracy": 0.4053,
-      "risk": 0.5947,
-      "threshold": 0.5,
+      "accuracy": 0.3359,
+      "risk": 0.6641,
+      "threshold": 0.0,
       "n": 2075
     },
     {
       "coverage": 0.6501,
-      "accuracy": 0.3741,
-      "risk": 0.6259,
-      "threshold": 0.5,
+      "accuracy": 0.3207,
+      "risk": 0.6793,
+      "threshold": 0.0,
       "n": 2248
     },
     {
       "coverage": 0.7001,
-      "accuracy": 0.3474,
-      "risk": 0.6526,
-      "threshold": 0.5,
+      "accuracy": 0.3052,
+      "risk": 0.6948,
+      "threshold": 0.0,
       "n": 2421
     },
     {
       "coverage": 0.7501,
-      "accuracy": 0.3242,
-      "risk": 0.6758,
-      "threshold": 0.5,
+      "accuracy": 0.2926,
+      "risk": 0.7074,
+      "threshold": 0.0,
       "n": 2594
     },
     {
       "coverage": 0.7999,
-      "accuracy": 0.304,
-      "risk": 0.696,
-      "threshold": 0.5,
+      "accuracy": 0.2798,
+      "risk": 0.7202,
+      "threshold": 0.0,
       "n": 2766
     },
     {
       "coverage": 0.8499,
-      "accuracy": 0.2862,
-      "risk": 0.7138,
-      "threshold": 0.1,
+      "accuracy": 0.2688,
+      "risk": 0.7312,
+      "threshold": 0.0,
       "n": 2939
     },
     {
       "coverage": 0.8999,
-      "accuracy": 0.2702,
-      "risk": 0.7298,
-      "threshold": 0.1,
+      "accuracy": 0.2587,
+      "risk": 0.7413,
+      "threshold": 0.0,
       "n": 3112
     },
     {
       "coverage": 0.95,
-      "accuracy": 0.256,
-      "risk": 0.744,
-      "threshold": 0.1,
+      "accuracy": 0.2505,
+      "risk": 0.7495,
+      "threshold": 0.0,
       "n": 3285
     },
     {
       "coverage": 1.0,
       "accuracy": 0.2432,
       "risk": 0.7568,
-      "threshold": 0.1,
+      "threshold": 0.0,
       "n": 3458
     }
   ]

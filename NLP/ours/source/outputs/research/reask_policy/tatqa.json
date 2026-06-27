@@ -1,0 +1,47 @@
+{
+  "dataset": "tatqa",
+  "n": 1144,
+  "policies": {
+    "keep_raw": {
+      "nm": 0.1399,
+      "reask_frac": 0.0,
+      "reask_n": 0
+    },
+    "reask_if_ungrounded": {
+      "nm": 0.1407,
+      "reask_frac": 0.7439,
+      "reask_n": 851
+    },
+    "oracle_reward_lt_0.2": {
+      "nm": 0.1538,
+      "reask_frac": 0.2351,
+      "reask_n": 269
+    },
+    "oracle_reward_lt_0.5": {
+      "nm": 0.1538,
+      "reask_frac": 0.2351,
+      "reask_n": 269
+    },
+    "oracle_reward_lt_0.6": {
+      "nm": 0.1923,
+      "reask_frac": 0.6731,
+      "reask_n": 770
+    },
+    "oracle_reward_lt_0.8": {
+      "nm": 0.1923,
+      "reask_frac": 0.8601,
+      "reask_n": 984
+    },
+    "oracle_reask_if_improves": {
+      "nm": 0.1923,
+      "reask_frac": 0.0524,
+      "reask_n": 60
+    }
+  },
+  "transitions": {
+    "raw_wrong_to_reask_correct": 60,
+    "raw_correct_to_reask_wrong": 59,
+    "raw_correct_ungrounded": 81,
+    "raw_wrong_grounded": 214
+  }
+}

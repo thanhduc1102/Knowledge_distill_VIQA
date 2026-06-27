@@ -37,10 +37,14 @@ def main():
     reask = {}
     for ds in ("finqa", "convfinqa", "tatqa"):
         reask[ds] = _read(f"outputs/research/verify_reask/{ds}.json")
+    reask_policy = {}
+    for ds in ("finqa", "convfinqa", "tatqa"):
+        reask_policy[ds] = _read(f"outputs/research/reask_policy/{ds}.json")
     learned = {}
     for ds in ("finqa", "convfinqa", "tatqa"):
         learned[ds] = _read(f"outputs/research/learned_coordinate/{ds}.json")
     financebench = _read("outputs/research/external_financebench/financebench_retrieval.json")
+    failure = _read("outputs/research/global_failure_audit.json")
 
     out = {
         "retrieval_ablation_mrr3": rows,
@@ -50,6 +54,9 @@ def main():
                 "grounded_accuracy": v["grouped_correctness"]["grounded_accuracy"],
                 "ungrounded_accuracy": v["grouped_correctness"]["ungrounded_accuracy"],
                 "separation": v["grouped_correctness"]["separation"],
+                "gap_ci95": v["grounded_gap_bootstrap"]["ci95"],
+                "confidence_auroc": v["confidence_auroc"],
+                "aurc": v["selective_risk"]["aurc"],
                 "hallucination_catch_rate": v["hallucination_proxy"]["hallucination_catch_rate"],
             }
             for ds, v in faith.items()
@@ -59,9 +66,13 @@ def main():
                  "reasked": v["reasked"], "n": v["n"]}
             for ds, v in reask.items()
         },
+        "reask_policy_sweep": {
+            ds: v["policies"] for ds, v in reask_policy.items()
+        },
         "learned_coordinate": {
             ds: v["all"] for ds, v in learned.items()
         },
+        "global_failure_audit": failure,
     }
     path = Path("outputs/research/paper_ablation_report.json")
     path.write_text(json.dumps(out, indent=2))

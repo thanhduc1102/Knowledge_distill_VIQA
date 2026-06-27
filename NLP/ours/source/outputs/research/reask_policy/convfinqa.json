@@ -1,0 +1,47 @@
+{
+  "dataset": "convfinqa",
+  "n": 3458,
+  "policies": {
+    "keep_raw": {
+      "nm": 0.2432,
+      "reask_frac": 0.0,
+      "reask_n": 0
+    },
+    "reask_if_ungrounded": {
+      "nm": 0.284,
+      "reask_frac": 0.6038,
+      "reask_n": 2088
+    },
+    "oracle_reward_lt_0.2": {
+      "nm": 0.2606,
+      "reask_frac": 0.1637,
+      "reask_n": 566
+    },
+    "oracle_reward_lt_0.5": {
+      "nm": 0.2606,
+      "reask_frac": 0.1637,
+      "reask_n": 566
+    },
+    "oracle_reward_lt_0.6": {
+      "nm": 0.325,
+      "reask_frac": 0.539,
+      "reask_n": 1864
+    },
+    "oracle_reward_lt_0.8": {
+      "nm": 0.325,
+      "reask_frac": 0.7568,
+      "reask_n": 2617
+    },
+    "oracle_reask_if_improves": {
+      "nm": 0.325,
+      "reask_frac": 0.0818,
+      "reask_n": 283
+    }
+  },
+  "transitions": {
+    "raw_wrong_to_reask_correct": 283,
+    "raw_correct_to_reask_wrong": 142,
+    "raw_correct_ungrounded": 224,
+    "raw_wrong_grounded": 753
+  }
+}

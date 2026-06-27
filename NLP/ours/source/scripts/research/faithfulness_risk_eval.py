@@ -14,6 +14,9 @@ sys.path.insert(0, "src")
 from gsr_cacl.ledger.numeric import number_match
 from gsr_cacl.research.faithfulness import (
     FaithfulnessRecord,
+    auc_risk_coverage,
+    binary_auc,
+    bootstrap_group_gap,
     grouped_correctness,
     hallucination_proxy,
     provenance_summary,
@@ -63,6 +66,9 @@ def main():
         "input": args.input,
         "n": len(recs),
         "grouped_correctness": grouped_correctness(recs),
+        "grounded_gap_bootstrap": bootstrap_group_gap(recs),
+        "selective_risk": auc_risk_coverage(recs),
+        "confidence_auroc": binary_auc(recs),
         "hallucination_proxy": hallucination_proxy(recs),
         "provenance": provenance_summary(recs),
         "risk_coverage": risk_coverage_curve(recs, steps=20),
@@ -77,6 +83,9 @@ def main():
     print(f"grounded: n={g['grounded_n']} acc={g['grounded_accuracy']:.4f} | "
           f"ungrounded: n={g['ungrounded_n']} acc={g['ungrounded_accuracy']:.4f} | "
           f"separation={g['separation']:.4f}")
+    print(f"gap CI={out['grounded_gap_bootstrap']['ci95']} "
+          f"p<=0={out['grounded_gap_bootstrap']['p_gap_le_0']:.4f} | "
+          f"AUROC={out['confidence_auroc']:.4f} AURC={out['selective_risk']['aurc']:.4f}")
     print(f"hallucination catch proxy={h['hallucination_catch_rate']:.4f} "
           f"({h['ungrounded_wrong_n']}/{h['wrong_n']} wrong answers)")
     print(f"Saved -> {out_path}")

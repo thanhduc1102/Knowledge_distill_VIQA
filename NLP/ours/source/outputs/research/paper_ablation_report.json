@@ -45,6 +45,27 @@
       "R@5": 0.4867,
       "NDCG@3": 0.3447
     },
+    "bm25_masked_company_year": {
+      "MRR@3": 0.2056,
+      "R@1": 0.1733,
+      "R@3": 0.2533,
+      "R@5": 0.32,
+      "NDCG@3": 0.2177
+    },
+    "company_random": {
+      "MRR@3": 0.3933,
+      "R@1": 0.22,
+      "R@3": 0.62,
+      "R@5": 0.7667,
+      "NDCG@3": 0.4514
+    },
+    "company_year_random": {
+      "MRR@3": 0.63,
+      "R@1": 0.48,
+      "R@3": 0.8133,
+      "R@5": 0.96,
+      "NDCG@3": 0.6772
+    },
     "company_loclex": {
       "MRR@3": 0.6867,
       "R@1": 0.5533,
@@ -65,6 +86,13 @@
       "R@3": 0.5733,
       "R@5": 0.6667,
       "NDCG@3": 0.4857
+    },
+    "company_loclex_rerank": {
+      "MRR@3": 0.69,
+      "R@1": 0.5667,
+      "R@3": 0.84,
+      "R@5": 0.9533,
+      "NDCG@3": 0.7286
     }
   },
   "faithfulness": {
@@ -72,18 +100,36 @@
       "grounded_accuracy": 0.0966,
       "ungrounded_accuracy": 0.0999,
       "separation": -0.0033,
+      "gap_ci95": [
+        -0.0504,
+        0.0446
+      ],
+      "confidence_auroc": 0.4976,
+      "aurc": 0.8992,
       "hallucination_catch_rate": 0.8461
     },
     "convfinqa": {
       "grounded_accuracy": 0.4504,
       "ungrounded_accuracy": 0.1073,
       "separation": 0.3431,
+      "gap_ci95": [
+        0.3135,
+        0.3715
+      ],
+      "confidence_auroc": 0.723,
+      "aurc": 0.6234,
       "hallucination_catch_rate": 0.7123
     },
     "tatqa": {
       "grounded_accuracy": 0.2696,
       "ungrounded_accuracy": 0.0952,
       "separation": 0.1744,
+      "gap_ci95": [
+        0.1214,
+        0.229
+      ],
+      "confidence_auroc": 0.6381,
+      "aurc": 0.809,
       "hallucination_catch_rate": 0.7825
     }
   },
@@ -107,6 +153,119 @@
       "n": 1144
     }
   },
+  "reask_policy_sweep": {
+    "finqa": {
+      "keep_raw": {
+        "nm": 0.0994,
+        "reask_frac": 0.0,
+        "reask_n": 0
+      },
+      "reask_if_ungrounded": {
+        "nm": 0.1526,
+        "reask_frac": 0.8466,
+        "reask_n": 971
+      },
+      "oracle_reward_lt_0.2": {
+        "nm": 0.136,
+        "reask_frac": 0.2371,
+        "reask_n": 272
+      },
+      "oracle_reward_lt_0.5": {
+        "nm": 0.136,
+        "reask_frac": 0.2371,
+        "reask_n": 272
+      },
+      "oracle_reward_lt_0.6": {
+        "nm": 0.2058,
+        "reask_frac": 0.762,
+        "reask_n": 874
+      },
+      "oracle_reward_lt_0.8": {
+        "nm": 0.2058,
+        "reask_frac": 0.9006,
+        "reask_n": 1033
+      },
+      "oracle_reask_if_improves": {
+        "nm": 0.2058,
+        "reask_frac": 0.1064,
+        "reask_n": 122
+      }
+    },
+    "convfinqa": {
+      "keep_raw": {
+        "nm": 0.2432,
+        "reask_frac": 0.0,
+        "reask_n": 0
+      },
+      "reask_if_ungrounded": {
+        "nm": 0.284,
+        "reask_frac": 0.6038,
+        "reask_n": 2088
+      },
+      "oracle_reward_lt_0.2": {
+        "nm": 0.2606,
+        "reask_frac": 0.1637,
+        "reask_n": 566
+      },
+      "oracle_reward_lt_0.5": {
+        "nm": 0.2606,
+        "reask_frac": 0.1637,
+        "reask_n": 566
+      },
+      "oracle_reward_lt_0.6": {
+        "nm": 0.325,
+        "reask_frac": 0.539,
+        "reask_n": 1864
+      },
+      "oracle_reward_lt_0.8": {
+        "nm": 0.325,
+        "reask_frac": 0.7568,
+        "reask_n": 2617
+      },
+      "oracle_reask_if_improves": {
+        "nm": 0.325,
+        "reask_frac": 0.0818,
+        "reask_n": 283
+      }
+    },
+    "tatqa": {
+      "keep_raw": {
+        "nm": 0.1399,
+        "reask_frac": 0.0,
+        "reask_n": 0
+      },
+      "reask_if_ungrounded": {
+        "nm": 0.1407,
+        "reask_frac": 0.7439,
+        "reask_n": 851
+      },
+      "oracle_reward_lt_0.2": {
+        "nm": 0.1538,
+        "reask_frac": 0.2351,
+        "reask_n": 269
+      },
+      "oracle_reward_lt_0.5": {
+        "nm": 0.1538,
+        "reask_frac": 0.2351,
+        "reask_n": 269
+      },
+      "oracle_reward_lt_0.6": {
+        "nm": 0.1923,
+        "reask_frac": 0.6731,
+        "reask_n": 770
+      },
+      "oracle_reward_lt_0.8": {
+        "nm": 0.1923,
+        "reask_frac": 0.8601,
+        "reask_n": 984
+      },
+      "oracle_reask_if_improves": {
+        "nm": 0.1923,
+        "reask_frac": 0.0524,
+        "reask_n": 60
+      }
+    }
+  },
   "learned_coordinate": {
     "finqa": {
       "n": 159,
@@ -128,6 +287,644 @@
       "coord": 0.1191,
       "learned": 0.0939,
       "either": 0.148
+    }
+  },
+  "global_failure_audit": {
+    "datasets": {
+      "finqa": {
+        "retrieval": {
+          "n": 1147,
+          "top1": 0.6417,
+          "top3": 0.8675,
+          "miss": 152,
+          "miss_by_task": {
+            "ratio": 67,
+            "sum": 18,
+            "percent_change": 17,
+            "average": 16,
+            "lookup": 14,
+            "difference": 11,
+            "adjustment": 6,
+            "factor_sum": 3
+          }
+        },
+        "generation": {
+          "n": 1147,
+          "bucket_counts": {
+            "grounded_wrong": 159,
+            "ungrounded_correct": 97,
+            "ungrounded_wrong": 874,
+            "grounded_correct": 17
+          },
+          "bucket_frac": {
+            "grounded_wrong": 0.1386,
+            "ungrounded_correct": 0.0846,
+            "ungrounded_wrong": 0.762,
+            "grounded_correct": 0.0148
+          },
+          "task_bucket_counts": {
+            "ratio::ungrounded_wrong": 331,
+            "percent_change::ungrounded_wrong": 218,
+            "sum::ungrounded_wrong": 98,
+            "average::ungrounded_wrong": 74,
+            "difference::ungrounded_wrong": 69,
+            "ratio::ungrounded_correct": 52,
+            "ratio::grounded_wrong": 44,
+            "lookup::grounded_wrong": 33,
+            "lookup::ungrounded_wrong": 32,
+            "adjustment::ungrounded_wrong": 28,
+            "factor_sum::ungrounded_wrong": 17,
+            "percent_change::grounded_wrong": 17,
+            "factor_sum::grounded_wrong": 16,
+            "difference::grounded_wrong": 15,
+            "average::grounded_wrong": 13,
+            "lookup::ungrounded_correct": 12,
+            "lookup::grounded_correct": 10,
+            "adjustment::grounded_wrong": 10,
+            "average::ungrounded_correct": 10,
+            "percent_change::ungrounded_correct": 10,
+            "sum::grounded_wrong": 9,
+            "comparison::ungrounded_wrong": 7,
+            "difference::ungrounded_correct": 4,
+            "comparison::ungrounded_correct": 4,
+            "sum::ungrounded_correct": 3,
+            "average::grounded_correct": 3,
+            "comparison::grounded_wrong": 2,
+            "sum::grounded_correct": 2,
+            "adjustment::ungrounded_correct": 1,
+            "adjustment::grounded_correct": 1,
+            "factor_sum::ungrounded_correct": 1,
+            "difference::grounded_correct": 1
+          },
+          "examples": {
+            "grounded_wrong": [
+              {
+                "query": "Entergy: What is the net change in Entergy's net revenue from 2014 to 2015, considering factors such as retail electric price, volume/weather, and the impact of the Louisiana business combination customer credits?",
+                "gold": [
+                  "94.0",
+                  "94"
+                ],
+                "prediction": "Answer: 2",
+                "explanation": "grounded@finqa_train_ctx_611 text; gold_match=False"
+              },
+              {
+                "query": "Marathon Oil: What was the average annual change in the standardized measure of discounted future net cash flows for Marathon Oil during the years 2011, 2010, and 2009, as reported in the supplementary information on oil and gas producing a",
+                "gold": [
+                  "3297.6666666666665",
+                  "3298"
+                ],
+                "prediction": "Answer: 2512.75",
+                "explanation": "grounded@finqa_test_ctx_304 r5 c2 [2011]; gold_match=False"
+              },
+              {
+                "query": "Union Pacific Corporation: In the 2015 consolidated financial statements of Union Pacific Corporation, what percentage of the total operating revenues was attributed to agricultural products?",
+                "gold": [
+                  "0.16416815660386008",
+                  "16.4%"
+                ],
+                "prediction": "Answer: 1",
+                "explanation": "grounded@finqa_test_ctx_228 text; gold_match=False"
+              },
+              {
+                "query": "PNC Financial Services: What would be the fair value of total securities available for sale for PNC Financial Services as of December 31, 2012, excluding the fair value of securities classified as corporate stocks, which are reported to be ",
+                "gold": [
+                  "61545.0",
+                  "61545"
+                ],
+                "prediction": "Answer: 51052",
+                "explanation": "grounded@finqa_test_ctx_155 r0 c3 [2012]; gold_match=False"
+              },
+              {
+                "query": "Abiomed, Inc.: Assuming the same level of settlements as in fiscal 2007, what would be the ending balance at March 31, 2008, in millions for unrecognized tax benefits for Abiomed, Inc.?",
+                "gold": [
+                  "112.0",
+                  "112"
+                ],
+                "prediction": "Answer: 168",
+                "explanation": "grounded@finqa_test_ctx_41 r1 c2 [2008]; gold_match=False"
+              }
+            ],
+            "ungrounded_correct": [
+              {
+                "query": "Intel: As of December 26, 2015, what percentage of Intel's total facilities, measured in square feet, were leased?",
+                "gold": [
+                  "0.14464285714285713",
+                  "14%"
+                ],
+                "prediction": "Answer: 0.1446",
+                "explanation": "gold_match=True"
+              },
+              {
+                "query": "General Mills: What proportion of General Mills' total noncancelable future lease commitments, as disclosed in the 2018 report, are scheduled to be paid in the fiscal year 2019?",
+                "gold": [
+                  "0.24566422313606295",
+                  "24.6%"
+                ],
+                "prediction": "Answer: 0.24566422313",
+                "explanation": "ratio 137.4/559.3; gold_match=True"
+              },
+              {
+                "query": "Royal Caribbean Group: Approximately how many destinations does each continent have, given that Royal Caribbean Group's ships operate on a selection of worldwide itineraries that call on approximately 455 destinations on all seven continent",
+                "gold": [
+                  "65.0",
+                  "65"
+                ],
+                "prediction": "Answer: 65",
+                "explanation": "sum of 50.0 and 15.0; gold_match=True"
+              },
+              {
+                "query": "Marriott International: What percentage of Marriott International's total contractual obligations at year-end 2018 is attributable to capital lease obligations, as outlined in the company's 2018 financial report?",
+                "gold": [
+                  "0.017413688673531193",
+                  "2%"
+                ],
+                "prediction": "Answer: 0.01741368867",
+                "explanation": "ratio 41.0/2357.0; gold_match=True"
+              },
+              {
+                "query": "JPMorgan Chase: In the 2018 Form 10-K report of JPMorgan Chase, what percentage of the total net interest income on a managed basis did the CIB Markets net interest income represent?",
+                "gold": [
+                  "0.05543484116580171",
+                  "5.54%"
+                ],
+                "prediction": "Answer: 0.055432039",
+                "explanation": "ratio 3087.0/55687.0; gold_match=True"
+              }
+            ],
+            "reask_worsened": [
+              {
+                "query": "Royal Caribbean Group: Approximately how many destinations does each continent have, given that Royal Caribbean Group's ships operate on a selection of worldwide itineraries that call on approximately 455 destinations on all seven continent",
+                "gold": [
+                  "65.0",
+                  "65"
+                ],
+                "raw_answer": 65.0,
+                "final_answer": "30.0"
+              },
+              {
+                "query": "JPMorgan Chase: In the 2018 Form 10-K report of JPMorgan Chase, what percentage of the total net interest income on a managed basis did the CIB Markets net interest income represent?",
+                "gold": [
+                  "0.05543484116580171",
+                  "5.54%"
+                ],
+                "raw_answer": 0.055432039,
+                "final_answer": "18.039196631"
+              },
+              {
+                "query": "CME Group: Assuming all options in the equity compensation plans approved by security holders of CME Group were exercised in 2010, what would be the deemed proceeds to the company?",
+                "gold": [
+                  "373153158.3",
+                  "373153150"
+                ],
+                "raw_answer": 373156355.8,
+                "final_answer": "5156223.0"
+              },
+              {
+                "query": "AES Corporation: What is the annual interest cost savings achieved by AES Corporation in 2010 from redeeming $690 million of its 8.75% second priority senior secured notes due 2013?",
+                "gold": [
+                  "60374999.99999999",
+                  "60375000"
+                ],
+                "raw_answer": 60.15,
+                "final_answer": "2014"
+              },
+              {
+                "query": "United Parcel Service: What is the ROI of an investment in United Parcel Service from 2008 to 2009?",
+                "gold": [
+                  "0.07755610972568577",
+                  "7.8%"
+                ],
+                "raw_answer": 0.0781,
+                "final_answer": "80.2"
+              }
+            ]
+          }
+        }
+      },
+      "convfinqa": {
+        "retrieval": {
+          "n": 3458,
+          "top1": 0.7279,
+          "top3": 0.9274,
+          "miss": 251,
+          "miss_by_task": {
+            "lookup": 93,
+            "sum": 52,
+            "difference": 52,
+            "ratio": 27,
+            "average": 17,
+            "percent_change": 6,
+            "adjustment": 4
+          }
+        },
+        "generation": {
+          "n": 3458,
+          "bucket_counts": {
+            "grounded_wrong": 753,
+            "grounded_correct": 617,
+            "ungrounded_wrong": 1864,
+            "ungrounded_correct": 224
+          },
+          "bucket_frac": {
+            "grounded_wrong": 0.2178,
+            "grounded_correct": 0.1784,
+            "ungrounded_wrong": 0.539,
+            "ungrounded_correct": 0.0648
+          },
+          "task_bucket_counts": {
+            "difference::ungrounded_wrong": 590,
+            "sum::ungrounded_wrong": 510,
+            "lookup::grounded_correct": 471,
+            "lookup::grounded_wrong": 403,
+            "ratio::ungrounded_wrong": 288,
+            "lookup::ungrounded_wrong": 163,
+            "difference::grounded_wrong": 133,
+            "percent_change::ungrounded_wrong": 121,
+            "sum::grounded_wrong": 109,
+            "sum::grounded_correct": 92,
+            "average::ungrounded_wrong": 79,
+            "ratio::ungrounded_correct": 78,
+            "adjustment::ungrounded_wrong": 62,
+            "lookup::ungrounded_correct": 50,
+            "factor_sum::ungrounded_wrong": 46,
+            "sum::ungrounded_correct": 36,
+            "difference::ungrounded_correct": 34,
+            "ratio::grounded_wrong": 32,
+            "factor_sum::grounded_wrong": 32,
+            "average::grounded_correct": 29,
+            "average::grounded_wrong": 22,
+            "average::ungrounded_correct": 16,
+            "adjustment::grounded_wrong": 12,
+            "difference::grounded_correct": 8,
+            "percent_change::grounded_wrong": 6,
+            "ratio::grounded_correct": 5,
+            "factor_sum::grounded_correct": 5,
+            "comparison::ungrounded_wrong": 5,
+            "percent_change::ungrounded_correct": 4,
+            "adjustment::grounded_correct": 4,
+            "factor_sum::ungrounded_correct": 4,
+            "comparison::grounded_wrong": 4,
+            "percent_change::grounded_correct": 2,
+            "adjustment::ungrounded_correct": 2,
+            "comparison::grounded_correct": 1
+          },
+          "examples": {
+            "grounded_wrong": [
+              {
+                "query": "Jack Henry & Associates: What was the net cash from operating activities for Jack Henry & Associates in the fiscal year ended June 30, 2009, as reported in their 2009 annual report?",
+                "gold": [
+                  "206588.0",
+                  "206588.0"
+                ],
+                "prediction": "Answer: 174247",
+                "explanation": "grounded@convfinqa_ctx_99 r5 c3 [2009]; gold_match=False"
+              },
+              {
+                "query": "Huntington Ingalls Industries: What was the compensation expense recorded by Huntington Ingalls Industries for the year ended December 31, 2015, related to stock awards?",
+                "gold": [
+                  "43.0",
+                  "43.0"
+                ],
+                "prediction": "Answer: 34",
+                "explanation": "grounded@convfinqa_ctx_1150 text; gold_match=False"
+              },
+              {
+                "query": "Edwards Lifesciences: what was the cumulative total return of an initial $100 investment in Edwards Lifesciences at the end of 2016?",
+                "gold": [
+                  "265.06",
+                  "265.06"
+                ],
+                "prediction": "Answer: 665.78",
+                "explanation": "grounded@convfinqa_ctx_503 text; gold_match=False"
+              },
+              {
+                "query": "Aon: What were Aon's capital expenditures for continuing operations in 2018, as reflected in the reconciliation of free cash flow to cash flow provided by operations?",
+                "gold": [
+                  "240.0",
+                  "240.0"
+                ],
+                "prediction": "Answer: -240",
+                "explanation": "grounded@convfinqa_ctx_6 r1 c1 [2018]; gold_match=False"
+              },
+              {
+                "query": "State Street Corporation: What was the value of commercial paper outstanding at State Street Corporation as of December 31, 2010?",
+                "gold": [
+                  "2.8",
+                  "2.8"
+                ],
+                "prediction": "Answer: 58",
+                "explanation": "grounded@convfinqa_ctx_1388 r0 c4 [2010]; gold_match=False"
+              }
+            ],
+            "ungrounded_correct": [
+              {
+                "query": "Huntington Ingalls Industries: What is the combined sales and service revenue for the first two quarters of 2015 for Huntington Ingalls Industries?",
+                "gold": [
+                  "3315.0",
+                  "3315.0"
+                ],
+                "prediction": "Answer: 3315",
+                "explanation": "sum of 1570.0 and 1745.0; gold_match=True"
+              },
+              {
+                "query": "AES Corporation: What was the decrease in revenues for AES Corporation between 2000 and 2001, as reflected in the summarized comparative financial information for its 50% or less owned investments accounted for using the equity method?",
+                "gold": [
+                  "-94.0",
+                  "-94.0"
+                ],
+                "prediction": "Answer: -94",
+                "explanation": "percent change (31.0-506.0)/506.0*100; gold_match=True"
+              },
+              {
+                "query": "O'Reilly Auto Parts: What was the percentage change in O'Reilly Automotive Inc.'s cumulative total shareholder return from December 31, 2010, to December 31, 2011, as reflected in the stock performance graph?",
+                "gold": [
+                  "32.0",
+                  "32.0"
+                ],
+                "prediction": "Answer: 0.32",
+                "explanation": "ratio 100.0/311.0; gold_match=True"
+              },
+              {
+                "query": "Royal Caribbean Group: What was the change in Royal Caribbean Group's cash and cash equivalents from 2005 to 2006, as reflected in their 2006 consolidated financial statements?",
+                "gold": [
+                  "-20865.0",
+                  "-20865.0"
+                ],
+                "prediction": "Answer: -20865",
+                "explanation": "difference of 104520.0 and 125385.0; gold_match=True"
+              },
+              {
+                "query": "Global Payments: What was the total number of securities approved by Global Payments' security holders as of May 31, 2007, including both those to be issued upon exercise of outstanding options, warrants, and rights, and those remaining ava",
+                "gold": [
+                  "12950000.0",
+                  "12950000.0"
+                ],
+                "prediction": "Answer: 12954028",
+                "explanation": "sum of 5171000.0 and 7779000.0; gold_match=True"
+              }
+            ],
+            "reask_worsened": [
+              {
+                "query": "Huntington Ingalls Industries: What is the combined sales and service revenue for the first two quarters of 2015 for Huntington Ingalls Industries?",
+                "gold": [
+                  "3315.0",
+                  "3315.0"
+                ],
+                "raw_answer": 3315.0,
+                "final_answer": "7020.0"
+              },
+              {
+                "query": "Fidelity National Information Services: As of December 31, 2016, what was the difference between the accumulated benefit obligation and the projected benefit obligation for Fidelity National Information Services' German pension plans?",
+                "gold": [
+                  "-1.0",
+                  "-1.0"
+                ],
+                "raw_answer": -1.0,
+                "final_answer": "134"
+              },
+              {
+                "query": "Aon: What was the total combined experience loss for Aon's pension plans in the US and the UK as of December 31, 2013?",
+                "gold": [
+                  "3231.0",
+                  "3231.0"
+                ],
+                "raw_answer": 3231.0,
+                "final_answer": "3686.0"
+              },
+              {
+                "query": "Celanese: What is the difference in cash dividends received by Celanese from its Chinese acetate ventures between 2010 and 2009?",
+                "gold": [
+                  "15.0",
+                  "15.0"
+                ],
+                "raw_answer": 15.0,
+                "final_answer": "-27"
+              },
+              {
+                "query": "Citigroup: As of December 31, 2010, what was the ratio of goodwill for Citigroup's North America Regional Consumer Banking to that of EMEA Regional Consumer Banking?",
+                "gold": [
+                  "7.4497",
+                  "7.4497"
+                ],
+                "raw_answer": 7.44970414201,
+                "final_answer": "168"
+              }
+            ]
+          }
+        }
+      },
+      "tatqa": {
+        "retrieval": {
+          "n": 1144,
+          "top1": 0.326,
+          "top3": 0.6198,
+          "miss": 435,
+          "miss_by_task": {
+            "difference": 108,
+            "lookup": 96,
+            "percent_change": 71,
+            "average": 49,
+            "ratio": 45,
+            "sum": 32,
+            "comparison": 30,
+            "factor_sum": 3,
+            "adjustment": 1
+          }
+        },
+        "generation": {
+          "n": 1144,
+          "bucket_counts": {
+            "ungrounded_wrong": 770,
+            "grounded_wrong": 214,
+            "ungrounded_correct": 81,
+            "grounded_correct": 79
+          },
+          "bucket_frac": {
+            "ungrounded_wrong": 0.6731,
+            "grounded_wrong": 0.1871,
+            "ungrounded_correct": 0.0708,
+            "grounded_correct": 0.0691
+          },
+          "task_bucket_counts": {
+            "difference::ungrounded_wrong": 193,
+            "percent_change::ungrounded_wrong": 189,
+            "lookup::grounded_wrong": 114,
+            "ratio::ungrounded_wrong": 109,
+            "average::ungrounded_wrong": 93,
+            "lookup::ungrounded_wrong": 83,
+            "sum::ungrounded_wrong": 67,
+            "lookup::grounded_correct": 59,
+            "difference::grounded_wrong": 44,
+            "comparison::ungrounded_wrong": 25,
+            "lookup::ungrounded_correct": 22,
+            "average::grounded_wrong": 16,
+            "average::ungrounded_correct": 15,
+            "ratio::ungrounded_correct": 13,
+            "percent_change::ungrounded_correct": 13,
+            "comparison::grounded_wrong": 10,
+            "ratio::grounded_wrong": 9,
+            "sum::grounded_correct": 9,
+            "sum::grounded_wrong": 9,
+            "percent_change::grounded_wrong": 8,
+            "difference::ungrounded_correct": 6,
+            "comparison::ungrounded_correct": 6,
+            "factor_sum::ungrounded_wrong": 6,
+            "adjustment::ungrounded_wrong": 5,
+            "sum::ungrounded_correct": 4,
+            "factor_sum::grounded_wrong": 3,
+            "comparison::grounded_correct": 3,
+            "average::grounded_correct": 3,
+            "difference::grounded_correct": 2,
+            "factor_sum::grounded_correct": 2,
+            "adjustment::ungrounded_correct": 2,
+            "adjustment::grounded_wrong": 1,
+            "percent_change::grounded_correct": 1
+          },
+          "examples": {
+            "grounded_wrong": [
+              {
+                "query": "spirent-communications-plc: What percentage of the total non-current assets in Europe, Middle East and Africa did the United Kingdom's $6.9 million non-current assets represent in 2019?",
+                "gold": [
+                  "60.0",
+                  "60"
+                ],
+                "prediction": "Answer: 1",
+                "explanation": "grounded@71a02e93f0685b7c77ee617becc752cb text; gold_match=False"
+              },
+              {
+                "query": "cts-corporation: What percentage of the pension plan assets was targeted for allocation to Equity Securities in 2020 for cts-corporation?",
+                "gold": [
+                  "13.0",
+                  "['13']"
+                ],
+                "prediction": "Answer: 1",
+                "explanation": "grounded@56ca81e6bf0a99c20a0e513dbc39a42a text; gold_match=False"
+              },
+              {
+                "query": "cts-corporation: What was the percentage point difference between the target allocations of Debt Securities and Other assets for 2020 in the cts-corporation pension plan?",
+                "gold": [
+                  "79.0",
+                  "79"
+                ],
+                "prediction": "Answer: 1",
+                "explanation": "grounded@56ca81e6bf0a99c20a0e513dbc39a42a text; gold_match=False"
+              },
+              {
+                "query": "chefs-wharehouse: What is the amount of Stock options for the fiscal year ended December 29, 2017, as reported in the financial statements of chefs-wharehouse?",
+                "gold": [
+                  "201799.0",
+                  "['201,799']"
+                ],
+                "prediction": "Answer: 26118482",
+                "explanation": "grounded@057149f07d2fad98ce7387e82475f309 r4 c3 [2017]; gold_match=False"
+              },
+              {
+                "query": "chefs-wharehouse: What is the amount of Convertible notes for fiscal year 2019 that have been excluded from the calculation of diluted net income per common share because the effect is anti-dilutive?",
+                "gold": [
+                  "76384.0",
+                  "['76,384']"
+                ],
+                "prediction": "Answer: 4",
+                "explanation": "grounded@facb22b277deb7fb8d5c8f9bdc0bd8d0 text; gold_match=False"
+              }
+            ],
+            "ungrounded_correct": [
+              {
+                "query": "cts-corporation: What percentage of the cts-corporation pension plan's assets were allocated to 'Other' assets at the end of 2019?",
+                "gold": [
+                  "4.0",
+                  "['4']"
+                ],
+                "prediction": "Answer: 0.04",
+                "explanation": "ratio 4.0/100.0; gold_match=True"
+              },
+              {
+                "query": "aci-worldwide-inc: What was the percentage decrease in aci-worldwide-inc's Gross deferred income tax assets from $131,128 in 2018 to $124,387 in 2019, as reported in the company's 2019 financial statements?",
+                "gold": [
+                  "-5.14",
+                  "-5.14"
+                ],
+                "prediction": "Answer: -0.0514",
+                "explanation": "gold_match=True"
+              },
+              {
+                "query": "consolidated-communications-holdings-inc: What is the increase/decrease in Income tax expense (benefit) for Consolidated Communications Holdings, Inc. from 2018 to 2019 as shown in the reconciliation of net income (loss) to Adjusted EBITDA ",
+                "gold": [
+                  "20.4",
+                  "20.4"
+                ],
+                "prediction": "Answer: 20.2",
+                "explanation": "gold_match=True"
+              },
+              {
+                "query": "nordic-american-tankers-limited: What is the average voyage revenue for Nordic American Tankers Limited in the years 2018 and 2019, according to the Selected Consolidated Financial Data in the 2019 annual report?",
+                "gold": [
+                  "303118.0",
+                  "303118"
+                ],
+                "prediction": "Answer: 303118",
+                "explanation": "sum of 317220.0 and -13481.0; gold_match=True"
+              },
+              {
+                "query": "micron-technology-inc: What percentage of Micron Technology's total equity in 2019 was contributed by Total Micron shareholders' equity?",
+                "gold": [
+                  "97.58",
+                  "97.58"
+                ],
+                "prediction": "Answer: 0.97582268153",
+                "explanation": "ratio 23406.0/24143.0; gold_match=True"
+              }
+            ],
+            "reask_worsened": [
+              {
+                "query": "marin-software-inc: What is the average number of shares owned by L. Gordon Crovitz and Donald P. Hutchison, two of Marin Software Inc.'s Directors and Named Executive Officers, as disclosed in the company's 2019 report?",
+                "gold": [
+                  "71012.0",
+                  "71012"
+                ],
+                "raw_answer": 71022.75,
+                "final_answer": "210678.825"
+              },
+              {
+                "query": "marin-software-inc: What is the average number of shares beneficially owned by Brian Kinion and Christopher Lien, as disclosed in the 2019 report of Marin Software Inc.?",
+                "gold": [
+                  "171300.0",
+                  "171300"
+                ],
+                "raw_answer": 171300.0,
+                "final_answer": "99105.925"
+              },
+              {
+                "query": "netapp-inc: What was the percentage change in proceeds from the issuance of shares under the Employee Stock Purchase Plan between the fiscal years ending April 27, 2018, and April 26, 2019?",
+                "gold": [
+                  "12.94",
+                  "12.94"
+                ],
+                "raw_answer": 0.1294117647,
+                "final_answer": "15"
+              },
+              {
+                "query": "Intu-Properties: In the summarised financial information of The Metrocentre Partnership and Metrocentre LLP at 100 per cent, as consolidated, which year shows a greater loss for the year, with a loss of \u00a3177.2 million?",
+                "gold": [
+                  "2019.0",
+                  "['2019']"
+                ],
+                "raw_answer": 2019.0,
+                "final_answer": "-177.2"
+              },
+              {
+                "query": "shopify-inc: What is the average total operating expenses for the years 2018 and 2019 in the Shopify Inc. consolidated statement of operations?",
+                "gold": [
+                  "847488.5",
+                  "847488.5"
+                ],
+                "raw_answer": 847488.5,
+                "final_answer": "3702560.0"
+              }
+            ]
+          }
+        }
+      }
     }
   }
 }

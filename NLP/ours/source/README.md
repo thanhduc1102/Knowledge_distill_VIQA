@@ -22,6 +22,8 @@ Start with:
 
 - **[docs/AAAI27_FINAL_DIRECTION.md](docs/AAAI27_FINAL_DIRECTION.md)** — final paper
   direction, safe claims, negative results, and required remaining work.
+- **[docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md](docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md)** —
+  báo cáo tối ưu toàn cục bằng tiếng Việt, gồm claim registry, phản chứng, và hướng tối ưu.
 - **[docs/DANH_GIA_TOAN_DIEN.md](docs/DANH_GIA_TOAN_DIEN.md)** — broader historical
   assessment of all system generations.
 - **[outputs/research/paper_ablation_report.json](outputs/research/paper_ablation_report.json)**
