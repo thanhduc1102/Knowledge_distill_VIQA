@@ -1,0 +1,87 @@
+{
+  "dataset": "convfinqa",
+  "n": 150,
+  "missing_join": 0,
+  "raw_accuracy": 0.4067,
+  "legacy_value_only": {
+    "supported_n": 143,
+    "acc_supported": 0.4196,
+    "unsupported_n": 7,
+    "acc_unsupported": 0.1429,
+    "separation": 0.2767,
+    "supported_but_wrong": 83,
+    "auroc": 0.5775,
+    "risk_coverage": {
+      "curve": [
+        {
+          "coverage": 0.25,
+          "accuracy": 0.4737,
+          "risk": 0.5263
+        },
+        {
+          "coverage": 0.5,
+          "accuracy": 0.4667,
+          "risk": 0.5333
+        },
+        {
+          "coverage": 0.75,
+          "accuracy": 0.4375,
+          "risk": 0.5625
+        },
+        {
+          "coverage": 1.0,
+          "accuracy": 0.4067,
+          "risk": 0.5933
+        }
+      ],
+      "selective_acc_auc": 0.4461
+    }
+  },
+  "cpr": {
+    "supported_n": 76,
+    "acc_supported": 0.5658,
+    "unsupported_n": 74,
+    "acc_unsupported": 0.2432,
+    "separation": 0.3225,
+    "supported_but_wrong": 33,
+    "auroc": 0.7229,
+    "risk_coverage": {
+      "curve": [
+        {
+          "coverage": 0.25,
+          "accuracy": 0.7105,
+          "risk": 0.2895
+        },
+        {
+          "coverage": 0.5,
+          "accuracy": 0.56,
+          "risk": 0.44
+        },
+        {
+          "coverage": 0.75,
+          "accuracy": 0.4732,
+          "risk": 0.5268
+        },
+        {
+          "coverage": 1.0,
+          "accuracy": 0.4067,
+          "risk": 0.5933
+        }
+      ],
+      "selective_acc_auc": 0.5376
+    }
+  },
+  "over_firing_reduction": {
+    "legacy_supported_wrong": 83,
+    "cpr_downgraded_of_those": 50,
+    "downgrade_precision": 0.6024,
+    "legacy_supported_correct": 60,
+    "wrongly_dropped_correct": 17
+  },
+  "cpr_level_distribution": {
+    "weak_value_only": 67,
+    "unsupported": 7,
+    "cpr_derivable": 40,
+    "cpr_grounded": 36
+  }
+}

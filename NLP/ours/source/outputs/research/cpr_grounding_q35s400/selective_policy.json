@@ -1,0 +1,82 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 400,
+    "raw_accuracy": 0.2775,
+    "aurc": {
+      "legacy": 0.6978,
+      "cpr": 0.6414,
+      "cpr_calibrated": 0.6467
+    },
+    "coverage_at_target_risk": {
+      "risk<=0.3": {
+        "legacy": [
+          0.0,
+          0.0
+        ],
+        "cpr": [
+          0.0,
+          0.0
+        ],
+        "cpr_calibrated": [
+          0.0,
+          0.0
+        ]
+      },
+      "risk<=0.4": {
+        "legacy": [
+          0.0,
+          0.0
+        ],
+        "cpr": [
+          0.0,
+          0.0
+        ],
+        "cpr_calibrated": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 400,
+    "raw_accuracy": 0.44,
+    "aurc": {
+      "legacy": 0.442,
+      "cpr": 0.3754,
+      "cpr_calibrated": 0.4359
+    },
+    "coverage_at_target_risk": {
+      "risk<=0.3": {
+        "legacy": [
+          0.0725,
+          0.7241
+        ],
+        "cpr": [
+          0.36,
+          0.7014
+        ],
+        "cpr_calibrated": [
+          0.0,
+          0.0
+        ]
+      },
+      "risk<=0.4": {
+        "legacy": [
+          0.3575,
+          0.6014
+        ],
+        "cpr": [
+          0.59,
+          0.6017
+        ],
+        "cpr_calibrated": [
+          0.5625,
+          0.6
+        ]
+      }
+    }
+  }
+}

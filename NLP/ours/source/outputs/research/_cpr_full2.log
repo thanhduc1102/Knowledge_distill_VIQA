@@ -1,0 +1,20 @@
+
+=== finqa (n=1147, raw_acc=0.0994) ===
+  legacy: sep=+0.062 auroc=0.537 sup=1075 sup_wrong=964
+  CPR   : sep=+0.080 auroc=0.627 sup=349 sup_wrong=295
+  over-firing: downgraded 671/964 legacy-wrong (prec=0.6961), dropped 57 correct
+  bootstrap: dAUROC=[0.0354, 0.1461] (P(>0)=0.9985) dSep=[-0.0367, 0.0742] (P(>0)=0.7335)
+
+=== convfinqa (n=3458, raw_acc=0.2432) ===
+  legacy: sep=+0.169 auroc=0.735 sup=3137 sup_wrong=2325
+  CPR   : sep=+0.266 auroc=0.741 sup=1579 sup_wrong=967
+  over-firing: downgraded 1379/2325 legacy-wrong (prec=0.5931), dropped 201 correct
+  bootstrap: dAUROC=[-0.0094, 0.0217] (P(>0)=0.7775) dSep=[0.0618, 0.1372] (P(>0)=1.0)
+
+=== tatqa (n=1144, raw_acc=0.1399) ===
+  legacy: sep=+0.107 auroc=0.684 sup=1068 sup_wrong=911
+  CPR   : sep=+0.117 auroc=0.640 sup=456 sup_wrong=360
+  over-firing: downgraded 563/911 legacy-wrong (prec=0.618), dropped 62 correct
+  bootstrap: dAUROC=[-0.093, 0.0054] (P(>0)=0.0375) dSep=[-0.049, 0.0728] (P(>0)=0.6085)
+
+Saved -> outputs/research/cpr_grounding_full/

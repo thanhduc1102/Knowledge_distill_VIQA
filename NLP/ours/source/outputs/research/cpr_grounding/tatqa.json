@@ -1,0 +1,88 @@
+{
+  "dataset": "tatqa",
+  "n": 150,
+  "missing_join": 0,
+  "raw_accuracy": 0.22,
+  "legacy_value_only": {
+    "supported_n": 142,
+    "acc_supported": 0.2324,
+    "unsupported_n": 8,
+    "acc_unsupported": 0.0,
+    "separation": 0.2324,
+    "supported_but_wrong": 109,
+    "auroc": 0.5985,
+    "risk_coverage": {
+      "curve": [
+        {
+          "coverage": 0.25,
+          "accuracy": 0.2368,
+          "risk": 0.7632
+        },
+        {
+          "coverage": 0.5,
+          "accuracy": 0.28,
+          "risk": 0.72
+        },
+        {
+          "coverage": 0.75,
+          "accuracy": 0.2411,
+          "risk": 0.7589
+        },
+        {
+          "coverage": 1.0,
+          "accuracy": 0.22,
+          "risk": 0.78
+        }
+      ],
+      "selective_acc_auc": 0.2445
+    }
+  },
+  "cpr": {
+    "supported_n": 41,
+    "acc_supported": 0.2927,
+    "unsupported_n": 109,
+    "acc_unsupported": 0.1927,
+    "separation": 0.1,
+    "supported_but_wrong": 29,
+    "auroc": 0.5338,
+    "risk_coverage": {
+      "curve": [
+        {
+          "coverage": 0.25,
+          "accuracy": 0.2895,
+          "risk": 0.7105
+        },
+        {
+          "coverage": 0.5,
+          "accuracy": 0.2133,
+          "risk": 0.7867
+        },
+        {
+          "coverage": 0.75,
+          "accuracy": 0.2054,
+          "risk": 0.7946
+        },
+        {
+          "coverage": 1.0,
+          "accuracy": 0.22,
+          "risk": 0.78
+        }
+      ],
+      "selective_acc_auc": 0.232
+    }
+  },
+  "over_firing_reduction": {
+    "legacy_supported_wrong": 109,
+    "cpr_downgraded_of_those": 80,
+    "downgrade_precision": 0.7339,
+    "legacy_supported_correct": 33,
+    "wrongly_dropped_correct": 21
+  },
+  "cpr_level_distribution": {
+    "cpr_derivable": 29,
+    "weak_value_only": 101,
+    "scaled_grounded": 4,
+    "cpr_grounded": 8,
+    "unsupported": 8
+  }
+}

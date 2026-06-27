@@ -17,6 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from itertools import combinations
 from typing import Optional
+import re
 
 from gsr_cacl.ledger.fact import FactLedger
 from gsr_cacl.ledger.numeric import parse_financial_number, extract_numbers, numbers_close
@@ -43,6 +44,7 @@ class VerificationResult:
     explanation: str = ""
     grounding_fraction: float = 0.0
     arithmetic_fraction: float = 0.0
+    normalization: str = "identity"
     step_checks: list[StepVerification] = field(default_factory=list)
 
 
@@ -75,6 +77,61 @@ def is_derivable(value: float, ledger: FactLedger, rel_tol: float = 1e-2, max_pa
         if b != 0 and numbers_close(value, (a - b) / abs(b) * 100.0, rel_tol):
             return f"percent change ({a}-{b})/{b}*100"
     return None
+
+
+_PERCENT_QUERY = re.compile(r"\b(percent|percentage|rate|ratio|margin|proportion|share|fraction)\b|%", re.I)
+
+
+def _support_variants(value: float, query: str = "") -> list[tuple[float, str]]:
+    """Candidate display-unit normalizations for annotation-free support checks.
+
+    Number-Match in this project tolerates common finance answer-scale drift
+    (percent display units and thousands/millions). The verifier must be at least
+    aware of those variants; otherwise it will re-ask answers that evaluation already
+    treats as correct. The returned label is kept in the explanation so scaled support
+    can be calibrated lower than exact cell support downstream.
+    """
+    if value is None:
+        return []
+
+    out: list[tuple[float, str]] = [(value, "identity")]
+    seen = {round(float(value), 12)}
+
+    def add(v: float, label: str) -> None:
+        key = round(float(v), 12)
+        if key not in seen:
+            seen.add(key)
+            out.append((v, label))
+
+    if _PERCENT_QUERY.search(query or ""):
+        add(value / 100.0, "percent_display_to_decimal")
+        add(value * 100.0, "percent_decimal_to_display")
+
+    # Table units often differ from answer units: values may be in thousands or
+    # millions while the answer is requested as raw units, or vice versa.
+    for factor in (1000.0, 1_000_000.0):
+        add(value / factor, f"scale_down_{factor:g}")
+        add(value * factor, f"scale_up_{factor:g}")
+
+    return out
+
+
+def _grounding_support(value: float, ledger: FactLedger, query: str,
+                       rel_tol: float) -> tuple[Optional[str], str]:
+    for v, label in _support_variants(value, query):
+        prov = is_grounded(v, ledger, rel_tol)
+        if prov is not None:
+            return prov, label
+    return None, "identity"
+
+
+def _derivation_support(value: float, ledger: FactLedger, query: str,
+                        rel_tol: float) -> tuple[Optional[str], str]:
+    for v, label in _support_variants(value, query):
+        exp = is_derivable(v, ledger, rel_tol)
+        if exp is not None:
+            return exp, label
+    return None, "identity"
 
 
 def extract_final_number(prediction: str) -> Optional[float]:
@@ -202,10 +259,13 @@ def verify(
     pred_value = extract_final_number(prediction)
     step_checks = verify_process(prediction, ledger, rel_tol)
 
-    grounded_prov = is_grounded(pred_value, ledger, rel_tol) if pred_value is not None else None
+    grounded_prov = None
+    normalization = "identity"
+    if pred_value is not None:
+        grounded_prov, normalization = _grounding_support(pred_value, ledger, query, rel_tol)
     derivable_exp = None
     if pred_value is not None and grounded_prov is None:
-        derivable_exp = is_derivable(pred_value, ledger, rel_tol)
+        derivable_exp, normalization = _derivation_support(pred_value, ledger, query, rel_tol)
 
     answer_match = False
     if gold is not None and pred_value is not None:
@@ -240,6 +300,8 @@ def verify(
         parts.append(f"grounded@{grounded_prov}")
     if derivable_exp:
         parts.append(derivable_exp)
+    if normalization != "identity":
+        parts.append(f"normalization={normalization}")
     if gold is not None:
         parts.append(f"gold_match={answer_match}")
     if step_checks:
@@ -257,5 +319,6 @@ def verify(
         explanation="; ".join(parts),
         grounding_fraction=grounding_fraction,
         arithmetic_fraction=arithmetic_fraction,
+        normalization=normalization,
         step_checks=step_checks,
     )

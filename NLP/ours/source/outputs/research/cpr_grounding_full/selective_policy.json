@@ -1,0 +1,122 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 1147,
+    "raw_accuracy": 0.0994,
+    "aurc": {
+      "legacy": 0.8838,
+      "cpr": 0.8433,
+      "cpr_calibrated": 0.8638
+    },
+    "coverage_at_target_risk": {
+      "risk<=0.4": {
+        "legacy": [
+          0.0009,
+          1.0
+        ],
+        "cpr": [
+          0.0009,
+          1.0
+        ],
+        "cpr_calibrated": [
+          0.0,
+          0.0
+        ]
+      },
+      "risk<=0.6": {
+        "legacy": [
+          0.0061,
+          0.4286
+        ],
+        "cpr": [
+          0.0044,
+          0.4
+        ],
+        "cpr_calibrated": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 3458,
+    "raw_accuracy": 0.2432,
+    "aurc": {
+      "legacy": 0.6038,
+      "cpr": 0.5937,
+      "cpr_calibrated": 0.5683
+    },
+    "coverage_at_target_risk": {
+      "risk<=0.4": {
+        "legacy": [
+          0.013,
+          0.6
+        ],
+        "cpr": [
+          0.2154,
+          0.6
+        ],
+        "cpr_calibrated": [
+          0.2432,
+          0.6005
+        ]
+      },
+      "risk<=0.6": {
+        "legacy": [
+          0.4396,
+          0.4
+        ],
+        "cpr": [
+          0.4184,
+          0.4001
+        ],
+        "cpr_calibrated": [
+          0.4719,
+          0.4001
+        ]
+      }
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 1144,
+    "raw_accuracy": 0.1399,
+    "aurc": {
+      "legacy": 0.8006,
+      "cpr": 0.7932,
+      "cpr_calibrated": 0.7778
+    },
+    "coverage_at_target_risk": {
+      "risk<=0.4": {
+        "legacy": [
+          0.0,
+          0.0
+        ],
+        "cpr": [
+          0.0026,
+          0.6667
+        ],
+        "cpr_calibrated": [
+          0.0,
+          0.0
+        ]
+      },
+      "risk<=0.6": {
+        "legacy": [
+          0.0,
+          0.0
+        ],
+        "cpr": [
+          0.0131,
+          0.4
+        ],
+        "cpr_calibrated": [
+          0.0044,
+          0.4
+        ]
+      }
+    }
+  }
+}

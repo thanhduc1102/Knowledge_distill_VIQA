@@ -1,0 +1,119 @@
+Loading Qwen/Qwen3.5-4B on device=cuda:0 dtype=float16 ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:03<24:02,  3.40s/it]Loading weights:  30%|███       | 128/426 [00:03<00:06, 49.15it/s]Loading weights:  38%|███▊      | 162/426 [00:04<00:05, 49.11it/s]Loading weights:  43%|████▎     | 183/426 [00:04<00:04, 50.42it/s]Loading weights:  46%|████▋     | 198/426 [00:05<00:04, 49.62it/s]Loading weights:  49%|████▉     | 210/426 [00:05<00:04, 46.11it/s]Loading weights:  52%|█████▏    | 220/426 [00:05<00:04, 48.66it/s]Loading weights:  54%|█████▎    | 228/426 [00:05<00:04, 46.20it/s]Loading weights:  56%|█████▌    | 238/426 [00:05<00:03, 51.71it/s]Loading weights:  58%|█████▊    | 246/426 [00:05<00:03, 53.35it/s]Loading weights:  59%|█████▉    | 253/426 [00:06<00:03, 43.58it/s]Loading weights:  61%|██████    | 259/426 [00:06<00:03, 42.65it/s]Loading weights:  62%|██████▏   | 265/426 [00:06<00:03, 44.22it/s]Loading weights:  65%|██████▌   | 277/426 [00:06<00:02, 51.96it/s]Loading weights:  66%|██████▋   | 283/426 [00:06<00:02, 53.49it/s]Loading weights:  68%|██████▊   | 291/426 [00:07<00:02, 47.46it/s]Loading weights:  72%|███████▏  | 305/426 [00:07<00:02, 58.13it/s]Loading weights:  73%|███████▎  | 312/426 [00:07<00:02, 55.44it/s]Loading weights:  77%|███████▋  | 330/426 [00:07<00:01, 73.47it/s]Loading weights:  81%|████████  | 344/426 [00:07<00:01, 72.36it/s]Loading weights:  84%|████████▍ | 358/426 [00:07<00:00, 79.73it/s]Loading weights:  86%|████████▌ | 367/426 [00:07<00:00, 76.96it/s]Loading weights:  89%|████████▉ | 379/426 [00:08<00:00, 83.22it/s]Loading weights:  91%|█████████ | 388/426 [00:08<00:00, 83.98it/s]Loading weights:  93%|█████████▎| 397/426 [00:08<00:00, 83.84it/s]Loading weights:  96%|█████████▋| 411/426 [00:08<00:00, 77.45it/s]Loading weights:  99%|█████████▊| 420/426 [00:08<00:00, 78.16it/s]Loading weights: 100%|██████████| 426/426 [00:08<00:00, 49.43it/s]
+Generating RAW for 400 examples ...
+Generating KG audit prompt for 400 examples ...
+Generating verifier-triggered REASK for 61 examples ...
+{
+  "dataset": "finqa",
+  "input": "outputs/final_retrieval/finqa/retrieval_top3.jsonl",
+  "n": 400,
+  "model": "Qwen/Qwen3.5-4B",
+  "sample": 400,
+  "seed": 42,
+  "device": "cuda:0",
+  "dtype": "float16",
+  "batch_size": 8,
+  "max_new_tokens": 32,
+  "max_input_tokens": 3072,
+  "seconds": 890.9,
+  "hardware": {
+    "torch": "2.10.0+cu128",
+    "cuda_available": true,
+    "device_count": 2,
+    "devices": [
+      {
+        "index": 0,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      },
+      {
+        "index": 1,
+        "name": "Tesla T4",
+        "memory_mib": 14911
+      }
+    ]
+  },
+  "number_match": {
+    "raw": 0.2775,
+    "kg_audit_prompt": 0.25,
+    "verify_then_reask": 0.295
+  },
+  "grounded_vs_ungrounded_raw": {
+    "supported_n": 339,
+    "supported_accuracy": 0.3186,
+    "unsupported_n": 61,
+    "unsupported_accuracy": 0.0492
+  },
+  "verifier": {
+    "raw_supported_rate": 0.8475,
+    "raw_cell_grounded_rate": 0.1775,
+    "raw_derivable_rate": 0.67,
+    "support_precision_proxy": 0.3186,
+    "support_recall_on_correct": 0.973
+  },
+  "reask": {
+    "triggered": 61,
+    "trigger_rate": 0.1525,
+    "rescued_raw_errors": 9,
+    "harmed_raw_correct": 2,
+    "hallucination_catch_rate_proxy": 0.1552
+  },
+  "risk_coverage": {
+    "raw_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.72,
+        "accuracy": 0.28,
+        "n": 100
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.715,
+        "accuracy": 0.285,
+        "n": 200
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.7,
+        "accuracy": 0.3,
+        "n": 300
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.7225,
+        "accuracy": 0.2775,
+        "n": 400
+      }
+    ],
+    "final_verifier_confidence": [
+      {
+        "coverage": 0.25,
+        "risk": 0.73,
+        "accuracy": 0.27,
+        "n": 100
+      },
+      {
+        "coverage": 0.5,
+        "risk": 0.715,
+        "accuracy": 0.285,
+        "n": 200
+      },
+      {
+        "coverage": 0.75,
+        "risk": 0.7033,
+        "accuracy": 0.2967,
+        "n": 300
+      },
+      {
+        "coverage": 1.0,
+        "risk": 0.705,
+        "accuracy": 0.295,
+        "n": 400
+      }
+    ]
+  }
+}
+Saved -> outputs/research/generation_system_q35_s400/finqa.json
+Saved -> outputs/research/generation_system_q35_s400/finqa_predictions.jsonl

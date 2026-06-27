@@ -1,0 +1,14 @@
+
+=== finqa (n=400, raw_acc=0.2775) ===
+  legacy: sep=+0.269 auroc=0.579 sup=339 sup_wrong=231
+  CPR   : sep=+0.250 auroc=0.658 sup=89 sup_wrong=47
+  over-firing: downgraded 184/231 legacy-wrong (prec=0.7965), dropped 67 correct
+  bootstrap: dAUROC=[0.0302, 0.131] (P(>0)=0.998) dSep=[-0.1481, 0.1085] (P(>0)=0.383)
+
+=== convfinqa (n=400, raw_acc=0.44) ===
+  legacy: sep=+0.350 auroc=0.640 sup=360 sup_wrong=189
+  CPR   : sep=+0.438 auroc=0.755 sup=196 sup_wrong=66
+  over-firing: downgraded 124/189 legacy-wrong (prec=0.6561), dropped 43 correct
+  bootstrap: dAUROC=[0.0716, 0.1582] (P(>0)=1.0) dSep=[-0.0366, 0.2319] (P(>0)=0.91)
+
+Saved -> outputs/research/cpr_grounding_q35s400/

@@ -1,0 +1,8 @@
+
+=== tatqa (n=1144, raw_acc=0.1399) ===
+  legacy: sep=+0.107 auroc=0.684 sup=1068 sup_wrong=911
+  CPR   : sep=+0.117 auroc=0.640 sup=456 sup_wrong=360
+  over-firing: downgraded 563/911 legacy-wrong (prec=0.618), dropped 62 correct
+  bootstrap: dAUROC=[-0.093, 0.0054] (P(>0)=0.0375) dSep=[-0.049, 0.0728] (P(>0)=0.6085)
+
+Saved -> outputs/research/_cpr_tat_fix/

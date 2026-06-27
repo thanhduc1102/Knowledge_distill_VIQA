@@ -1,0 +1,351 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 1147,
+    "missing_join": 0,
+    "raw_accuracy": 0.0994,
+    "legacy_value_only": {
+      "supported_n": 1075,
+      "acc_supported": 0.1033,
+      "unsupported_n": 72,
+      "acc_unsupported": 0.0417,
+      "separation": 0.0616,
+      "supported_but_wrong": 964,
+      "auroc": 0.5374,
+      "risk_coverage": {
+        "curve": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.108,
+            "risk": 0.892
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.1028,
+            "risk": 0.8972
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.0942,
+            "risk": 0.9058
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.0994,
+            "risk": 0.9006
+          }
+        ],
+        "selective_acc_auc": 0.1011
+      }
+    },
+    "cpr": {
+      "supported_n": 349,
+      "acc_supported": 0.1547,
+      "unsupported_n": 798,
+      "acc_unsupported": 0.0752,
+      "separation": 0.0795,
+      "supported_but_wrong": 295,
+      "auroc": 0.627,
+      "risk_coverage": {
+        "curve": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.1777,
+            "risk": 0.8223
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.122,
+            "risk": 0.878
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.1035,
+            "risk": 0.8965
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.0994,
+            "risk": 0.9006
+          }
+        ],
+        "selective_acc_auc": 0.1256
+      }
+    },
+    "bootstrap_ci95": {
+      "legacy_auroc": [
+        0.4969,
+        0.5791
+      ],
+      "cpr_auroc": [
+        0.5684,
+        0.6874
+      ],
+      "d_auroc": [
+        0.0354,
+        0.1461
+      ],
+      "legacy_sep": [
+        0.0081,
+        0.1071
+      ],
+      "cpr_sep": [
+        0.0386,
+        0.1218
+      ],
+      "d_sep": [
+        -0.0367,
+        0.0742
+      ],
+      "d_auroc_p_gt_0": 0.9985,
+      "d_sep_p_gt_0": 0.7335
+    },
+    "over_firing_reduction": {
+      "legacy_supported_wrong": 964,
+      "cpr_downgraded_of_those": 671,
+      "downgrade_precision": 0.6961,
+      "legacy_supported_correct": 111,
+      "wrongly_dropped_correct": 57
+    },
+    "cpr_level_distribution": {
+      "unsupported": 75,
+      "cpr_derivable": 292,
+      "weak_value_only": 723,
+      "scaled_grounded": 15,
+      "cpr_grounded": 42
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 3458,
+    "missing_join": 0,
+    "raw_accuracy": 0.2432,
+    "legacy_value_only": {
+      "supported_n": 3137,
+      "acc_supported": 0.2588,
+      "unsupported_n": 321,
+      "acc_unsupported": 0.0903,
+      "separation": 0.1685,
+      "supported_but_wrong": 2325,
+      "auroc": 0.7348,
+      "risk_coverage": {
+        "curve": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.5312,
+            "risk": 0.4688
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.3696,
+            "risk": 0.6304
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.2857,
+            "risk": 0.7143
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.2432,
+            "risk": 0.7568
+          }
+        ],
+        "selective_acc_auc": 0.3574
+      }
+    },
+    "cpr": {
+      "supported_n": 1579,
+      "acc_supported": 0.3876,
+      "unsupported_n": 1879,
+      "acc_unsupported": 0.1219,
+      "separation": 0.2657,
+      "supported_but_wrong": 967,
+      "auroc": 0.7406,
+      "risk_coverage": {
+        "curve": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.5417,
+            "risk": 0.4583
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.3719,
+            "risk": 0.6281
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.2903,
+            "risk": 0.7097
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.2432,
+            "risk": 0.7568
+          }
+        ],
+        "selective_acc_auc": 0.3618
+      }
+    },
+    "bootstrap_ci95": {
+      "legacy_auroc": [
+        0.7171,
+        0.7524
+      ],
+      "cpr_auroc": [
+        0.7215,
+        0.7618
+      ],
+      "d_auroc": [
+        -0.0094,
+        0.0217
+      ],
+      "legacy_sep": [
+        0.1317,
+        0.2024
+      ],
+      "cpr_sep": [
+        0.2383,
+        0.2955
+      ],
+      "d_sep": [
+        0.0618,
+        0.1372
+      ],
+      "d_auroc_p_gt_0": 0.7775,
+      "d_sep_p_gt_0": 1.0
+    },
+    "over_firing_reduction": {
+      "legacy_supported_wrong": 2325,
+      "cpr_downgraded_of_those": 1379,
+      "downgrade_precision": 0.5931,
+      "legacy_supported_correct": 812,
+      "wrongly_dropped_correct": 201
+    },
+    "cpr_level_distribution": {
+      "cpr_derivable": 989,
+      "cpr_grounded": 568,
+      "unsupported": 301,
+      "weak_value_only": 1578,
+      "scaled_grounded": 22
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 1144,
+    "missing_join": 0,
+    "raw_accuracy": 0.1399,
+    "legacy_value_only": {
+      "supported_n": 1068,
+      "acc_supported": 0.147,
+      "unsupported_n": 76,
+      "acc_unsupported": 0.0395,
+      "separation": 0.1075,
+      "supported_but_wrong": 911,
+      "auroc": 0.6841,
+      "risk_coverage": {
+        "curve": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.2413,
+            "risk": 0.7587
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.2185,
+            "risk": 0.7815
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.1643,
+            "risk": 0.8357
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.1399,
+            "risk": 0.8601
+          }
+        ],
+        "selective_acc_auc": 0.191
+      }
+    },
+    "cpr": {
+      "supported_n": 456,
+      "acc_supported": 0.2105,
+      "unsupported_n": 688,
+      "acc_unsupported": 0.093,
+      "separation": 0.1175,
+      "supported_but_wrong": 360,
+      "auroc": 0.6397,
+      "risk_coverage": {
+        "curve": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.2273,
+            "risk": 0.7727
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.1906,
+            "risk": 0.8094
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.1562,
+            "risk": 0.8438
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.1399,
+            "risk": 0.8601
+          }
+        ],
+        "selective_acc_auc": 0.1785
+      }
+    },
+    "bootstrap_ci95": {
+      "legacy_auroc": [
+        0.6451,
+        0.7231
+      ],
+      "cpr_auroc": [
+        0.5893,
+        0.6892
+      ],
+      "d_auroc": [
+        -0.093,
+        0.0054
+      ],
+      "legacy_sep": [
+        0.0558,
+        0.1522
+      ],
+      "cpr_sep": [
+        0.0747,
+        0.1652
+      ],
+      "d_sep": [
+        -0.049,
+        0.0728
+      ],
+      "d_auroc_p_gt_0": 0.0375,
+      "d_sep_p_gt_0": 0.6085
+    },
+    "over_firing_reduction": {
+      "legacy_supported_wrong": 911,
+      "cpr_downgraded_of_those": 563,
+      "downgrade_precision": 0.618,
+      "legacy_supported_correct": 157,
+      "wrongly_dropped_correct": 62
+    },
+    "cpr_level_distribution": {
+      "weak_value_only": 648,
+      "cpr_derivable": 314,
+      "cpr_grounded": 134,
+      "unsupported": 38,
+      "no_answer": 2,
+      "scaled_grounded": 8
+    }
+  }
+}
