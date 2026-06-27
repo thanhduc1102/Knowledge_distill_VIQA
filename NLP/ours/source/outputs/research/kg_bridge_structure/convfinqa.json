@@ -1,0 +1,382 @@
+{
+  "path": "outputs/final_retrieval/convfinqa/retrieval_top3.jsonl",
+  "n": 3458,
+  "top3_recall": 0.9274,
+  "original_top1_acc": 0.7279,
+  "kg_top1_acc": 0.7282,
+  "delta_top1": 0.0003,
+  "changed_frac": 0.1582,
+  "rescue_count": 225,
+  "harm_count": 224,
+  "symbolic_coverage": 0.5628,
+  "symbolic_nm_all": 0.212,
+  "symbolic_nm_when_available": 0.3767,
+  "raw_symbolic_coverage": 0.9063,
+  "raw_symbolic_nm_all": 0.2189,
+  "tiers": {
+    "PREFER_TOP1": 1776,
+    "TRUST_TOP1": 847,
+    "REVIEW": 835
+  },
+  "tier_kg_acc": {
+    "PREFER_TOP1": 0.7449,
+    "REVIEW": 0.5257,
+    "TRUST_TOP1": 0.8926
+  },
+  "policies": {
+    "override_margin>=0.10": {
+      "top1_acc": 0.7342,
+      "delta": 0.0064,
+      "changed_frac": 0.1058,
+      "rescue": 165,
+      "harm": 143
+    },
+    "override_margin>=0.15": {
+      "top1_acc": 0.7371,
+      "delta": 0.0093,
+      "changed_frac": 0.0859,
+      "rescue": 142,
+      "harm": 110
+    },
+    "override_margin>=0.20": {
+      "top1_acc": 0.7403,
+      "delta": 0.0124,
+      "changed_frac": 0.068,
+      "rescue": 124,
+      "harm": 81
+    },
+    "override_margin>=0.25": {
+      "top1_acc": 0.7397,
+      "delta": 0.0119,
+      "changed_frac": 0.0547,
+      "rescue": 103,
+      "harm": 62
+    },
+    "override_margin>=0.30": {
+      "top1_acc": 0.742,
+      "delta": 0.0142,
+      "changed_frac": 0.044,
+      "rescue": 92,
+      "harm": 43
+    },
+    "override_margin>=0.35": {
+      "top1_acc": 0.7397,
+      "delta": 0.0119,
+      "changed_frac": 0.0286,
+      "rescue": 63,
+      "harm": 22
+    },
+    "override_margin>=0.40": {
+      "top1_acc": 0.7366,
+      "delta": 0.0087,
+      "changed_frac": 0.0211,
+      "rescue": 48,
+      "harm": 18
+    },
+    "override_margin>=0.45": {
+      "top1_acc": 0.7334,
+      "delta": 0.0055,
+      "changed_frac": 0.0124,
+      "rescue": 29,
+      "harm": 10
+    },
+    "override_margin>=0.50": {
+      "top1_acc": 0.7319,
+      "delta": 0.004,
+      "changed_frac": 0.0069,
+      "rescue": 19,
+      "harm": 5
+    },
+    "override_margin>=0.60": {
+      "top1_acc": 0.7296,
+      "delta": 0.0017,
+      "changed_frac": 0.0023,
+      "rescue": 7,
+      "harm": 1
+    },
+    "trust_only": {
+      "top1_acc": 0.7334,
+      "delta": 0.0055,
+      "changed_frac": 0.0124,
+      "rescue": 29,
+      "harm": 10
+    },
+    "kg+rankprior_0.25": {
+      "top1_acc": 0.6547,
+      "delta": -0.0732,
+      "changed_frac": 0.3297,
+      "rescue": 336,
+      "harm": 589
+    },
+    "kg+rankprior_0.50": {
+      "top1_acc": 0.6588,
+      "delta": -0.0691,
+      "changed_frac": 0.3213,
+      "rescue": 331,
+      "harm": 570
+    },
+    "kg+rankprior_0.75": {
+      "top1_acc": 0.6645,
+      "delta": -0.0633,
+      "changed_frac": 0.3103,
+      "rescue": 325,
+      "harm": 544
+    },
+    "kg+rankprior_1.00": {
+      "top1_acc": 0.6764,
+      "delta": -0.0515,
+      "changed_frac": 0.2927,
+      "rescue": 322,
+      "harm": 500
+    },
+    "kg+rankprior_1.50": {
+      "top1_acc": 0.6891,
+      "delta": -0.0388,
+      "changed_frac": 0.2681,
+      "rescue": 309,
+      "harm": 443
+    },
+    "kg+rankprior_2.00": {
+      "top1_acc": 0.6964,
+      "delta": -0.0315,
+      "changed_frac": 0.2447,
+      "rescue": 291,
+      "harm": 400
+    },
+    "kg+rankprior_3.00": {
+      "top1_acc": 0.7169,
+      "delta": -0.011,
+      "changed_frac": 0.1966,
+      "rescue": 258,
+      "harm": 296
+    },
+    "kg+rankprior_4.00": {
+      "top1_acc": 0.7282,
+      "delta": 0.0003,
+      "changed_frac": 0.1582,
+      "rescue": 225,
+      "harm": 224
+    }
+  },
+  "best_policy": {
+    "name": "override_margin>=0.30",
+    "top1_acc": 0.742,
+    "delta": 0.0142,
+    "changed_frac": 0.044,
+    "rescue": 92,
+    "harm": 43
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "Celanese: As of December 31, 2010, how many shares of series A common stock were subject to outstanding awards under the 2009 Global Incentive Plan at Celanese?",
+        "gt": "convfinqa_ctx_1536",
+        "orig": "convfinqa_ctx_1758",
+        "kg": "convfinqa_ctx_1536",
+        "tier": "REVIEW",
+        "reasons": [
+          "matches period: 2009",
+          "top fact: 2009 global incentive plan",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=0.500",
+          "structure: row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "Hartford (The): What is the total value of Hartford's contractual obligations due within 1 year, as disclosed in the company's 2004 report?",
+        "gt": "convfinqa_ctx_1609",
+        "orig": "convfinqa_ctx_1163",
+        "kg": "convfinqa_ctx_1609",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple numeric operands",
+          "top fact: purchase obligations [4] [5]",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "AES Corporation: What was the decrease in revenues for AES Corporation between 2000 and 2001, as reflected in the summarized comparative financial information for its 50% or less owned investments accounted for using the equity method?",
+        "gt": "convfinqa_ctx_195",
+        "orig": "convfinqa_ctx_1560",
+        "kg": "convfinqa_ctx_195",
+        "tier": "REVIEW",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches concept: Revenue",
+          "matches period: 2000, 2001",
+          "top fact: revenues",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.000"
+        ]
+      },
+      {
+        "query": "International Paper: What was the increase in International Paper's industry segment operating profits from 2006 to 2007, as reported in the company's 2007 financial results?",
+        "gt": "convfinqa_ctx_814",
+        "orig": "convfinqa_ctx_289",
+        "kg": "convfinqa_ctx_814",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches period: 2006, 2007, 2007",
+          "top fact: industry segment operating profits",
+          "structure: concept_coverage=2.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "Marathon Oil: What was the net change in Marathon Oil's asset retirement obligations from January 1, 2008, to December 31, 2009?",
+        "gt": "convfinqa_ctx_962",
+        "orig": "convfinqa_ctx_967",
+        "kg": "convfinqa_ctx_962",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches period: 2008, 2009",
+          "top fact: asset retirement obligations as of january 1",
+          "structure: concept_coverage=1.732",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.732"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "Entergy: What was the difference in net revenue between 2009 and 2010 for Entergy Corporation, as reflected in the Selected Financial Data - Five-Year Comparison section of the 2011 report?",
+        "gt": "convfinqa_ctx_530",
+        "kg": "convfinqa_ctx_568",
+        "tier": "REVIEW",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches concept: Revenue",
+          "matches period: 2010, 2011",
+          "top fact: 2010 net revenue",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=0.667",
+          "structure: row_col_alignment=1.732"
+        ]
+      },
+      {
+        "query": "LKQ Corporation: What was the decrease in rental expense from 2017 to 2018 for LKQ Corporation?",
+        "gt": "convfinqa_ctx_333",
+        "kg": "convfinqa_ctx_371",
+        "tier": "REVIEW",
+        "reasons": [
+          "has temporal same-concept facts",
+          "top fact: lkq corporation",
+          "structure: concept_coverage=1.414",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "Nike, Inc.: What was the sale price of the Starter brand business when Nike, Inc. divested it to Iconix Brand Group, Inc. in 2007?",
+        "gt": "convfinqa_ctx_1030",
+        "kg": "convfinqa_ctx_1087",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "matches period: 2007",
+          "top fact: liability at december 31 2007",
+          "structure: concept_coverage=0.707",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=0.707"
+        ]
+      },
+      {
+        "query": "Cadence Design Systems: What number of shares would Cadence Design Systems issue to 2015 warrant counterparties at the expiration of the warrants if the Cadence closing stock price is $20.00?",
+        "gt": "convfinqa_ctx_203",
+        "kg": "convfinqa_ctx_1598",
+        "tier": "REVIEW",
+        "reasons": [
+          "top fact: cadence design systems inc .",
+          "structure: concept_coverage=1.500",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "Walmart: What was Walmart's consolidated net income for the fiscal year ending January 31, 2018, in millions?",
+        "gt": "convfinqa_ctx_395",
+        "kg": "convfinqa_ctx_415",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "matches concept: NetIncome",
+          "matches period: 2018",
+          "top fact: net income ( loss )",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.155"
+        ]
+      }
+    ],
+    "symbolic_fail": [
+      {
+        "query": "Jack Henry & Associates: What was the net cash from operating activities for Jack Henry & Associates in the fiscal year ended June 30, 2009, as reported in their 2009 annual report?",
+        "gt": "convfinqa_ctx_99",
+        "kg_doc": "convfinqa_ctx_99",
+        "gold": [
+          "206588.0",
+          "206588.0"
+        ],
+        "symbolic_answer": 174247.0,
+        "confidence": 0.85,
+        "trace": "copy 174247 from selected fact"
+      },
+      {
+        "query": "JPMorgan Chase: What was the net change in the value of litigation reserves for JPMorgan Chase during 2012, considering the additional expenses for mortgage-related matters?",
+        "gt": "convfinqa_ctx_902",
+        "kg_doc": "convfinqa_ctx_902",
+        "gold": [
+          "0.5",
+          "0.5"
+        ],
+        "symbolic_answer": -5096.0,
+        "confidence": 0.85,
+        "trace": "5145 - 10241 = -5096"
+      },
+      {
+        "query": "Entergy: What is the difference between Entergy Mississippi, Inc.'s net revenue in 2008 and 2007, as reported in the 2008 Management's Financial Discussion and Analysis?",
+        "gt": "convfinqa_ctx_561",
+        "kg_doc": "convfinqa_ctx_561",
+        "gold": [
+          "11.9",
+          "11.9"
+        ],
+        "symbolic_answer": 472.30000000000007,
+        "confidence": 0.9,
+        "trace": "959.2 - 486.9 = 472.3"
+      },
+      {
+        "query": "PNC Financial Services: What was the impact of total net charge-offs on the balance of the allowance for loan and lease losses at PNC Financial Services in 2014?",
+        "gt": "convfinqa_ctx_91",
+        "kg_doc": "convfinqa_ctx_91",
+        "gold": [
+          "531.0",
+          "531.0"
+        ],
+        "symbolic_answer": -0.2100000000000002,
+        "confidence": 0.85,
+        "trace": "1.63 - 1.84 = -0.21"
+      },
+      {
+        "query": "BlackRock: What is the net change in value of the balance of asset allocation from 2016 to 2017 for BlackRock's multi-asset products?",
+        "gt": "convfinqa_ctx_896",
+        "kg_doc": "convfinqa_ctx_896",
+        "gold": [
+          "19870.0",
+          "19870.0"
+        ],
+        "symbolic_answer": 67.0,
+        "confidence": 0.9,
+        "trace": "219 - 152 = 67"
+      }
+    ]
+  }
+}

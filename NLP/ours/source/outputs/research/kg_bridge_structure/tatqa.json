@@ -1,0 +1,386 @@
+{
+  "path": "outputs/final_retrieval/tatqa/retrieval_top3.jsonl",
+  "n": 1144,
+  "top3_recall": 0.6198,
+  "original_top1_acc": 0.326,
+  "kg_top1_acc": 0.3654,
+  "delta_top1": 0.0393,
+  "changed_frac": 0.2072,
+  "rescue_count": 86,
+  "harm_count": 41,
+  "symbolic_coverage": 0.6189,
+  "symbolic_nm_all": 0.0927,
+  "symbolic_nm_when_available": 0.1497,
+  "raw_symbolic_coverage": 0.8566,
+  "raw_symbolic_nm_all": 0.0988,
+  "tiers": {
+    "PREFER_TOP1": 597,
+    "REVIEW": 380,
+    "TRUST_TOP1": 167
+  },
+  "tier_kg_acc": {
+    "PREFER_TOP1": 0.3518,
+    "REVIEW": 0.2526,
+    "TRUST_TOP1": 0.6707
+  },
+  "policies": {
+    "override_margin>=0.10": {
+      "top1_acc": 0.3584,
+      "delta": 0.0323,
+      "changed_frac": 0.1224,
+      "rescue": 61,
+      "harm": 24
+    },
+    "override_margin>=0.15": {
+      "top1_acc": 0.3531,
+      "delta": 0.0271,
+      "changed_frac": 0.0857,
+      "rescue": 48,
+      "harm": 17
+    },
+    "override_margin>=0.20": {
+      "top1_acc": 0.3531,
+      "delta": 0.0271,
+      "changed_frac": 0.0699,
+      "rescue": 42,
+      "harm": 11
+    },
+    "override_margin>=0.25": {
+      "top1_acc": 0.3479,
+      "delta": 0.0219,
+      "changed_frac": 0.0498,
+      "rescue": 32,
+      "harm": 7
+    },
+    "override_margin>=0.30": {
+      "top1_acc": 0.3427,
+      "delta": 0.0166,
+      "changed_frac": 0.0385,
+      "rescue": 24,
+      "harm": 5
+    },
+    "override_margin>=0.35": {
+      "top1_acc": 0.3392,
+      "delta": 0.0131,
+      "changed_frac": 0.0297,
+      "rescue": 18,
+      "harm": 3
+    },
+    "override_margin>=0.40": {
+      "top1_acc": 0.3339,
+      "delta": 0.0079,
+      "changed_frac": 0.0175,
+      "rescue": 11,
+      "harm": 2
+    },
+    "override_margin>=0.45": {
+      "top1_acc": 0.3313,
+      "delta": 0.0052,
+      "changed_frac": 0.0096,
+      "rescue": 7,
+      "harm": 1
+    },
+    "override_margin>=0.50": {
+      "top1_acc": 0.3278,
+      "delta": 0.0017,
+      "changed_frac": 0.0035,
+      "rescue": 2,
+      "harm": 0
+    },
+    "override_margin>=0.60": {
+      "top1_acc": 0.326,
+      "delta": 0.0,
+      "changed_frac": 0.0,
+      "rescue": 0,
+      "harm": 0
+    },
+    "trust_only": {
+      "top1_acc": 0.3313,
+      "delta": 0.0052,
+      "changed_frac": 0.0096,
+      "rescue": 7,
+      "harm": 1
+    },
+    "kg+rankprior_0.25": {
+      "top1_acc": 0.3575,
+      "delta": 0.0315,
+      "changed_frac": 0.4729,
+      "rescue": 148,
+      "harm": 112
+    },
+    "kg+rankprior_0.50": {
+      "top1_acc": 0.3645,
+      "delta": 0.0385,
+      "changed_frac": 0.4414,
+      "rescue": 143,
+      "harm": 99
+    },
+    "kg+rankprior_0.75": {
+      "top1_acc": 0.3645,
+      "delta": 0.0385,
+      "changed_frac": 0.4213,
+      "rescue": 138,
+      "harm": 94
+    },
+    "kg+rankprior_1.00": {
+      "top1_acc": 0.3698,
+      "delta": 0.0437,
+      "changed_frac": 0.4021,
+      "rescue": 135,
+      "harm": 85
+    },
+    "kg+rankprior_1.50": {
+      "top1_acc": 0.3785,
+      "delta": 0.0524,
+      "changed_frac": 0.3601,
+      "rescue": 128,
+      "harm": 68
+    },
+    "kg+rankprior_2.00": {
+      "top1_acc": 0.3829,
+      "delta": 0.0568,
+      "changed_frac": 0.3392,
+      "rescue": 124,
+      "harm": 59
+    },
+    "kg+rankprior_3.00": {
+      "top1_acc": 0.3794,
+      "delta": 0.0533,
+      "changed_frac": 0.2666,
+      "rescue": 110,
+      "harm": 49
+    },
+    "kg+rankprior_4.00": {
+      "top1_acc": 0.3654,
+      "delta": 0.0393,
+      "changed_frac": 0.2072,
+      "rescue": 86,
+      "harm": 41
+    }
+  },
+  "best_policy": {
+    "name": "kg+rankprior_2.00",
+    "top1_acc": 0.3829,
+    "delta": 0.0568,
+    "changed_frac": 0.3392,
+    "rescue": 124,
+    "harm": 59
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "jabil-circuit-inc: What was the net cash provided by investing activities for Jabil Circuit Inc. in the fiscal year ended August 31, 2018?",
+        "gt": "0b31ec7e0200c0354c067a2cf192f4af",
+        "orig": "f4e5e687e6185cabde6d70a4d37f729f",
+        "kg": "0b31ec7e0200c0354c067a2cf192f4af",
+        "tier": "REVIEW",
+        "reasons": [
+          "matches concept: CashAndEquivalents",
+          "matches period: 2018",
+          "top fact: Net cash (used in) provided by",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.500"
+        ]
+      },
+      {
+        "query": "shopify-inc: What is the average total operating expenses for the years 2018 and 2019 in the Shopify Inc. consolidated statement of operations?",
+        "gt": "1af49cc81138fdb7e0edcaf74ad5d65e",
+        "orig": "e1ef25219f548f22cbbde23287dfcb31",
+        "kg": "1af49cc81138fdb7e0edcaf74ad5d65e",
+        "tier": "TRUST_TOP1",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches concept: OperatingExpenses",
+          "matches period: 2018, 2019",
+          "top fact: **Total operating expenses**",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.732"
+        ]
+      },
+      {
+        "query": "shopify-inc: What is the average total operating expenses for the years 2017 and 2018 in the consolidated statement of operations for Shopify Inc.?",
+        "gt": "1af49cc81138fdb7e0edcaf74ad5d65e",
+        "orig": "e1ef25219f548f22cbbde23287dfcb31",
+        "kg": "1af49cc81138fdb7e0edcaf74ad5d65e",
+        "tier": "TRUST_TOP1",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches concept: OperatingExpenses",
+          "matches period: 2017, 2018",
+          "top fact: **Total operating expenses**",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.732"
+        ]
+      },
+      {
+        "query": "shopify-inc: What is the change in the average total operating expenses between the years 2017-2018 and 2018-2019 for Shopify Inc.?",
+        "gt": "1af49cc81138fdb7e0edcaf74ad5d65e",
+        "orig": "e1ef25219f548f22cbbde23287dfcb31",
+        "kg": "1af49cc81138fdb7e0edcaf74ad5d65e",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches concept: OperatingExpenses",
+          "matches period: 2017, 2018, 2018",
+          "top fact: **Total operating expenses**",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.732"
+        ]
+      },
+      {
+        "query": "amcon-distributing-company: What is the percentage increase in Amcon Distributing Company's net owned property and equipment from $15,768,484 in September 2018 to $17,655,415 in September 2019?",
+        "gt": "2145fa4a784df129c0fcf87f7542d442",
+        "orig": "46611af19bb6d59b45ed9398ceb447b4",
+        "kg": "2145fa4a784df129c0fcf87f7542d442",
+        "tier": "REVIEW",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches period: 2018, 2019",
+          "top fact: Net income available to",
+          "structure: concept_coverage=0.577",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=0.577"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "rogers-communications-inc: What was the increase in Rogers Communications' wireless capital expenditures from 2018 to 2019, as reflected in the company's 2019 financial report?",
+        "gt": "1424e718ab72e7d0bc792bbed0f42df6",
+        "kg": "c879b6679a5d542ee56b45b1bc6135bd",
+        "tier": "REVIEW",
+        "reasons": [
+          "matches concept: CapitalExpenditure",
+          "top fact: Capital expenditures",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "rogers-communications-inc: What was the percentage increase in Rogers Communications' total capital expenditures from 2018 to 2019?",
+        "gt": "1424e718ab72e7d0bc792bbed0f42df6",
+        "kg": "c879b6679a5d542ee56b45b1bc6135bd",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "matches concept: CapitalExpenditure",
+          "top fact: Capital expenditures",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "jabil-circuit-inc: What was the percentage point change in the discount rate used for the net periodic benefit cost between the fiscal years 2018 and 2019 for Jabil Circuit Inc?",
+        "gt": "1a8874a4f3c3f8044c083509da0746b2",
+        "kg": "be3bf6044a6f9f73147b3fe3b2b31058",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple operands in a period",
+          "matches period: 2018, 2019",
+          "top fact: Net periodic benefit cost",
+          "structure: concept_coverage=2.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "plexus-corp: What was the revenue from the AMER segment for the Aerospace/Defense market sector in the fiscal year ended September 28, 2019?",
+        "gt": "39b64d6ba35c2776887244237e544c22",
+        "kg": "f55af67c58d460465c74cdde6bb87374",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "matches concept: Revenue",
+          "matches period: 2019",
+          "top fact: **Net sales:**",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.500"
+        ]
+      },
+      {
+        "query": "plexus-corp: What percentage of the total Industrial/Commercial revenue did the AMER region contribute for the fiscal year ended September 28, 2019?",
+        "gt": "39b64d6ba35c2776887244237e544c22",
+        "kg": "9756395ea715fcdb1d395119de4ca969",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple operands in a period",
+          "2 accounting identity checks hold",
+          "matches concept: Revenue",
+          "matches period: 2019",
+          "top fact: Net sales",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.000"
+        ]
+      }
+    ],
+    "symbolic_fail": [
+      {
+        "query": "bce-inc: What is the difference in the number of BCE retail subscribers between Wireless and High-speed Internet in 2018?",
+        "gt": "03a1386971da69e2cd625b87239694d4",
+        "kg_doc": "a8c11cade3237853c6a6869143f7ec37",
+        "gold": [
+          "6.2",
+          "6.2"
+        ],
+        "symbolic_answer": 19262.0,
+        "confidence": 0.9,
+        "trace": "135861 - 116599 = 19262"
+      },
+      {
+        "query": "bce-inc: What percentage of BCE's total retail subscribers in 2019 were Wireless subscribers?",
+        "gt": "03a1386971da69e2cd625b87239694d4",
+        "kg_doc": "97713ac81607b0c80435cf611d04bba3",
+        "gold": [
+          "52.48",
+          "52.48"
+        ],
+        "symbolic_answer": 4.3,
+        "confidence": 0.9,
+        "trace": "copy 4.3 from selected percent fact"
+      },
+      {
+        "query": "united-micro-electronics-corp: What is the percentage point increase in the proportion of UMC's wafer sales for communication devices from 2018 to 2019?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg_doc": "03a98443a7286862ffe1b6bcc2193e54",
+        "gold": [
+          "7.0",
+          "7"
+        ],
+        "symbolic_answer": 1.4580645161290324,
+        "confidence": 0.85,
+        "trace": "45.2 / 31 = 1.45806451613"
+      },
+      {
+        "query": "united-micro-electronics-corp: What is the average percentage of United Microelectronics Corporation's wafer sales for consumer applications over the three years ended December 31, 2017, 2018, and 2019?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg_doc": "03a98443a7286862ffe1b6bcc2193e54",
+        "gold": [
+          "28.13",
+          "28.13"
+        ],
+        "symbolic_answer": 0.9483870967741935,
+        "confidence": 0.85,
+        "trace": "29.4 / 31 = 0.948387096774"
+      },
+      {
+        "query": "united-micro-electronics-corp: What was the percentage point increase in the 'Others' category of UMC's wafer sales from 2017 to 2018?",
+        "gt": "03a98443a7286862ffe1b6bcc2193e54",
+        "kg_doc": "03a98443a7286862ffe1b6bcc2193e54",
+        "gold": [
+          "1.0",
+          "1"
+        ],
+        "symbolic_answer": 0.2870967741935484,
+        "confidence": 0.85,
+        "trace": "8.9 / 31 = 0.287096774194"
+      }
+    ]
+  }
+}

@@ -289,6 +289,154 @@
       "either": 0.148
     }
   },
+  "structure_graph": {
+    "finqa": {
+      "original_top1_acc": 0.6417,
+      "structure_only_top1_acc": 0.5902,
+      "best_policy": {
+        "name": "structure+rankprior_1.00",
+        "top1_acc": 0.6504,
+        "delta": 0.0087,
+        "changed_frac": 0.1055,
+        "rescue": 51,
+        "harm": 41
+      },
+      "gold_score_mean": 0.8084,
+      "non_gold_score_mean": 0.4992,
+      "avg_graph_stats": {
+        "edges": 75.408,
+        "edges_accounting_identity_support": 0.002,
+        "edges_column_contains_fact": 14.147,
+        "edges_has_column": 14.147,
+        "edges_has_concept": 2.496,
+        "edges_has_period": 10.302,
+        "edges_has_row": 14.147,
+        "edges_has_table": 1.0,
+        "edges_row_contains_fact": 14.147,
+        "edges_same_concept_temporal": 5.02,
+        "nodes": 27.561,
+        "nodes_column": 2.729,
+        "nodes_concept": 0.774,
+        "nodes_document": 1.0,
+        "nodes_fact": 14.147,
+        "nodes_period": 2.41,
+        "nodes_row": 5.501,
+        "nodes_table": 1.0
+      }
+    },
+    "convfinqa": {
+      "original_top1_acc": 0.7279,
+      "structure_only_top1_acc": 0.6486,
+      "best_policy": {
+        "name": "structure+rankprior_2.00",
+        "top1_acc": 0.7377,
+        "delta": 0.0098,
+        "changed_frac": 0.0127,
+        "rescue": 36,
+        "harm": 2
+      },
+      "gold_score_mean": 0.7929,
+      "non_gold_score_mean": 0.489,
+      "avg_graph_stats": {
+        "edges": 71.023,
+        "edges_accounting_identity_support": 0.022,
+        "edges_column_contains_fact": 13.308,
+        "edges_has_column": 13.308,
+        "edges_has_concept": 2.733,
+        "edges_has_period": 9.402,
+        "edges_has_row": 13.308,
+        "edges_has_table": 1.0,
+        "edges_row_contains_fact": 13.308,
+        "edges_same_concept_temporal": 4.634,
+        "nodes": 26.458,
+        "nodes_column": 2.711,
+        "nodes_concept": 0.831,
+        "nodes_document": 1.0,
+        "nodes_fact": 13.308,
+        "nodes_period": 2.422,
+        "nodes_row": 5.186,
+        "nodes_table": 1.0
+      }
+    },
+    "tatqa": {
+      "original_top1_acc": 0.326,
+      "structure_only_top1_acc": 0.3663,
+      "best_policy": {
+        "name": "structure+rankprior_0.25",
+        "top1_acc": 0.3767,
+        "delta": 0.0507,
+        "changed_frac": 0.2955,
+        "rescue": 116,
+        "harm": 58
+      },
+      "gold_score_mean": 0.9345,
+      "non_gold_score_mean": 0.7097,
+      "avg_graph_stats": {
+        "edges": 141.995,
+        "edges_accounting_identity_support": 0.129,
+        "edges_column_contains_fact": 28.133,
+        "edges_has_column": 28.133,
+        "edges_has_concept": 9.003,
+        "edges_has_period": 15.188,
+        "edges_has_row": 28.133,
+        "edges_has_table": 1.0,
+        "edges_row_contains_fact": 28.133,
+        "edges_same_concept_temporal": 4.141,
+        "nodes": 45.325,
+        "nodes_column": 3.684,
+        "nodes_concept": 2.527,
+        "nodes_document": 1.0,
+        "nodes_fact": 28.133,
+        "nodes_period": 2.566,
+        "nodes_row": 6.415,
+        "nodes_table": 1.0
+      }
+    }
+  },
+  "kg_bridge_with_structure": {
+    "finqa": {
+      "original_top1_acc": 0.6417,
+      "kg_top1_acc": 0.6443,
+      "best_policy": {
+        "name": "override_margin>=0.20",
+        "top1_acc": 0.6617,
+        "delta": 0.0201,
+        "changed_frac": 0.0828,
+        "rescue": 50,
+        "harm": 27
+      },
+      "symbolic_coverage": 0.5946,
+      "symbolic_nm_when_available": 0.2346
+    },
+    "convfinqa": {
+      "original_top1_acc": 0.7279,
+      "kg_top1_acc": 0.7282,
+      "best_policy": {
+        "name": "override_margin>=0.30",
+        "top1_acc": 0.742,
+        "delta": 0.0142,
+        "changed_frac": 0.044,
+        "rescue": 92,
+        "harm": 43
+      },
+      "symbolic_coverage": 0.5628,
+      "symbolic_nm_when_available": 0.3767
+    },
+    "tatqa": {
+      "original_top1_acc": 0.326,
+      "kg_top1_acc": 0.3654,
+      "best_policy": {
+        "name": "kg+rankprior_2.00",
+        "top1_acc": 0.3829,
+        "delta": 0.0568,
+        "changed_frac": 0.3392,
+        "rescue": 124,
+        "harm": 59
+      },
+      "symbolic_coverage": 0.6189,
+      "symbolic_nm_when_available": 0.1497
+    }
+  },
   "global_failure_audit": {
     "datasets": {
       "finqa": {

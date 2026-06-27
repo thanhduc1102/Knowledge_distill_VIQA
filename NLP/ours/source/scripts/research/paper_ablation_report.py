@@ -43,6 +43,11 @@ def main():
     learned = {}
     for ds in ("finqa", "convfinqa", "tatqa"):
         learned[ds] = _read(f"outputs/research/learned_coordinate/{ds}.json")
+    structure = {}
+    bridge_structure = {}
+    for ds in ("finqa", "convfinqa", "tatqa"):
+        structure[ds] = _read(f"outputs/research/structure_graph/{ds}.json")
+        bridge_structure[ds] = _read(f"outputs/research/kg_bridge_structure/{ds}.json")
     financebench = _read("outputs/research/external_financebench/financebench_retrieval.json")
     failure = _read("outputs/research/global_failure_audit.json")
 
@@ -71,6 +76,27 @@ def main():
         },
         "learned_coordinate": {
             ds: v["all"] for ds, v in learned.items()
+        },
+        "structure_graph": {
+            ds: {
+                "original_top1_acc": v["original_top1_acc"],
+                "structure_only_top1_acc": v["structure_only_top1_acc"],
+                "best_policy": v["best_policy"],
+                "gold_score_mean": v["score_gold_mean"],
+                "non_gold_score_mean": v["score_non_gold_mean"],
+                "avg_graph_stats": v["avg_graph_stats"],
+            }
+            for ds, v in structure.items()
+        },
+        "kg_bridge_with_structure": {
+            ds: {
+                "original_top1_acc": v["original_top1_acc"],
+                "kg_top1_acc": v["kg_top1_acc"],
+                "best_policy": v["best_policy"],
+                "symbolic_coverage": v["symbolic_coverage"],
+                "symbolic_nm_when_available": v["symbolic_nm_when_available"],
+            }
+            for ds, v in bridge_structure.items()
         },
         "global_failure_audit": failure,
     }

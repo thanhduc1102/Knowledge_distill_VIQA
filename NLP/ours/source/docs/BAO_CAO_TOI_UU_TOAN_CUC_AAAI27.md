@@ -5,7 +5,7 @@
 Trọng tâm không còn là "KG giúp LLM trả lời đúng hơn trong mọi trường hợp". Kết quả thực
 nghiệm phản đối claim đó. Trọng tâm phù hợp hơn là:
 
-**Auditable Conditional-Salience Retrieval for Financial RAG**
+**Structure-Aware, Auditable Retrieval for Financial RAG**
 
 Nói ngắn gọn: trong QA tài chính, hệ thống phải giải hai bài toán:
 
@@ -16,7 +16,8 @@ Nói ngắn gọn: trong QA tài chính, hệ thống phải giải hai bài to�
 
 Vì vậy đóng góp nên xoay quanh:
 
-- `loclex` / conditional salience: IDF tính lại trong pool cùng công ty/tài liệu.
+- Structure-level KG: đồ thị document/table/row/column/fact/concept/period.
+- `loclex` / conditional salience: baseline sparse mạnh trong pool cùng công ty/tài liệu.
 - Fact Ledger: lớp kiểm toán, provenance, risk-coverage và verify-then-reask.
 - Đánh giá artifact-controlled: tách hiệu ứng metadata/pool nhỏ khỏi năng lực rank thực sự.
 
@@ -276,6 +277,54 @@ TAT-DQA cần tín hiệu cấu trúc:
 - multi-table context.
 
 Không nên kỳ vọng dense hoặc loclex tự giải quyết hoàn toàn.
+
+### Vòng 6: Structure-level KG arbitration
+
+Đã triển khai `src/gsr_cacl/kg/structure_graph.py` và
+`scripts/research/structure_graph_eval.py`.
+
+Graph gồm các node:
+
+- document;
+- table;
+- row;
+- column;
+- fact/cell;
+- concept;
+- period.
+
+Edges:
+
+- document -> table;
+- table -> row/column;
+- row/column -> fact;
+- fact -> concept/period;
+- temporal same-concept edges;
+- accounting-support edges khi có.
+
+Kết quả structure graph riêng:
+
+| Dataset | Original top1 | Structure-only top1 | Best structure policy |
+|---|---:|---:|---:|
+| FinQA | 0.6417 | 0.5902 | 0.6504 |
+| ConvFinQA | 0.7279 | 0.6486 | 0.7377 |
+| TAT-DQA | 0.3260 | 0.3663 | 0.3767 |
+
+Sau khi tích hợp vào KG bridge:
+
+| Dataset | Original top1 | Best gated KG/structure top1 | Delta |
+|---|---:|---:|---:|
+| FinQA | 0.6417 | 0.6617 | +0.0201 |
+| ConvFinQA | 0.7279 | 0.7420 | +0.0142 |
+| TAT-DQA | 0.3260 | 0.3829 | +0.0568 |
+
+Đánh giá khách quan:
+
+- Đây là bằng chứng KG/structure-level tốt nhất hiện tại.
+- Structure-only không thay thế retrieval được, nhưng khi dùng rank/confidence gating thì cải thiện
+  cả 3 dataset.
+- TAT-DQA hưởng lợi lớn nhất, đúng với giả thuyết rằng bảng phi chuẩn cần cấu trúc hơn lexical.
+- Đây nên là contribution KG chính, còn `loclex` là strong sparse baseline/conditional salience.
 
 ## 7. Kết luận
 

@@ -1,0 +1,282 @@
+{
+  "path": "outputs/final_retrieval/tatqa/retrieval_top3.jsonl",
+  "n": 1144,
+  "top3_recall": 0.6198,
+  "original_top1_acc": 0.326,
+  "structure_only_top1_acc": 0.3663,
+  "score_gold_mean": 0.9345,
+  "score_non_gold_mean": 0.7097,
+  "avg_graph_stats": {
+    "edges": 141.995,
+    "edges_accounting_identity_support": 0.129,
+    "edges_column_contains_fact": 28.133,
+    "edges_has_column": 28.133,
+    "edges_has_concept": 9.003,
+    "edges_has_period": 15.188,
+    "edges_has_row": 28.133,
+    "edges_has_table": 1.0,
+    "edges_row_contains_fact": 28.133,
+    "edges_same_concept_temporal": 4.141,
+    "nodes": 45.325,
+    "nodes_column": 3.684,
+    "nodes_concept": 2.527,
+    "nodes_document": 1.0,
+    "nodes_fact": 28.133,
+    "nodes_period": 2.566,
+    "nodes_row": 6.415,
+    "nodes_table": 1.0
+  },
+  "policies": {
+    "structure+rankprior_0.00": {
+      "top1_acc": 0.3663,
+      "delta": 0.0402,
+      "changed_frac": 0.4371,
+      "rescue": 149,
+      "harm": 103
+    },
+    "structure+rankprior_0.25": {
+      "top1_acc": 0.3767,
+      "delta": 0.0507,
+      "changed_frac": 0.2955,
+      "rescue": 116,
+      "harm": 58
+    },
+    "structure+rankprior_0.50": {
+      "top1_acc": 0.3715,
+      "delta": 0.0455,
+      "changed_frac": 0.1871,
+      "rescue": 82,
+      "harm": 30
+    },
+    "structure+rankprior_1.00": {
+      "top1_acc": 0.347,
+      "delta": 0.021,
+      "changed_frac": 0.0524,
+      "rescue": 30,
+      "harm": 6
+    },
+    "structure+rankprior_2.00": {
+      "top1_acc": 0.3313,
+      "delta": 0.0052,
+      "changed_frac": 0.0061,
+      "rescue": 6,
+      "harm": 0
+    },
+    "structure+rankprior_4.00": {
+      "top1_acc": 0.326,
+      "delta": 0.0,
+      "changed_frac": 0.0,
+      "rescue": 0,
+      "harm": 0
+    }
+  },
+  "best_policy": {
+    "name": "structure+rankprior_0.25",
+    "top1_acc": 0.3767,
+    "delta": 0.0507,
+    "changed_frac": 0.2955,
+    "rescue": 116,
+    "harm": 58
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "nortonlifelock-inc: What is the percentage increase in Mr. Kapuria's salary from $390,000 to $450,000, as reflected in the FY19 base salary table for Nortonlifelock-inc's named executive officers?",
+        "orig": "dbab56c6c9ced463d8eb498d67c8bc9c",
+        "chosen": "0460e7ea49622c1702dc26530eda21b8",
+        "score": 1.1571147352221454,
+        "reasons": [
+          "concept_coverage=1.512",
+          "period_coverage=1.000",
+          "row_col_alignment=1.512"
+        ]
+      },
+      {
+        "query": "aci-worldwide-inc: What was the percentage decrease in aci-worldwide-inc's Gross deferred income tax assets from $131,128 in 2018 to $124,387 in 2019, as reported in the company's 2019 financial statements?",
+        "orig": "eadb89dffa4969819ce7deb63d4044d4",
+        "chosen": "0551beccb943904e051f6f2a1519bd3a",
+        "score": 1.051961359422333,
+        "reasons": [
+          "concept_coverage=2.236",
+          "period_coverage=0.500",
+          "row_col_alignment=0.577"
+        ]
+      },
+      {
+        "query": "jabil-circuit-inc: What was the net cash provided by investing activities for Jabil Circuit Inc. in the fiscal year ended August 31, 2018?",
+        "orig": "f4e5e687e6185cabde6d70a4d37f729f",
+        "chosen": "0b31ec7e0200c0354c067a2cf192f4af",
+        "score": 0.975,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.500"
+        ]
+      },
+      {
+        "query": "cubic-corp: What percentage increase in sales did Cubic Transportation Systems experience from fiscal 2018 to fiscal 2019?",
+        "orig": "d3c9add667b6c3becf80b0fa3e05e1bd",
+        "chosen": "0fa66bdde5dce465760cf558173d40c6",
+        "score": 1.1582482904638631,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.633",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "cubic-corp: What is the average annual operating income for Cubic Transportation Systems in fiscal years 2018 and 2019?",
+        "orig": "7d78a34a2e6637744cc173f8db6b8c96",
+        "chosen": "0fa66bdde5dce465760cf558173d40c6",
+        "score": 1.0035533905932736,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has arithmetic operand structure"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "teekay-corporation: What is the change in Interest expense from 2019 to 2018 for Teekay Corporation?",
+        "chosen": "7735c3230ab7b6a22f084166036e93dd",
+        "score": 1.0,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.000",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "american-tower-corporation: What was the other expense (income) for American Tower Corporation in 2017, as reported in the reconciliation of adjusted EBITDA to net income?",
+        "chosen": "e0e37989c1b2a2a688220c3057f07276",
+        "score": 1.0724555912615341,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.890"
+        ]
+      },
+      {
+        "query": "american-tower-corporation: What was the interest expense for American Tower Corporation in 2019, as reported in the reconciliation of adjusted EBITDA to net income?",
+        "chosen": "1e7efe3dda03347eed8de43cda1c1073",
+        "score": 1.0166666666666666,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.667"
+        ]
+      },
+      {
+        "query": "american-tower-corporation: What was the percentage change in Interest expense for american-tower-corporation between 2015 and 2016 as per the RECONCILIATION OF ADJUSTED EBITDA TO NET INCOME table in the 2019 report?",
+        "chosen": "e0e37989c1b2a2a688220c3057f07276",
+        "score": 0.9891222579282006,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.667",
+          "row_col_alignment=1.890"
+        ]
+      },
+      {
+        "query": "nordic-american-tankers-limited: What is the average voyage revenue for Nordic American Tankers Limited in the years 2018 and 2019, according to the Selected Consolidated Financial Data in the 2019 annual report?",
+        "chosen": "9369cf38757ad3e31c53eb5e8304934e",
+        "score": 1.0035533905932736,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has arithmetic operand structure"
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "query": "spirent-communications-plc: In which year did the non-current assets in the Asia Pacific region exceed those of the previous year, as reported by Spirent Communications Plc in their 2019 financial report?",
+        "doc": "71a02e93f0685b7c77ee617becc752cb",
+        "score": 1.0536,
+        "paths": [
+          "document -> table -> row[1:Asia Pacific] -> col[1:2019] -> value[7.4]",
+          "document -> table -> row[1:Asia Pacific] -> col[2:2018] -> value[4.4]",
+          "document -> table -> row[-1:and Africa includes United Kingdom non-current assets of] -> col[-1:2018] -> value[$6.9]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has temporal structure for multi-period reasoning"
+        ]
+      },
+      {
+        "query": "spirent-communications-plc: What percentage of the total non-current assets in Europe, Middle East and Africa did the United Kingdom's $6.9 million non-current assets represent in 2019?",
+        "doc": "71a02e93f0685b7c77ee617becc752cb",
+        "score": 1.15,
+        "paths": [
+          "document -> table -> row[-1:Africa includes United Kingdom non-current assets of million] -> col[-1:2018] -> value[$2.0]",
+          "document -> table -> row[-1:and Africa includes United Kingdom non-current assets of] -> col[-1:2018] -> value[$6.9]",
+          "document -> table -> row[2:Europe, Middle East and Africa] -> col[1:2019] -> value[11.5]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=2.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "spirent-communications-plc: What was the percentage change in Spirent Communications Plc's non-current assets in the Asia Pacific region from 2018 to 2019?",
+        "doc": "71a02e93f0685b7c77ee617becc752cb",
+        "score": 1.1036,
+        "paths": [
+          "document -> table -> row[1:Asia Pacific] -> col[1:2019] -> value[7.4]",
+          "document -> table -> row[1:Asia Pacific] -> col[2:2018] -> value[4.4]",
+          "document -> table -> row[-1:and Africa includes United Kingdom non-current assets of] -> col[-1:2018] -> value[$6.9]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "bce-inc: What percentage change occurred in the number of BCE retail wireless subscribers from 2018 to 2019?",
+        "doc": "a8c11cade3237853c6a6869143f7ec37",
+        "score": 1.2485,
+        "paths": [
+          "document -> table -> row[1:Retail subscribers\\(^{(1)(2)}\\)] -> col[1:2019] -> value[3,555,601]",
+          "document -> table -> row[1:Retail subscribers\\(^{(1)(2)}\\)] -> col[2:2018] -> value[3,410,374]",
+          "document -> table -> row[1:Retail subscribers\\(^{(1)(2)}\\)] -> col[3:] -> value[145,227]"
+        ],
+        "reasons": [
+          "concept_coverage=1.414",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "bce-inc: In what year did BCE welcome the highest number of new subscribers for retail Internet, IPTV, and wireless, with a total of 16.29 million subscribers?",
+        "doc": "a8c11cade3237853c6a6869143f7ec37",
+        "score": 1.1485,
+        "paths": [
+          "document -> table -> row[1:Retail subscribers\\(^{(1)(2)}\\)] -> col[1:2019] -> value[3,555,601]",
+          "document -> table -> row[1:Retail subscribers\\(^{(1)(2)}\\)] -> col[2:2018] -> value[3,410,374]",
+          "document -> table -> row[1:Retail subscribers\\(^{(1)(2)}\\)] -> col[3:] -> value[145,227]"
+        ],
+        "reasons": [
+          "concept_coverage=1.414",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has arithmetic operand structure"
+        ]
+      }
+    ]
+  }
+}

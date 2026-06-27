@@ -1,8 +1,9 @@
-# GSR-CACL → LEDGER-RAG: Auditable Conditional-Salience Retrieval for Financial RAG
+# GSR-CACL → LEDGER-RAG: Structure-Aware Auditable Retrieval for Financial RAG
 
-> **Current paper direction (AAAI-27):** conditional-salience retrieval + Fact-Ledger
-> verification/provenance for financial RAG.  The system no longer claims that KG evidence
-> universally improves end-to-end Number Match; KG is used as an audit/calibration layer.
+> **Current paper direction (AAAI-27):** typed structure-level KG + conditional-salience
+> retrieval + Fact-Ledger verification/provenance for financial RAG.  The graph is used
+> across retrieval arbitration, evidence planning, and LLM support, while avoiding the
+> overclaim that KG evidence universally improves end-to-end Number Match.
 
 ---
 
@@ -10,6 +11,8 @@
 
 The strongest evidence in this repository supports the following claims:
 
+- **Structure-level KG:** document/table/row/column/fact/concept/period graph improves
+  top-k evidence focus when used with confidence/rank gating.
 - **Conditional salience:** pool-local IDF (`loclex`) is a robust signal for choosing the
   right financial evidence inside an entity/company cluster.
 - **External validity:** the same pattern holds on FinanceBench evidence retrieval, outside
@@ -22,6 +25,8 @@ Start with:
 
 - **[docs/AAAI27_FINAL_DIRECTION.md](docs/AAAI27_FINAL_DIRECTION.md)** — final paper
   direction, safe claims, negative results, and required remaining work.
+- **[docs/STRUCTURE_KG_METHOD_AAAI27.md](docs/STRUCTURE_KG_METHOD_AAAI27.md)** —
+  structure-level KG method, integration points, and arbitration results.
 - **[docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md](docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md)** —
   báo cáo tối ưu toàn cục bằng tiếng Việt, gồm claim registry, phản chứng, và hướng tối ưu.
 - **[docs/DANH_GIA_TOAN_DIEN.md](docs/DANH_GIA_TOAN_DIEN.md)** — broader historical

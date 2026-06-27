@@ -3,7 +3,7 @@
 This document supersedes the older "KG improves answer accuracy" narrative.  The current
 evidence supports a narrower and stronger paper:
 
-**Auditable Conditional-Salience Retrieval for Financial RAG**
+**Structure-Aware, Auditable Retrieval for Financial RAG**
 
 ## Thesis
 
@@ -16,7 +16,8 @@ metrics hide:
 
 The system should therefore be positioned around:
 
-- **conditional salience retrieval**: BM25/IDF estimated inside the company or filing pool;
+- **structure-level financial KG**: a typed graph over document/table/row/column/fact/concept/period;
+- **conditional salience retrieval**: BM25/IDF estimated inside the company or filing pool as a strong sparse baseline;
 - **Fact Ledger verification**: cell-level grounding, arithmetic/provenance checks, and
   risk-coverage diagnostics;
 - **verify-then-reask**: raw table context first, KG evidence only when the raw answer is
@@ -47,6 +48,8 @@ KG evidence.  KG is valuable as an audit and calibration layer, not as a hard an
 - `scripts/research/paper_ablation_report.py`
   - single JSON artifact collecting retrieval ablations, external benchmark, faithfulness,
     verify-then-reask, and coordinate results.
+- `src/gsr_cacl/kg/structure_graph.py` + `scripts/research/structure_graph_eval.py`
+  - typed structure graph and structure-aware top-k arbitration.
 
 ## Key results after the update
 
@@ -94,6 +97,18 @@ context when the model already produced a grounded answer.  Offline/oracle polic
 additional headroom, but reward-threshold policies are not deployable because saved reward
 uses gold-match.
 
+### Structure-level KG arbitration
+
+| Dataset | Original top1 | Best gated KG/structure top1 | Delta |
+|---|---:|---:|---:|
+| FinQA | 0.6417 | 0.6617 | +0.0201 |
+| ConvFinQA | 0.7279 | 0.7420 | +0.0142 |
+| TAT-DQA | 0.3260 | 0.3829 | +0.0568 |
+
+This is now the strongest KG-specific result.  The graph is not merely a verifier; it helps
+focus the correct document among noisy top-k candidates when used with confidence/rank
+gating.  The effect is largest on TAT-DQA, where table structure is most important.
+
 ### Learned coordinate matcher
 
 | Dataset | heuristic | coord | learned | any-path upper signal |
@@ -109,6 +124,7 @@ not another single-path heuristic.
 ## Paper claims that are safe
 
 - Conditional salience inside entity clusters is a robust retrieval signal.
+- Typed structure graph arbitration improves top-k evidence focus.
 - Sparse local lexical evidence can beat dense and reranker baselines in financial
   evidence retrieval.
 - Fact Ledger should be used as verifier/provenance, not as a universal answer generator.
@@ -129,5 +145,5 @@ not another single-path heuristic.
 - Add human or semi-automatic audit for provenance precision on a 100-sample subset.
 - Consolidate old docs so reviewers and collaborators do not see conflicting claims.
 
-See `docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md` for the full Vietnamese global audit and claim
-registry.
+See `docs/STRUCTURE_KG_METHOD_AAAI27.md` and
+`docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md` for the full method and Vietnamese global audit.

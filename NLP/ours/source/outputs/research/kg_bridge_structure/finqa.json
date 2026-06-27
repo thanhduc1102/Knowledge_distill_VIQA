@@ -1,0 +1,383 @@
+{
+  "path": "outputs/final_retrieval/finqa/retrieval_top3.jsonl",
+  "n": 1147,
+  "top3_recall": 0.8675,
+  "original_top1_acc": 0.6417,
+  "kg_top1_acc": 0.6443,
+  "delta_top1": 0.0026,
+  "changed_frac": 0.17,
+  "rescue_count": 71,
+  "harm_count": 68,
+  "symbolic_coverage": 0.5946,
+  "symbolic_nm_all": 0.1395,
+  "symbolic_nm_when_available": 0.2346,
+  "raw_symbolic_coverage": 0.8413,
+  "raw_symbolic_nm_all": 0.1465,
+  "tiers": {
+    "REVIEW": 252,
+    "PREFER_TOP1": 625,
+    "TRUST_TOP1": 270
+  },
+  "tier_kg_acc": {
+    "PREFER_TOP1": 0.648,
+    "REVIEW": 0.4206,
+    "TRUST_TOP1": 0.8444
+  },
+  "policies": {
+    "override_margin>=0.10": {
+      "top1_acc": 0.66,
+      "delta": 0.0183,
+      "changed_frac": 0.1055,
+      "rescue": 57,
+      "harm": 36
+    },
+    "override_margin>=0.15": {
+      "top1_acc": 0.66,
+      "delta": 0.0183,
+      "changed_frac": 0.0881,
+      "rescue": 51,
+      "harm": 30
+    },
+    "override_margin>=0.20": {
+      "top1_acc": 0.6617,
+      "delta": 0.0201,
+      "changed_frac": 0.0828,
+      "rescue": 50,
+      "harm": 27
+    },
+    "override_margin>=0.25": {
+      "top1_acc": 0.6548,
+      "delta": 0.0131,
+      "changed_frac": 0.0532,
+      "rescue": 31,
+      "harm": 16
+    },
+    "override_margin>=0.30": {
+      "top1_acc": 0.6548,
+      "delta": 0.0131,
+      "changed_frac": 0.0392,
+      "rescue": 26,
+      "harm": 11
+    },
+    "override_margin>=0.35": {
+      "top1_acc": 0.653,
+      "delta": 0.0113,
+      "changed_frac": 0.0314,
+      "rescue": 21,
+      "harm": 8
+    },
+    "override_margin>=0.40": {
+      "top1_acc": 0.653,
+      "delta": 0.0113,
+      "changed_frac": 0.0218,
+      "rescue": 16,
+      "harm": 3
+    },
+    "override_margin>=0.45": {
+      "top1_acc": 0.6521,
+      "delta": 0.0105,
+      "changed_frac": 0.0148,
+      "rescue": 13,
+      "harm": 1
+    },
+    "override_margin>=0.50": {
+      "top1_acc": 0.6495,
+      "delta": 0.0078,
+      "changed_frac": 0.0078,
+      "rescue": 9,
+      "harm": 0
+    },
+    "override_margin>=0.60": {
+      "top1_acc": 0.6443,
+      "delta": 0.0026,
+      "changed_frac": 0.0026,
+      "rescue": 3,
+      "harm": 0
+    },
+    "trust_only": {
+      "top1_acc": 0.6521,
+      "delta": 0.0105,
+      "changed_frac": 0.0148,
+      "rescue": 13,
+      "harm": 1
+    },
+    "kg+rankprior_0.25": {
+      "top1_acc": 0.5885,
+      "delta": -0.0532,
+      "changed_frac": 0.347,
+      "rescue": 110,
+      "harm": 171
+    },
+    "kg+rankprior_0.50": {
+      "top1_acc": 0.5937,
+      "delta": -0.048,
+      "changed_frac": 0.3348,
+      "rescue": 107,
+      "harm": 162
+    },
+    "kg+rankprior_0.75": {
+      "top1_acc": 0.5937,
+      "delta": -0.048,
+      "changed_frac": 0.3269,
+      "rescue": 105,
+      "harm": 160
+    },
+    "kg+rankprior_1.00": {
+      "top1_acc": 0.599,
+      "delta": -0.0427,
+      "changed_frac": 0.3139,
+      "rescue": 104,
+      "harm": 153
+    },
+    "kg+rankprior_1.50": {
+      "top1_acc": 0.6068,
+      "delta": -0.0349,
+      "changed_frac": 0.2833,
+      "rescue": 97,
+      "harm": 137
+    },
+    "kg+rankprior_2.00": {
+      "top1_acc": 0.6129,
+      "delta": -0.0288,
+      "changed_frac": 0.2537,
+      "rescue": 87,
+      "harm": 120
+    },
+    "kg+rankprior_3.00": {
+      "top1_acc": 0.633,
+      "delta": -0.0087,
+      "changed_frac": 0.2084,
+      "rescue": 82,
+      "harm": 92
+    },
+    "kg+rankprior_4.00": {
+      "top1_acc": 0.6443,
+      "delta": 0.0026,
+      "changed_frac": 0.17,
+      "rescue": 71,
+      "harm": 68
+    }
+  },
+  "best_policy": {
+    "name": "override_margin>=0.20",
+    "top1_acc": 0.6617,
+    "delta": 0.0201,
+    "changed_frac": 0.0828,
+    "rescue": 50,
+    "harm": 27
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "Marathon Oil: What was the average annual change in the standardized measure of discounted future net cash flows for Marathon Oil during the years 2011, 2010, and 2009, as reported in the supplementary information on oil and gas producing activities?",
+        "gt": "finqa_test_ctx_304",
+        "orig": "finqa_dev_ctx_146",
+        "kg": "finqa_test_ctx_304",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches period: 2009, 2010, 2011",
+          "top fact: net change for the year",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.414"
+        ]
+      },
+      {
+        "query": "Marriott International: What percentage of Marriott International's total contractual obligations at year-end 2018 is attributable to capital lease obligations, as outlined in the company's 2018 financial report?",
+        "gt": "finqa_test_ctx_174",
+        "orig": "finqa_train_ctx_2065",
+        "kg": "finqa_test_ctx_174",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has multiple operands in a period",
+          "top fact: capital lease obligations ( 1 )",
+          "structure: concept_coverage=1.732",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "CME Group: Assuming all options in the equity compensation plans approved by security holders of CME Group were exercised in 2010, what would be the deemed proceeds to the company?",
+        "gt": "finqa_test_ctx_81",
+        "orig": "finqa_train_ctx_1813",
+        "kg": "finqa_test_ctx_81",
+        "tier": "TRUST_TOP1",
+        "reasons": [
+          "top fact: equity compensation plans approved by security holders",
+          "structure: concept_coverage=2.449",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "General Mills: As of May 28, 2017, what percentage of General Mills' total future estimated cash payments under existing contractual obligations associated with long-term debt was due in fiscal year 2018?",
+        "gt": "finqa_test_ctx_370",
+        "orig": "finqa_train_ctx_1594",
+        "kg": "finqa_test_ctx_370",
+        "tier": "TRUST_TOP1",
+        "reasons": [
+          "has multiple operands in a period",
+          "matches concept: LongTermDebt",
+          "matches period: 2018",
+          "top fact: long-term debt ( a )",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=0.500",
+          "structure: row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "Goldman Sachs: For the fourth quarter of 2017, what was the total Tier 1 capital, and for the fourth quarter of 2016, what was the total Tier 1 capital, according to the supplementary leverage ratio table of Goldman Sachs?",
+        "gt": "finqa_test_ctx_337",
+        "orig": "finqa_dev_ctx_275",
+        "kg": "finqa_test_ctx_337",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has multiple operands in a period",
+          "matches period: 2016, 2017",
+          "top fact: total supplementary leverage exposure",
+          "structure: concept_coverage=1.500",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.500"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "Sysco: What was the percentage change in total rental expense under operating leases for Sysco from July 2, 2005, to July 1, 2006, given that the total rental expense was $92,710,000 in 2005 and $100,690,000 in 2006?",
+        "gt": "finqa_test_ctx_351",
+        "kg": "finqa_train_ctx_161",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches period: 2005, 2005, 2006",
+          "top fact: total",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.000"
+        ]
+      },
+      {
+        "query": "Entergy: What was the average net revenue for Entergy Mississippi, Inc. between 2016 and 2017, as reported in the 2017 financial discussion and analysis?",
+        "gt": "finqa_test_ctx_118",
+        "kg": "finqa_train_ctx_673",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple numeric operands",
+          "matches concept: Revenue",
+          "matches period: 2016, 2017, 2017",
+          "top fact: 2016 net revenue",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.732"
+        ]
+      },
+      {
+        "query": "E*TRADE Financial Corporation: As of December 31, 2007, what percentage of the total square footage in Alpharetta, Georgia, which is approximately 219,000 square feet, was not yet leased, given that 166,000 square feet of the office space was leased and the remaining space was available for lease?",
+        "gt": "finqa_test_ctx_160",
+        "kg": "finqa_train_ctx_517",
+        "tier": "REVIEW",
+        "reasons": [
+          "has multiple operands in a period",
+          "top fact: e*trade financial corporation",
+          "structure: concept_coverage=1.732",
+          "structure: period_coverage=0.000",
+          "structure: row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "Fidelity National Information Services: What is the percentage change in revenue generated from non-US currencies for Fidelity National Information Services from 2015 to 2016, given that the company reported $1336 million and $1909 million in revenues denominated in currencies other than the US dollar for those years, respectively?",
+        "gt": "finqa_test_ctx_149",
+        "kg": "finqa_test_ctx_283",
+        "tier": "REVIEW",
+        "reasons": [
+          "has temporal same-concept facts",
+          "covers requested year pair",
+          "matches concept: Revenue",
+          "matches period: 2015, 2016",
+          "top fact: total consolidated revenues",
+          "structure: concept_coverage=1.000",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=1.000"
+        ]
+      },
+      {
+        "query": "E*TRADE Financial Corporation: As of December 31, 2010, what was the ratio of collateral pledged to E*TRADE Financial Corporation by its derivatives counterparties to overnight and other short-term borrowings, which included $0.5 million in connection with the Federal Reserve Bank's treasury, tax, and loan programs?",
+        "gt": "finqa_test_ctx_279",
+        "kg": "finqa_train_ctx_1195",
+        "tier": "PREFER_TOP1",
+        "reasons": [
+          "has multiple operands in a period",
+          "matches period: 2010",
+          "top fact: less : noncredit portion of otti recognized into ( out of ) other comprehensive income ( loss ) ( before tax )",
+          "structure: concept_coverage=0.555",
+          "structure: period_coverage=1.000",
+          "structure: row_col_alignment=0.555"
+        ]
+      }
+    ],
+    "symbolic_fail": [
+      {
+        "query": "Analog Devices: What is the percentage change in the total notional amount of cash flow hedges denominated in euros, British pounds, and other currencies for Analog Devices as reported in their 2011 financial statements compared to the previous year?",
+        "gt": "finqa_test_ctx_359",
+        "kg_doc": "finqa_train_ctx_298",
+        "gold": [
+          "0.09864188706218716",
+          "9.9%"
+        ],
+        "symbolic_answer": 6.598784194528875,
+        "confidence": 0.9,
+        "trace": "(10000 - 1316) / abs(1316) = 6.59878419453"
+      },
+      {
+        "query": "Masco: What was the difference in percentage cumulative total shareholder return on Masco common stock versus the S&P 500 Index for the five-year period ended 2017, given that a $100 investment in Masco common stock on December 31, 2012, would have grown to $318.46 by December 31, 2017, while the same investment in the S&P 500 Index would have grown to $206.49 over the same period?",
+        "gt": "finqa_test_ctx_261",
+        "kg_doc": "finqa_test_ctx_261",
+        "gold": [
+          "1.1196999999999995",
+          null
+        ],
+        "symbolic_answer": 0.31401117879796525,
+        "confidence": 0.9,
+        "trace": "100 / 318.46 = 0.314011178798"
+      },
+      {
+        "query": "Sysco: What was the percentage change in total rental expense under operating leases for Sysco from July 2, 2005, to July 1, 2006, given that the total rental expense was $92,710,000 in 2005 and $100,690,000 in 2006?",
+        "gt": "finqa_test_ctx_351",
+        "kg_doc": "finqa_train_ctx_161",
+        "gold": [
+          "0.0675709909951406",
+          "7%"
+        ],
+        "symbolic_answer": 0.005337606039456999,
+        "confidence": 0.9,
+        "trace": "(102274000 - 101731000) / abs(101731000) = 0.00533760603946"
+      },
+      {
+        "query": "Comcast: What was the change in unrecognized tax benefits for Comcast Corporation from the end of 2014 to the end of 2015, as reflected in the reconciliation of unrecognized tax benefits table in the 2015 Annual Report on Form 10-K?",
+        "gt": "finqa_test_ctx_78",
+        "kg_doc": "finqa_test_ctx_78",
+        "gold": [
+          "-35.0",
+          "-35"
+        ],
+        "symbolic_answer": 4.0,
+        "confidence": 0.9,
+        "trace": "67 - 63 = 4"
+      },
+      {
+        "query": "American Water Works: What was the percentage change in the sum of deferred tax assets and regulatory assets from 2013 to 2014 for American Water Works, as reported in their 2014 financial statements?",
+        "gt": "finqa_test_ctx_350",
+        "kg_doc": "finqa_train_ctx_765",
+        "gold": [
+          "0.017144688351225765",
+          "1.7%"
+        ],
+        "symbolic_answer": -3.0,
+        "confidence": 0.9,
+        "trace": "(-0.04 - -0.01) / abs(-0.01) = -3"
+      }
+    ]
+  }
+}

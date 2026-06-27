@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from gsr_cacl.kg.fact_graph import FinancialFactGraph
+from gsr_cacl.kg.structure_graph import build_structure_graph, render_structure_block, score_structure_support
 from gsr_cacl.ledger.extract import extract_ledger, extract_ledger_from_table
 from gsr_cacl.ledger.fact import Fact, FactLedger
 from gsr_cacl.ledger.select import (
@@ -58,6 +59,8 @@ class DocEvidence:
     original_rank: int = -1
     retrieval_score: float = 0.0
     arbitration_score: float = 0.0
+    structure_score: float = 0.0
+    structure_paths: list[str] = field(default_factory=list)
     top_facts: list[Fact] = field(default_factory=list)
     matched_concepts: list[str] = field(default_factory=list)
     matched_years: list[str] = field(default_factory=list)
@@ -88,6 +91,7 @@ class EvidencePack:
                 "company": d.company,
                 "kg_score": round(d.score, 4),
                 "arbitration_score": round(d.arbitration_score, 4),
+                "structure_score": round(d.structure_score, 4),
                 "retrieval_score": round(float(d.retrieval_score), 4),
                 "original_rank": d.original_rank,
                 "matched_concepts": d.matched_concepts,
@@ -269,6 +273,10 @@ def build_evidence_pack(question: str, retrieved: list[dict], top_n_facts: int =
         ledger = _ledger_for(rec)
         graph = FinancialFactGraph(ledger)
         score, top_facts, matched_concepts, matched_years, reasons = _doc_evidence_score(question, graph)
+        structure_graph = build_structure_graph(ledger)
+        structure_support = score_structure_support(question, structure_graph)
+        score = score + 0.5 * structure_support.score
+        reasons = reasons + [f"structure: {r}" for r in structure_support.reasons[:3]]
         meta = rec.get("meta") or rec.get("metadata") or {}
         arbitration_score = score + (_RANK_PRIOR_WEIGHT / max(rank, 1))
         docs.append(DocEvidence(
@@ -280,6 +288,8 @@ def build_evidence_pack(question: str, retrieved: list[dict], top_n_facts: int =
             original_rank=rank,
             retrieval_score=float(rec.get("score", 0.0) or 0.0),
             arbitration_score=arbitration_score,
+            structure_score=structure_support.score,
+            structure_paths=structure_support.evidence_paths[:4],
             top_facts=top_facts,
             matched_concepts=matched_concepts,
             matched_years=matched_years,
@@ -337,6 +347,10 @@ def render_prompt_context(pack: EvidencePack) -> str:
             lines.append("KG_SELECTION_RATIONALE:")
             for r in best.reasons[:5]:
                 lines.append(f"  - {r}")
+        if best.structure_paths:
+            lines.append("STRUCTURE_EVIDENCE_PATHS:")
+            for p in best.structure_paths[:4]:
+                lines.append(f"  - {p}")
 
     calc = pack.calculation or {}
     if calc.get("answer") is not None and float(calc.get("confidence", 0.0) or 0.0) >= 0.8:

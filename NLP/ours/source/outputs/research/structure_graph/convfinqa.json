@@ -1,0 +1,278 @@
+{
+  "path": "outputs/final_retrieval/convfinqa/retrieval_top3.jsonl",
+  "n": 3458,
+  "top3_recall": 0.9274,
+  "original_top1_acc": 0.7279,
+  "structure_only_top1_acc": 0.6486,
+  "score_gold_mean": 0.7929,
+  "score_non_gold_mean": 0.489,
+  "avg_graph_stats": {
+    "edges": 71.023,
+    "edges_accounting_identity_support": 0.022,
+    "edges_column_contains_fact": 13.308,
+    "edges_has_column": 13.308,
+    "edges_has_concept": 2.733,
+    "edges_has_period": 9.402,
+    "edges_has_row": 13.308,
+    "edges_has_table": 1.0,
+    "edges_row_contains_fact": 13.308,
+    "edges_same_concept_temporal": 4.634,
+    "nodes": 26.458,
+    "nodes_column": 2.711,
+    "nodes_concept": 0.831,
+    "nodes_document": 1.0,
+    "nodes_fact": 13.308,
+    "nodes_period": 2.422,
+    "nodes_row": 5.186,
+    "nodes_table": 1.0
+  },
+  "policies": {
+    "structure+rankprior_0.00": {
+      "top1_acc": 0.6486,
+      "delta": -0.0792,
+      "changed_frac": 0.3141,
+      "rescue": 303,
+      "harm": 577
+    },
+    "structure+rankprior_0.25": {
+      "top1_acc": 0.6735,
+      "delta": -0.0544,
+      "changed_frac": 0.2643,
+      "rescue": 275,
+      "harm": 463
+    },
+    "structure+rankprior_0.50": {
+      "top1_acc": 0.6984,
+      "delta": -0.0295,
+      "changed_frac": 0.1995,
+      "rescue": 227,
+      "harm": 329
+    },
+    "structure+rankprior_1.00": {
+      "top1_acc": 0.7334,
+      "delta": 0.0055,
+      "changed_frac": 0.1073,
+      "rescue": 159,
+      "harm": 140
+    },
+    "structure+rankprior_2.00": {
+      "top1_acc": 0.7377,
+      "delta": 0.0098,
+      "changed_frac": 0.0127,
+      "rescue": 36,
+      "harm": 2
+    },
+    "structure+rankprior_4.00": {
+      "top1_acc": 0.7279,
+      "delta": 0.0,
+      "changed_frac": 0.0,
+      "rescue": 0,
+      "harm": 0
+    }
+  },
+  "best_policy": {
+    "name": "structure+rankprior_2.00",
+    "top1_acc": 0.7377,
+    "delta": 0.0098,
+    "changed_frac": 0.0127,
+    "rescue": 36,
+    "harm": 2
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "Celanese: As of December 31, 2010, how many shares of series A common stock were subject to outstanding awards under the 2009 Global Incentive Plan at Celanese?",
+        "orig": "convfinqa_ctx_1758",
+        "chosen": "convfinqa_ctx_1536",
+        "score": 0.975,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.500",
+          "row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "Masco: What was the change in Masco's warranty liability from 2011 to 2012?",
+        "orig": "convfinqa_ctx_978",
+        "chosen": "convfinqa_ctx_981",
+        "score": 0.39999999999999997,
+        "reasons": [
+          "concept_coverage=0.000",
+          "period_coverage=1.000",
+          "row_col_alignment=0.000",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "AES Corporation: What was the total foreign currency transaction loss for AES Corporation in 2015, in millions?",
+        "orig": "convfinqa_ctx_1547",
+        "chosen": "convfinqa_ctx_1667",
+        "score": 1.148528137423857,
+        "reasons": [
+          "concept_coverage=1.414",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "American Tower: What is the aggregate sum of American Tower's expected principal payments for long-term debt in 2003 and 2004?",
+        "orig": "convfinqa_ctx_222",
+        "chosen": "convfinqa_ctx_209",
+        "score": 0.775,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.500",
+          "row_col_alignment=1.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Vertex Pharmaceuticals: What was the net loss on disposal of assets for Vertex Pharmaceuticals in 2005?",
+        "orig": "convfinqa_ctx_1741",
+        "chosen": "convfinqa_ctx_1738",
+        "score": 0.55,
+        "reasons": [
+          "concept_coverage=0.500",
+          "period_coverage=1.000",
+          "row_col_alignment=0.500"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "United Parcel Service: What was the percentage change in the cumulative total return on investment for United Parcel Service Inc.'s Class B common stock from December 31, 2004 to December 31, 2009, assuming a $100 initial investment?",
+        "chosen": "convfinqa_ctx_1391",
+        "score": 0.975,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.500",
+          "row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "BlackRock: What is the net change in value of the balance of asset allocation from 2016 to 2017 for BlackRock's multi-asset products?",
+        "chosen": "convfinqa_ctx_1779",
+        "score": 0.8242640687119285,
+        "reasons": [
+          "concept_coverage=0.707",
+          "period_coverage=1.000",
+          "row_col_alignment=0.707",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Analog Devices: What was the net change in the value of uncertain tax positions for Analog Devices from the balance on November 3, 2007, to the balance on October 31, 2009?",
+        "chosen": "convfinqa_ctx_1152",
+        "score": 1.025,
+        "reasons": [
+          "concept_coverage=1.500",
+          "period_coverage=0.500",
+          "row_col_alignment=1.500"
+        ]
+      },
+      {
+        "query": "JPMorgan Chase: What was the sum of contractual principal, interest, and fees for JPMorgan Chase's purchased credit-impaired consumer loans at the end of 2008 and 2009?",
+        "chosen": "convfinqa_ctx_1117",
+        "score": 0.7242640687119285,
+        "reasons": [
+          "concept_coverage=0.707",
+          "period_coverage=1.000",
+          "row_col_alignment=0.707",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Norwegian Cruise Line Holdings: What is the total long-term debt of Norwegian Cruise Line Holdings as of December 31, 2017?",
+        "chosen": "convfinqa_ctx_1027",
+        "score": 0.9,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.000",
+          "has arithmetic operand structure"
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "query": "Jack Henry & Associates: What was the net cash from operating activities for Jack Henry & Associates in the fiscal year ended June 30, 2009, as reported in their 2009 annual report?",
+        "doc": "convfinqa_ctx_99",
+        "score": 1.1,
+        "paths": [
+          "document -> table -> row[5:net cash from operating activities] -> col[1:2008] -> value[$ 206588]",
+          "document -> table -> row[5:net cash from operating activities] -> col[2:2008] -> value[$ 181001]",
+          "document -> table -> row[5:net cash from operating activities] -> col[3:2009] -> value[$ 174247]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "Republic Services: What were the revenues for Republic Services in 2008, as reflected in the unaudited pro forma financial information?",
+        "doc": "convfinqa_ctx_1449",
+        "score": 0.85,
+        "paths": [
+          "document -> table -> row[0:revenue] -> col[1:2008] -> value[$ 9362.2]",
+          "document -> table -> row[0:revenue] -> col[2:2007] -> value[$ 9244.9]",
+          "document -> table -> row[1:income from continuing operations available to common stockholders] -> col[1:2008] -> value[285.7]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.000"
+        ]
+      },
+      {
+        "query": "Apple Inc.: What was the total of net sales for Apple Inc. in 2001, as reported in the 2002 financial year?",
+        "doc": "convfinqa_ctx_713",
+        "score": 1.0036,
+        "paths": [
+          "document -> table -> row[0:net sales] -> col[1:2002] -> value[$ 5742]",
+          "document -> table -> row[0:net sales] -> col[2:2001] -> value[$ 5363]",
+          "document -> table -> row[0:net sales] -> col[3:2000] -> value[$ 7983]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "United Parcel Service: What was the percentage change in the cumulative total return on investment for United Parcel Service Inc.'s Class B common stock from December 31, 2004 to December 31, 2009, assuming a $100 initial investment?",
+        "doc": "convfinqa_ctx_1391",
+        "score": 0.975,
+        "paths": [
+          "document -> table -> row[0:united parcel service inc .] -> col[1:2008] -> value[$ 100.00]",
+          "document -> table -> row[0:united parcel service inc .] -> col[2:2009] -> value[$ 107.75]",
+          "document -> table -> row[0:united parcel service inc .] -> col[3:2010] -> value[$ 140.39]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.500",
+          "row_col_alignment=2.000"
+        ]
+      },
+      {
+        "query": "United Parcel Service: What was the percentage change in the performance price of United Parcel Service's Class B common stock from December 31, 2004 to December 31, 2006, as reflected in the shareowner return performance graph?",
+        "doc": "convfinqa_ctx_7",
+        "score": 0.35,
+        "paths": [
+          "document -> table -> row[0:united parcel service inc .] -> col[1:] -> value[$ 100.00]",
+          "document -> table -> row[0:united parcel service inc .] -> col[2:] -> value[$ 89.49]",
+          "document -> table -> row[0:united parcel service inc .] -> col[3:] -> value[$ 91.06]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.000",
+          "row_col_alignment=0.000"
+        ]
+      }
+    ]
+  }
+}

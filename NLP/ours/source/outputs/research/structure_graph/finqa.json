@@ -1,0 +1,283 @@
+{
+  "path": "outputs/final_retrieval/finqa/retrieval_top3.jsonl",
+  "n": 1147,
+  "top3_recall": 0.8675,
+  "original_top1_acc": 0.6417,
+  "structure_only_top1_acc": 0.5902,
+  "score_gold_mean": 0.8084,
+  "score_non_gold_mean": 0.4992,
+  "avg_graph_stats": {
+    "edges": 75.408,
+    "edges_accounting_identity_support": 0.002,
+    "edges_column_contains_fact": 14.147,
+    "edges_has_column": 14.147,
+    "edges_has_concept": 2.496,
+    "edges_has_period": 10.302,
+    "edges_has_row": 14.147,
+    "edges_has_table": 1.0,
+    "edges_row_contains_fact": 14.147,
+    "edges_same_concept_temporal": 5.02,
+    "nodes": 27.561,
+    "nodes_column": 2.729,
+    "nodes_concept": 0.774,
+    "nodes_document": 1.0,
+    "nodes_fact": 14.147,
+    "nodes_period": 2.41,
+    "nodes_row": 5.501,
+    "nodes_table": 1.0
+  },
+  "policies": {
+    "structure+rankprior_0.00": {
+      "top1_acc": 0.5902,
+      "delta": -0.0514,
+      "changed_frac": 0.3383,
+      "rescue": 110,
+      "harm": 169
+    },
+    "structure+rankprior_0.25": {
+      "top1_acc": 0.6077,
+      "delta": -0.034,
+      "changed_frac": 0.2581,
+      "rescue": 87,
+      "harm": 126
+    },
+    "structure+rankprior_0.50": {
+      "top1_acc": 0.6277,
+      "delta": -0.0139,
+      "changed_frac": 0.1997,
+      "rescue": 75,
+      "harm": 91
+    },
+    "structure+rankprior_1.00": {
+      "top1_acc": 0.6504,
+      "delta": 0.0087,
+      "changed_frac": 0.1055,
+      "rescue": 51,
+      "harm": 41
+    },
+    "structure+rankprior_2.00": {
+      "top1_acc": 0.6495,
+      "delta": 0.0078,
+      "changed_frac": 0.0096,
+      "rescue": 10,
+      "harm": 1
+    },
+    "structure+rankprior_4.00": {
+      "top1_acc": 0.6417,
+      "delta": 0.0,
+      "changed_frac": 0.0,
+      "rescue": 0,
+      "harm": 0
+    }
+  },
+  "best_policy": {
+    "name": "structure+rankprior_1.00",
+    "top1_acc": 0.6504,
+    "delta": 0.0087,
+    "changed_frac": 0.1055,
+    "rescue": 51,
+    "harm": 41
+  },
+  "examples": {
+    "rescue": [
+      {
+        "query": "Marathon Oil: What was the average annual change in the standardized measure of discounted future net cash flows for Marathon Oil during the years 2011, 2010, and 2009, as reported in the supplementary information on oil and gas producing activities?",
+        "orig": "finqa_dev_ctx_146",
+        "chosen": "finqa_test_ctx_304",
+        "score": 1.0035533905932736,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.414",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Marriott International: What percentage of Marriott International's total contractual obligations at year-end 2018 is attributable to capital lease obligations, as outlined in the company's 2018 financial report?",
+        "orig": "finqa_train_ctx_2065",
+        "chosen": "finqa_test_ctx_174",
+        "score": 0.6562177826491071,
+        "reasons": [
+          "concept_coverage=1.732",
+          "period_coverage=0.000",
+          "row_col_alignment=0.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "CME Group: Assuming all options in the equity compensation plans approved by security holders of CME Group were exercised in 2010, what would be the deemed proceeds to the company?",
+        "orig": "finqa_train_ctx_1813",
+        "chosen": "finqa_test_ctx_81",
+        "score": 0.8573214099741123,
+        "reasons": [
+          "concept_coverage=2.449",
+          "period_coverage=0.000",
+          "row_col_alignment=0.000"
+        ]
+      },
+      {
+        "query": "General Mills: As of May 28, 2017, what percentage of General Mills' total future estimated cash payments under existing contractual obligations associated with long-term debt was due in fiscal year 2018?",
+        "orig": "finqa_train_ctx_1594",
+        "chosen": "finqa_test_ctx_370",
+        "score": 1.025,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.500",
+          "row_col_alignment=2.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Goldman Sachs: For the fourth quarter of 2017, what was the total Tier 1 capital, and for the fourth quarter of 2016, what was the total Tier 1 capital, according to the supplementary leverage ratio table of Goldman Sachs?",
+        "orig": "finqa_dev_ctx_275",
+        "chosen": "finqa_test_ctx_337",
+        "score": 1.2,
+        "reasons": [
+          "concept_coverage=1.500",
+          "period_coverage=1.000",
+          "row_col_alignment=1.500",
+          "has arithmetic operand structure"
+        ]
+      }
+    ],
+    "harm": [
+      {
+        "query": "Intel: As of December 26, 2015, what percentage of Intel's total facilities, measured in square feet, were leased?",
+        "chosen": "finqa_train_ctx_887",
+        "score": 0.9,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Fidelity National Information Services: What percentage of the total purchase price for the Metavante acquisition does the value of Metavante stock awards represent?",
+        "chosen": "finqa_train_ctx_28",
+        "score": 1.373312629199899,
+        "reasons": [
+          "concept_coverage=1.789",
+          "period_coverage=1.000",
+          "row_col_alignment=1.789",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Sysco: What was the percentage change in total rental expense under operating leases for Sysco from July 2, 2005, to July 1, 2006, given that the total rental expense was $92,710,000 in 2005 and $100,690,000 in 2006?",
+        "chosen": "finqa_train_ctx_161",
+        "score": 1.0,
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.000",
+          "has temporal structure for multi-period reasoning",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Alexion Pharmaceuticals, Inc.: What percentage of Alexion Pharmaceuticals, Inc.'s total contractual maturities of long-term debt obligations due after December 31, 2016, is accounted for by borrowing under the term loan facility?",
+        "chosen": "finqa_train_ctx_1577",
+        "score": 0.05,
+        "reasons": [
+          "concept_coverage=0.000",
+          "period_coverage=0.000",
+          "row_col_alignment=0.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "E*TRADE Financial Corporation: As of December 31, 2007, what percentage of the total square footage in Alpharetta, Georgia, which is approximately 219,000 square feet, was not yet leased, given that 166,000 square feet of the office space was leased and the remaining space was available for lease?",
+        "chosen": "finqa_train_ctx_517",
+        "score": 0.6562177826491071,
+        "reasons": [
+          "concept_coverage=1.732",
+          "period_coverage=0.000",
+          "row_col_alignment=0.000",
+          "has arithmetic operand structure"
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "query": "Entergy: What is the net change in Entergy's net revenue from 2014 to 2015, considering factors such as retail electric price, volume/weather, and the impact of the Louisiana business combination customer credits?",
+        "doc": "finqa_train_ctx_616",
+        "score": 1.083,
+        "paths": [
+          "document -> table -> row[0:2014 net revenue] -> col[2:2014] -> value[$ 2224]",
+          "document -> table -> row[5:2015 net revenue] -> col[2:2015] -> value[$ 1666]",
+          "document -> table -> row[1:nuclear realized price changes] -> col[2:] -> value[-310 ( 310 )]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.732",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Intel: As of December 26, 2015, what percentage of Intel's total facilities, measured in square feet, were leased?",
+        "doc": "finqa_train_ctx_887",
+        "score": 0.9,
+        "paths": [
+          "document -> table -> row[5:december 26 2015] -> col[2:2015] -> value[1749]",
+          "document -> table -> row[5:december 26 2015] -> col[3:2015] -> value[8]",
+          "document -> table -> row[5:december 26 2015] -> col[4:2015] -> value[-266 ( 266 )]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=1.000",
+          "row_col_alignment=1.000",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Analog Devices: What is the percentage change in the total notional amount of cash flow hedges denominated in euros, British pounds, and other currencies for Analog Devices as reported in their 2011 financial statements compared to the previous year?",
+        "doc": "finqa_train_ctx_1957",
+        "score": 0.5183,
+        "paths": [
+          "document -> table -> row[4:restricted stock units outstanding at october 29 2011] -> col[2:2011] -> value[2088]",
+          "document -> table -> row[4:restricted stock units outstanding at october 29 2011] -> col[3:2011] -> value[$ 31.10]",
+          "document -> table -> row[0:restricted stock units outstanding at october 30 2010] -> col[2:2010] -> value[1265]"
+        ],
+        "reasons": [
+          "concept_coverage=0.447",
+          "period_coverage=1.000",
+          "row_col_alignment=0.447"
+        ]
+      },
+      {
+        "query": "Fidelity National Information Services: What percentage of the total purchase price for the Metavante acquisition does the value of Metavante stock awards represent?",
+        "doc": "finqa_train_ctx_28",
+        "score": 1.3733,
+        "paths": [
+          "document -> table -> row[0:fidelity national information services inc .] -> col[2:] -> value[100]",
+          "document -> table -> row[0:fidelity national information services inc .] -> col[3:] -> value[70.08]",
+          "document -> table -> row[0:fidelity national information services inc .] -> col[4:] -> value[101.93]"
+        ],
+        "reasons": [
+          "concept_coverage=1.789",
+          "period_coverage=1.000",
+          "row_col_alignment=1.789",
+          "has arithmetic operand structure"
+        ]
+      },
+      {
+        "query": "Masco: What was the difference in percentage cumulative total shareholder return on Masco common stock versus the S&P 500 Index for the five-year period ended 2017, given that a $100 investment in Masco common stock on December 31, 2012, would have grown to $318.46 by December 31, 2017, while the same investment in the S&P 500 Index would have grown to $206.49 over the same period?",
+        "doc": "finqa_test_ctx_261",
+        "score": 0.775,
+        "paths": [
+          "document -> table -> row[0:masco] -> col[2:2013] -> value[$ 138.48]",
+          "document -> table -> row[0:masco] -> col[3:2014] -> value[$ 155.26]",
+          "document -> table -> row[0:masco] -> col[4:2015] -> value[$ 200.79]"
+        ],
+        "reasons": [
+          "concept_coverage=1.000",
+          "period_coverage=0.500",
+          "row_col_alignment=1.000",
+          "has arithmetic operand structure"
+        ]
+      }
+    ]
+  }
+}
