@@ -1,0 +1,9 @@
+{
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 10,
+    "raw": 0.6,
+    "ledger": 0.7,
+    "kgpath": 0.7
+  }
+}

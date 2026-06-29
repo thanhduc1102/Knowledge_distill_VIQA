@@ -1,0 +1,44 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 300,
+    "correct": 0.51,
+    "retrieval_miss": 0.1133,
+    "extraction_miss": 0.11,
+    "reasoning_miss": 0.2667,
+    "_counts": {
+      "correct": 153,
+      "retrieval_miss": 34,
+      "extraction_miss": 33,
+      "reasoning_miss": 80
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 300,
+    "correct": 0.5967,
+    "retrieval_miss": 0.0667,
+    "extraction_miss": 0.1233,
+    "reasoning_miss": 0.2133,
+    "_counts": {
+      "correct": 179,
+      "retrieval_miss": 20,
+      "extraction_miss": 37,
+      "reasoning_miss": 64
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 300,
+    "correct": 0.3533,
+    "retrieval_miss": 0.31,
+    "extraction_miss": 0.0667,
+    "reasoning_miss": 0.27,
+    "_counts": {
+      "correct": 106,
+      "retrieval_miss": 93,
+      "extraction_miss": 20,
+      "reasoning_miss": 81
+    }
+  }
+}

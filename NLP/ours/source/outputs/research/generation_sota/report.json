@@ -1,0 +1,29 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 300,
+    "raw": 0.51,
+    "sc_majority": 0.51,
+    "cpr_select": 0.5067,
+    "cpr_then_freq": 0.5033,
+    "oracle_bestof": 0.52
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 300,
+    "raw": 0.5967,
+    "sc_majority": 0.5967,
+    "cpr_select": 0.5967,
+    "cpr_then_freq": 0.5967,
+    "oracle_bestof": 0.6167
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 300,
+    "raw": 0.3533,
+    "sc_majority": 0.3567,
+    "cpr_select": 0.3467,
+    "cpr_then_freq": 0.35,
+    "oracle_bestof": 0.3767
+  }
+}

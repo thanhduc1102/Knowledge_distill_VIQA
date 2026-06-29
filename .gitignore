@@ -78,3 +78,7 @@ human_chat/
 draft/
 
 ~$*
+
+# Large datasets (download via scripts/research/fetch_docfinqa.py — see outputs/data/docfinqa/DOWNLOAD.md)
+NLP/ours/source/outputs/data/docfinqa/*.jsonl
+NLP/ours/source/outputs/cache/

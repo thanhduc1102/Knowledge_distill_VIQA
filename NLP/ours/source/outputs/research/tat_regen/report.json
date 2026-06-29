@@ -1,0 +1,13 @@
+{
+  "retr": "outputs/meta_retrieval/tatqa/retrieval_top3.jsonl",
+  "n": 300,
+  "baseline_NM": 0.3533,
+  "new_retrieval_NM": 0.3467,
+  "delta": -0.0067,
+  "seconds": 129.0,
+  "client": {
+    "model": "gemini-2.5-flash",
+    "api_calls": 300,
+    "cache_hits": 0
+  }
+}
