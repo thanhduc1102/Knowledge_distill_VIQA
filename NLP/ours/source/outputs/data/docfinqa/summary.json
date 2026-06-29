@@ -1,0 +1,24 @@
+{
+  "test": {
+    "n": 200,
+    "cols": [
+      "Context",
+      "Question",
+      "Program",
+      "Answer"
+    ],
+    "seconds": 209.0,
+    "file": "outputs/data/docfinqa/test.jsonl"
+  },
+  "validation": {
+    "n": 200,
+    "cols": [
+      "Context",
+      "Question",
+      "Program",
+      "Answer"
+    ],
+    "seconds": 182.8,
+    "file": "outputs/data/docfinqa/validation.jsonl"
+  }
+}

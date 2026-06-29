@@ -1,0 +1,53 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 300,
+    "rank1": {
+      "nm_accuracy": 0.5859,
+      "n": 198
+    },
+    "rank2_3": {
+      "nm_accuracy": 0.5231,
+      "n": 65
+    },
+    "absent": {
+      "nm_accuracy": 0.0811,
+      "n": 37
+    },
+    "nm_lift_rank1_vs_absent": 0.5048
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 300,
+    "rank1": {
+      "nm_accuracy": 0.63,
+      "n": 227
+    },
+    "rank2_3": {
+      "nm_accuracy": 0.6667,
+      "n": 51
+    },
+    "absent": {
+      "nm_accuracy": 0.0909,
+      "n": 22
+    },
+    "nm_lift_rank1_vs_absent": 0.5391
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 300,
+    "rank1": {
+      "nm_accuracy": 0.4891,
+      "n": 92
+    },
+    "rank2_3": {
+      "nm_accuracy": 0.4545,
+      "n": 99
+    },
+    "absent": {
+      "nm_accuracy": 0.1468,
+      "n": 109
+    },
+    "nm_lift_rank1_vs_absent": 0.3423
+  }
+}

@@ -1,0 +1,18 @@
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+{
+  "n": 120,
+  "base_accuracy": 0.425,
+  "evidence_recall_topk": 0.7209,
+  "auroc": {
+    "value_only": 0.427,
+    "cpr": 0.5276,
+    "verbalized": 0.6449,
+    "cpr+verbalized": 0.6306
+  },
+  "seconds": 116.4,
+  "client": {
+    "model": "gemini-2.5-flash",
+    "api_calls": 228,
+    "cache_hits": 12
+  }
+}

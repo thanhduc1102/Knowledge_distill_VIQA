@@ -1,0 +1,32 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n_supervised": 379,
+    "n_eval": 379,
+    "operand_F1_learned": 0.2744,
+    "operand_F1_heuristic": 0.2125,
+    "deriv_hit_learned_top6": 0.5013,
+    "deriv_hit_heuristic": 0.1583,
+    "deriv_hit_full_search(ceiling)": 1.0
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n_supervised": 1464,
+    "n_eval": 1464,
+    "operand_F1_learned": 0.4923,
+    "operand_F1_heuristic": 0.4222,
+    "deriv_hit_learned_top6": 0.8511,
+    "deriv_hit_heuristic": 0.5567,
+    "deriv_hit_full_search(ceiling)": 1.0
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n_supervised": 332,
+    "n_eval": 332,
+    "operand_F1_learned": 0.1764,
+    "operand_F1_heuristic": 0.2228,
+    "deriv_hit_learned_top6": 0.5843,
+    "deriv_hit_heuristic": 0.25,
+    "deriv_hit_full_search(ceiling)": 1.0
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "FinQA": {
+    "dataset": "FinQA",
+    "n_queries": 1147,
+    "n_corpus": 2789,
+    "recoverability": {
+      "company_in_question": 0.8963,
+      "year_in_question": 0.9834,
+      "company_provided_meta": 1.0
+    },
+    "content_only": {
+      "MRR@3": 0.6646,
+      "R@1": 0.5641,
+      "R@3": 0.782,
+      "R@5": 0.8527,
+      "found_rate": 1.0
+    },
+    "meta_question": {
+      "MRR@3": 0.7427,
+      "R@1": 0.6792,
+      "R@3": 0.8169,
+      "R@5": 0.8649,
+      "found_rate": 1.0
+    },
+    "meta_provided": {
+      "MRR@3": 0.7932,
+      "R@1": 0.7306,
+      "R@3": 0.8684,
+      "R@5": 0.9111,
+      "found_rate": 1.0
+    }
+  },
+  "ConvFinQA": {
+    "dataset": "ConvFinQA",
+    "n_queries": 3458,
+    "n_corpus": 1806,
+    "recoverability": {
+      "company_in_question": 0.8979,
+      "year_in_question": 0.9832,
+      "company_provided_meta": 1.0
+    },
+    "content_only": {
+      "MRR@3": 0.6408,
+      "R@1": 0.5393,
+      "R@3": 0.7678,
+      "R@5": 0.8305,
+      "found_rate": 1.0
+    },
+    "meta_question": {
+      "MRR@3": 0.7418,
+      "R@1": 0.6628,
+      "R@3": 0.8389,
+      "R@5": 0.88,
+      "found_rate": 1.0
+    },
+    "meta_provided": {
+      "MRR@3": 0.7928,
+      "R@1": 0.716,
+      "R@3": 0.8864,
+      "R@5": 0.9335,
+      "found_rate": 1.0
+    }
+  },
+  "TAT-DQA": {
+    "dataset": "TAT-DQA",
+    "n_queries": 1144,
+    "n_corpus": 2723,
+    "recoverability": {
+      "company_in_question": 0.8654,
+      "year_in_question": 0.9572,
+      "company_provided_meta": 1.0
+    },
+    "content_only": {
+      "MRR@3": 0.4174,
+      "R@1": 0.3199,
+      "R@3": 0.5385,
+      "R@5": 0.6171,
+      "found_rate": 1.0
+    },
+    "meta_question": {
+      "MRR@3": 0.3966,
+      "R@1": 0.3007,
+      "R@3": 0.5166,
+      "R@5": 0.6075,
+      "found_rate": 1.0
+    },
+    "meta_provided": {
+      "MRR@3": 0.5644,
+      "R@1": 0.4379,
+      "R@3": 0.7229,
+      "R@5": 0.8278,
+      "found_rate": 1.0
+    }
+  }
+}

@@ -174,12 +174,27 @@ _ALL_COMPONENTS = frozenset({"concept", "period", "role", "3op"})
 
 def verify_cpr(prediction: str, ledger: FactLedger, query: str = "", gold=None,
                rel_tol: float = 1e-2, selected_facts: Optional[list[Fact]] = None,
-               components: frozenset = _ALL_COMPONENTS) -> CPRResult:
+               components: frozenset = _ALL_COMPONENTS,
+               fact_weight_fn=None) -> CPRResult:
     """Concept-period-role aware verification of a generated answer.
 
     ``components`` enables ablation: drop "concept"/"period" to force that consistency to 1.0,
     drop "role" to fall back to value-only derivability (any-pair, no role check).
+
+    ``fact_weight_fn``: optional ``Fact -> weight in [0,1]`` from a learned operand-attribution
+    model. It SOFT-down-weights low-attribution facts in the grounded/derivable scores (it does
+    NOT drop them — a hard cut loses true grounding cells, see docs/RESULTS.md §6.4). Default:
+    every fact weight = 1.0 (identical to the un-weighted verifier).
     """
+    def _wf(f):
+        if fact_weight_fn is None:
+            return 1.0
+        try:
+            w = float(fact_weight_fn(f))
+        except Exception:
+            return 1.0
+        return min(1.0, max(0.0, w))
+
     use_concept = "concept" in components
     use_period = "period" in components
     use_role = "role" in components
@@ -254,7 +269,9 @@ def verify_cpr(prediction: str, ledger: FactLedger, query: str = "", gold=None,
             # the weak/harmful criterion). 0.5+0.5*pc keeps a period MATCH as a boost without a
             # mismatch being fatal.
             pc_eff = (0.5 + 0.5 * pc) if use_period else 1.0
-            s = cc * pc_eff * ambiguity * (1.0 if vlabel == "identity" else 0.8)
+            # soft attribution weight: down-weight (not drop) low-attribution facts
+            w_attr = 0.5 + 0.5 * _wf(f)   # in [0.5,1.0] so a true cell is never zeroed
+            s = cc * pc_eff * ambiguity * (1.0 if vlabel == "identity" else 0.8) * w_attr
             if s > grounded_score:
                 grounded_score = s
                 best_concept, best_period = cc, pc
@@ -294,7 +311,8 @@ def verify_cpr(prediction: str, ledger: FactLedger, query: str = "", gold=None,
                           _concept_consistency(b, q_concepts, q_tokens)) if use_concept else 1.0
                 pcp = max(_period_consistency(a, q_years, pfloor),
                           _period_consistency(b, q_years, pfloor)) if use_period else 1.0
-                derivable_score = 0.75 * ccp * (0.5 + 0.5 * pcp)
+                w_pair = 0.5 + 0.5 * min(_wf(a), _wf(b))   # soft operand attribution
+                derivable_score = 0.75 * ccp * (0.5 + 0.5 * pcp) * w_pair
                 if derivable_score > grounded_score and not role:
                     role = kind
                     reasons = [f"role-consistent {kind}: {a.concept}={a.value}, {b.concept}={b.value}"]

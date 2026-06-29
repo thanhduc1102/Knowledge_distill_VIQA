@@ -40,7 +40,8 @@ SPLITS = {"FinQA": "test", "ConvFinQA": "turn_0", "TAT-DQA": "test"}
 
 
 def make_experts(spec: str, device: str, lateint_model: str | None = None,
-                 company_pool: bool = False, meta_max_add: int = 15):
+                 company_pool: bool = False, meta_max_add: int = 15,
+                 meta_provided: bool = False):
     """Build the requested experts. ``spec`` is a comma list of expert names."""
     want = [s.strip() for s in spec.split(",") if s.strip()]
     out = []
@@ -63,7 +64,8 @@ def make_experts(spec: str, device: str, lateint_model: str | None = None,
         elif nm == "factgate":
             out.append(FactGateExpert())
         elif nm == "meta":
-            out.append(MetadataRetriever(company_pool=company_pool, max_add=meta_max_add))
+            out.append(MetadataRetriever(company_pool=company_pool, max_add=meta_max_add,
+                                         use_query_meta_company=(True if meta_provided else None)))
         elif nm == "dense":
             from gsr_cacl.experts.dense import DenseExpert
             out.append(DenseExpert(device=device))
@@ -96,7 +98,8 @@ def metrics_from_ranks(ranks: list[int]) -> dict:
 
 
 def build(dataset: str, sample: int, pool_size: int, expert_spec: str, device: str,
-          lateint_model=None, company_pool: bool = False, meta_max_add: int = 15):
+          lateint_model=None, company_pool: bool = False, meta_max_add: int = 15,
+          meta_provided: bool = False):
     split = SPLITS[dataset]
     data = load_t2ragbench_split(dataset, split=split, sample_size=(sample or None))
     corpus, gts, metas = data.corpus, data.ground_truth_ids, data.meta_data
@@ -110,7 +113,8 @@ def build(dataset: str, sample: int, pool_size: int, expert_spec: str, device: s
 
     # ---- experts (independent) -------------------------------------------------
     experts = make_experts(expert_spec, device, lateint_model,
-                           company_pool=company_pool, meta_max_add=meta_max_add)
+                           company_pool=company_pool, meta_max_add=meta_max_add,
+                           meta_provided=meta_provided)
     for ex in experts:
         print(f"  prepare {ex.name} ...", flush=True)
         ex.prepare(corpus, doc_metas)
@@ -188,6 +192,9 @@ def main():
                          "all other experts re-score within the company.")
     ap.add_argument("--meta-max-add", type=int, default=15,
                     help="Cap on docs MetadataRetriever adds (use ~200 with --company-pool).")
+    ap.add_argument("--meta-provided", action="store_true",
+                    help="meta expert uses PROVIDED query metadata (company_name/report_year) "
+                         "instead of detecting from the question — the leaderboard 'metadata-aware' setting.")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="outputs/modular")
@@ -197,7 +204,8 @@ def main():
           f"{'[company-pool]' if args.company_pool else ''} ###", flush=True)
     raw_q, names, feats, gold_pos, qfeats = build(
         args.dataset, args.sample, args.pool, args.experts, args.device, args.lateint_model,
-        company_pool=args.company_pool, meta_max_add=args.meta_max_add)
+        company_pool=args.company_pool, meta_max_add=args.meta_max_add,
+        meta_provided=args.meta_provided)
     Q = len(raw_q)
     data = FusionData(feats=feats, gold_pos=gold_pos, qfeats=qfeats, expert_names=names)
 

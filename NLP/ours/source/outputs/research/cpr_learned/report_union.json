@@ -1,0 +1,26 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n_eval": 300,
+    "topm": 8,
+    "auroc_cpr_full": 0.6445,
+    "auroc_cpr_learned_restricted": 0.616,
+    "auroc_value_only": 0.4519
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n_eval": 300,
+    "topm": 8,
+    "auroc_cpr_full": 0.6902,
+    "auroc_cpr_learned_restricted": 0.6426,
+    "auroc_value_only": 0.542
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n_eval": 300,
+    "topm": 8,
+    "auroc_cpr_full": 0.6205,
+    "auroc_cpr_learned_restricted": 0.4981,
+    "auroc_value_only": 0.5695
+  }
+}

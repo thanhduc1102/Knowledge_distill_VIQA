@@ -1,5 +1,12 @@
 # Critical Contribution Audit (honest, per-aspect)
 
+> ⚠ **UPDATE 2026-06-29 (đọc [RESULTS.md](RESULTS.md) §4 trước).** Phần C1 dưới đây ("CPR beats self-consistency")
+> dựa trên *generator yếu* (Qwen). Trên generator **mạnh** (Gemini 2.5 Flash), self-consistency & verbalized
+> confidence **vượt** CPR standalone; đóng góp được tái định vị thành **cost-efficient reliability** (CPR+verbalized
+> 2× ≥ self-consistency 6×) + bắt confident-hallucination trực giao + phổ generator-strength. Retrieval integrity
+> đã sửa (leaky → honest 0.736; metadata-aware BM25 SOTA 0.747). Các con số tuyệt đối C0–C3 dưới đây là bối cảnh
+> lịch sử; nguồn sự thật hiện tại là [RESULTS.md](RESULTS.md).
+
 Goal: name exactly where each contribution is strong, **thin**, or **does not stand out**, what
 criterion is under-measured, and what to add. Scored S (strong / submission-ready), M (medium /
 needs work), W (weak / risk). Grounded in executed numbers.

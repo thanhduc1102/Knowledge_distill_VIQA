@@ -1,0 +1,12 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  [test] 50 ... 208s
+  [test] 100 ... 208s
+  [test] 150 ... 209s
+  [test] 200 ... 209s
+[test] saved 200 -> outputs/data/docfinqa/test.jsonl (cols=['Context', 'Question', 'Program', 'Answer']) 209s
+  [validation] 50 ... 182s
+  [validation] 100 ... 182s
+  [validation] 150 ... 182s
+  [validation] 200 ... 183s
+[validation] saved 200 -> outputs/data/docfinqa/validation.jsonl (cols=['Context', 'Question', 'Program', 'Answer']) 183s
+DONE {"test": {"n": 200, "cols": ["Context", "Question", "Program", "Answer"], "seconds": 209.0, "file": "outputs/data/docfinqa/test.jsonl"}, "validation": {"n": 200, "cols": ["Context", "Question", "Program", "Answer"], "seconds": 182.8, "file": "outputs/data/docfinqa/validation.jsonl"}}

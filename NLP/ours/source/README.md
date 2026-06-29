@@ -1,56 +1,24 @@
-# GSR-CACL → LEDGER-RAG: Structure-Aware Auditable Retrieval for Financial RAG
+# Structure-Grounded Financial Numerical QA (AAAI-27)
 
-> **Current paper direction (AAAI-27):** typed structure-level KG + conditional-salience
-> retrieval + Fact-Ledger verification/provenance for financial RAG.  The graph is used
-> across retrieval arbitration, evidence planning, and LLM support, while avoiding the
-> overclaim that KG evidence universally improves end-to-end Number Match.
+> **ĐỌC TÀI LIỆU TRƯỚC TIÊN tại [docs/README.md](docs/README.md)** — toàn bộ docs đã được dọn gọn thành
+> tài liệu *sống*: [docs/SYSTEM.md](docs/SYSTEM.md) (kiến trúc toàn trình), [docs/RESULTS.md](docs/RESULTS.md)
+> (nguồn sự thật cho mọi kết quả + ablation), [docs/FRAMEWORK_TCEP.md](docs/FRAMEWORK_TCEP.md) (lý thuyết),
+> [docs/literature/RELATED_WORK.md](docs/literature/RELATED_WORK.md). Báo cáo cũ theo phiên bản: `docs/archive/`.
 
----
+## Headline hiện tại (2026-06-29)
 
-## Current AAAI-27 narrative (read this first)
+- **Retrieval (MMER fusion):** *honest* (metadata từ câu hỏi) W.Avg MRR@3 **0.798**; *provided* (metadata-aware
+  chuẩn benchmark) **0.873 — VƯỢT leaderboard #1 (~0.82)** (FinQA 0.914 / ConvFinQA 0.932) không dùng LLM frontier.
+- **Retrieval → Number-Match:** gold@rank-1 nâng NM **+0.34..+0.54** (retrieval là đòn bẩy output).
+- **Reliability (lõi novelty):** trên Gemini 2.5 Flash, `cpr+verbalized` (2× chi phí) vượt self-consistency (6×);
+  CPR bắt confident-hallucination model-internal bỏ sót. Tổng quát hóa OOD FinanceBench + long-doc DocFinQA.
 
-The strongest evidence in this repository supports the following claims:
-
-- **Structure-level KG:** document/table/row/column/fact/concept/period graph improves
-  top-k evidence focus when used with confidence/rank gating.
-- **Conditional salience:** pool-local IDF (`loclex`) is a robust signal for choosing the
-  right financial evidence inside an entity/company cluster.
-- **External validity:** the same pattern holds on FinanceBench evidence retrieval, outside
-  T²-RAGBench.
-- **Faithfulness, not hard override:** Fact Ledger is most useful for grounding flags,
-  provenance, risk-coverage, and verify-then-reask; filtered KG evidence can hurt raw LLM
-  accuracy on some datasets.
-
-Start with:
-
-- **[docs/AAAI27_FINAL_DIRECTION.md](docs/AAAI27_FINAL_DIRECTION.md)** — final paper
-  direction, safe claims, negative results, and required remaining work.
-- **[docs/STRUCTURE_KG_METHOD_AAAI27.md](docs/STRUCTURE_KG_METHOD_AAAI27.md)** —
-  structure-level KG method, integration points, and arbitration results.
-- **[docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md](docs/BAO_CAO_TOI_UU_TOAN_CUC_AAAI27.md)** —
-  báo cáo tối ưu toàn cục bằng tiếng Việt, gồm claim registry, phản chứng, và hướng tối ưu.
-- **[docs/DANH_GIA_TOAN_DIEN.md](docs/DANH_GIA_TOAN_DIEN.md)** — broader historical
-  assessment of all system generations.
-- **[outputs/research/paper_ablation_report.json](outputs/research/paper_ablation_report.json)**
-  — consolidated result artifact for the current narrative.
-
-```bash
-cd ours/source && export HF_DATASETS_OFFLINE=1 PYTHONPATH=src
-python tests/test_ledger_rag.py
-python scripts/research/external_financebench_eval.py --with-reranker
-python scripts/research/faithfulness_risk_eval.py \
-  --input outputs/final_generation/qwen3_5/convfinqa/predictions.jsonl \
-  --dataset convfinqa
-python scripts/research/verify_then_reask.py \
-  --dataset convfinqa \
-  --raw-predictions outputs/final_generation/qwen3_5/convfinqa/predictions.jsonl \
-  --top3 outputs/final_retrieval/convfinqa/retrieval_top3.jsonl
-python scripts/research/paper_ablation_report.py
-```
+> ⚠ Phần dưới (Overview/Architecture/Quick Start) là tài liệu kỹ thuật gen-1 (GSR-CACL) giữ làm tham chiếu cài đặt;
+> **số liệu/định hướng hiện hành nằm ở [docs/RESULTS.md](docs/RESULTS.md), không phải bảng "Expected Results" cũ bên dưới.**
 
 ---
 
-## Overview
+## Overview (gen-1 reference)
 
 This is the implementation of **GSR + CACL** — two complementary contributions for
 retrieving financial text+table documents.

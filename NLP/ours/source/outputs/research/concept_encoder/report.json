@@ -1,0 +1,30 @@
+{
+  "intrinsic_alias_concept_top1": 0.6882,
+  "intrinsic_n": 263,
+  "coverage": {
+    "finqa": {
+      "dataset": "finqa",
+      "n_labels": 1461,
+      "exact_coverage": 0.2252,
+      "semantic_extra": 0.7529,
+      "combined_coverage": 0.9781,
+      "tau": 0.55
+    },
+    "convfinqa": {
+      "dataset": "convfinqa",
+      "n_labels": 1409,
+      "exact_coverage": 0.2463,
+      "semantic_extra": 0.7509,
+      "combined_coverage": 0.9972,
+      "tau": 0.55
+    },
+    "tatqa": {
+      "dataset": "tatqa",
+      "n_labels": 3253,
+      "exact_coverage": 0.3083,
+      "semantic_extra": 0.6898,
+      "combined_coverage": 0.9982,
+      "tau": 0.55
+    }
+  }
+}
