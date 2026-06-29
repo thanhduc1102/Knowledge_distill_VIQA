@@ -1,0 +1,35 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 300,
+    "tau": 0.5,
+    "raw_NM": 0.51,
+    "verify_then_reask_NM": 0.4467,
+    "n_reasked": 98,
+    "reask_subset_NM": 0.1837,
+    "rescued": 7,
+    "broke": 26
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 300,
+    "tau": 0.5,
+    "raw_NM": 0.5967,
+    "verify_then_reask_NM": 0.54,
+    "n_reasked": 77,
+    "reask_subset_NM": 0.1299,
+    "rescued": 2,
+    "broke": 19
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 300,
+    "tau": 0.5,
+    "raw_NM": 0.3533,
+    "verify_then_reask_NM": 0.2967,
+    "n_reasked": 134,
+    "reask_subset_NM": 0.1343,
+    "rescued": 9,
+    "broke": 26
+  }
+}

@@ -1,0 +1,5 @@
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+{"dataset": "finqa", "n_computed_queries": 100, "plan_fire_rate": 0.84, "plan_precision_when_fired": 0.1429, "plan_answer_recall": 0.12, "oracle_operand_f1": 0.5247, "oracle_operation_acc": 0.6374, "oracle_n": 91}
+{"dataset": "convfinqa", "n_computed_queries": 100, "plan_fire_rate": 0.85, "plan_precision_when_fired": 0.2353, "plan_answer_recall": 0.2, "oracle_operand_f1": 0.5215, "oracle_operation_acc": 0.5934, "oracle_n": 91}
+{"dataset": "tatqa", "n_computed_queries": 100, "plan_fire_rate": 0.8, "plan_precision_when_fired": 0.1125, "plan_answer_recall": 0.09, "oracle_operand_f1": 0.3993, "oracle_operation_acc": 0.7407, "oracle_n": 81}
+wrote outputs/research/role_probe/oracle.json

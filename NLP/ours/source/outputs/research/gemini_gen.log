@@ -1,0 +1,52 @@
+===== START finqa 19:02:53 =====
+[finqa] 300 target queries, 0 already done
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+  [finqa] 25/300  acc=0.520  {'model': 'gemini-2.5-flash', 'api_calls': 135, 'cache_hits': 40}  63s
+  [finqa] 50/300  acc=0.500  {'model': 'gemini-2.5-flash', 'api_calls': 310, 'cache_hits': 40}  141s
+  [finqa] 75/300  acc=0.573  {'model': 'gemini-2.5-flash', 'api_calls': 485, 'cache_hits': 40}  224s
+  [finqa] 100/300  acc=0.560  {'model': 'gemini-2.5-flash', 'api_calls': 660, 'cache_hits': 40}  313s
+  [finqa] 125/300  acc=0.536  {'model': 'gemini-2.5-flash', 'api_calls': 835, 'cache_hits': 40}  396s
+  [finqa] 150/300  acc=0.540  {'model': 'gemini-2.5-flash', 'api_calls': 1010, 'cache_hits': 40}  483s
+  [finqa] 175/300  acc=0.514  {'model': 'gemini-2.5-flash', 'api_calls': 1185, 'cache_hits': 40}  565s
+  [finqa] 200/300  acc=0.520  {'model': 'gemini-2.5-flash', 'api_calls': 1360, 'cache_hits': 40}  650s
+  [finqa] 225/300  acc=0.511  {'model': 'gemini-2.5-flash', 'api_calls': 1535, 'cache_hits': 40}  735s
+  [finqa] 250/300  acc=0.504  {'model': 'gemini-2.5-flash', 'api_calls': 1710, 'cache_hits': 40}  821s
+  [finqa] 275/300  acc=0.509  {'model': 'gemini-2.5-flash', 'api_calls': 1885, 'cache_hits': 40}  905s
+  [finqa] 300/300  acc=0.510  {'model': 'gemini-2.5-flash', 'api_calls': 2060, 'cache_hits': 40}  984s
+[finqa] DONE acc(raw)=0.5100 n=300 {'model': 'gemini-2.5-flash', 'api_calls': 2060, 'cache_hits': 40} 984s
+===== END finqa 19:19:24 =====
+===== START convfinqa 19:19:24 =====
+[convfinqa] 300 target queries, 0 already done
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+  [convfinqa] 25/300  acc=0.480  {'model': 'gemini-2.5-flash', 'api_calls': 175, 'cache_hits': 0}  75s
+  [convfinqa] 50/300  acc=0.600  {'model': 'gemini-2.5-flash', 'api_calls': 350, 'cache_hits': 0}  149s
+  [convfinqa] 75/300  acc=0.640  {'model': 'gemini-2.5-flash', 'api_calls': 525, 'cache_hits': 0}  223s
+  [convfinqa] 100/300  acc=0.640  {'model': 'gemini-2.5-flash', 'api_calls': 700, 'cache_hits': 0}  300s
+  [convfinqa] 125/300  acc=0.632  {'model': 'gemini-2.5-flash', 'api_calls': 875, 'cache_hits': 0}  374s
+  [convfinqa] 150/300  acc=0.620  {'model': 'gemini-2.5-flash', 'api_calls': 1050, 'cache_hits': 0}  450s
+  [convfinqa] 175/300  acc=0.617  {'model': 'gemini-2.5-flash', 'api_calls': 1225, 'cache_hits': 0}  524s
+  [convfinqa] 200/300  acc=0.600  {'model': 'gemini-2.5-flash', 'api_calls': 1400, 'cache_hits': 0}  598s
+  [convfinqa] 225/300  acc=0.618  {'model': 'gemini-2.5-flash', 'api_calls': 1575, 'cache_hits': 0}  673s
+  [convfinqa] 250/300  acc=0.616  {'model': 'gemini-2.5-flash', 'api_calls': 1750, 'cache_hits': 0}  748s
+  [convfinqa] 275/300  acc=0.604  {'model': 'gemini-2.5-flash', 'api_calls': 1925, 'cache_hits': 0}  823s
+  [convfinqa] 300/300  acc=0.597  {'model': 'gemini-2.5-flash', 'api_calls': 2100, 'cache_hits': 0}  894s
+[convfinqa] DONE acc(raw)=0.5967 n=300 {'model': 'gemini-2.5-flash', 'api_calls': 2100, 'cache_hits': 0} 894s
+===== END convfinqa 19:34:24 =====
+===== START tatqa 19:34:24 =====
+[tatqa] 300 target queries, 0 already done
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+  [tatqa] 25/300  acc=0.440  {'model': 'gemini-2.5-flash', 'api_calls': 175, 'cache_hits': 0}  79s
+  [tatqa] 50/300  acc=0.360  {'model': 'gemini-2.5-flash', 'api_calls': 350, 'cache_hits': 0}  157s
+  [tatqa] 75/300  acc=0.307  {'model': 'gemini-2.5-flash', 'api_calls': 525, 'cache_hits': 0}  234s
+  [tatqa] 100/300  acc=0.340  {'model': 'gemini-2.5-flash', 'api_calls': 700, 'cache_hits': 0}  310s
+  [tatqa] 125/300  acc=0.360  {'model': 'gemini-2.5-flash', 'api_calls': 875, 'cache_hits': 0}  389s
+  [tatqa] 150/300  acc=0.373  {'model': 'gemini-2.5-flash', 'api_calls': 1050, 'cache_hits': 0}  466s
+  [tatqa] 175/300  acc=0.377  {'model': 'gemini-2.5-flash', 'api_calls': 1225, 'cache_hits': 0}  543s
+  [tatqa] 200/300  acc=0.375  {'model': 'gemini-2.5-flash', 'api_calls': 1400, 'cache_hits': 0}  619s
+  [tatqa] 225/300  acc=0.360  {'model': 'gemini-2.5-flash', 'api_calls': 1575, 'cache_hits': 0}  696s
+  [tatqa] 250/300  acc=0.352  {'model': 'gemini-2.5-flash', 'api_calls': 1750, 'cache_hits': 0}  773s
+  [tatqa] 275/300  acc=0.353  {'model': 'gemini-2.5-flash', 'api_calls': 1925, 'cache_hits': 0}  848s
+  [tatqa] 300/300  acc=0.353  {'model': 'gemini-2.5-flash', 'api_calls': 2100, 'cache_hits': 0}  924s
+[tatqa] DONE acc(raw)=0.3533 n=300 {'model': 'gemini-2.5-flash', 'api_calls': 2100, 'cache_hits': 0} 924s
+===== END tatqa 19:49:54 =====
+ALL DONE 19:49:54

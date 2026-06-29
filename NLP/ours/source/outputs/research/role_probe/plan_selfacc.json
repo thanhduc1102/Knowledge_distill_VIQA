@@ -1,0 +1,23 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n_computed_queries": 200,
+    "plan_fire_rate": 0.815,
+    "plan_precision_when_fired": 0.184,
+    "plan_answer_recall": 0.15
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n_computed_queries": 200,
+    "plan_fire_rate": 0.88,
+    "plan_precision_when_fired": 0.2273,
+    "plan_answer_recall": 0.2
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n_computed_queries": 200,
+    "plan_fire_rate": 0.84,
+    "plan_precision_when_fired": 0.1131,
+    "plan_answer_recall": 0.095
+  }
+}

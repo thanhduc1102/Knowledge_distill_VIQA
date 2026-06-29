@@ -1,0 +1,1242 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 300,
+    "missing": 0,
+    "base_accuracy": 0.51,
+    "signals": {
+      "value_only": {
+        "auroc": 0.4797,
+        "selective_acc_auc": 0.4886,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.4267
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.4933
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.5244
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.06,
+        "cov@acc>=0.7": 0.0,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.5271,
+        "acc_unsupported": 0.3043,
+        "separation": 0.2227,
+        "supported_n": 277,
+        "supported_but_wrong": 131
+      },
+      "cpr": {
+        "auroc": 0.6445,
+        "selective_acc_auc": 0.6014,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7067
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6333
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.5556
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.6,
+        "cov@acc>=0.7": 0.2667,
+        "cov@acc>=0.8": 0.0033,
+        "acc_supported": 0.5743,
+        "acc_unsupported": 0.3776,
+        "separation": 0.1967,
+        "supported_n": 202,
+        "supported_but_wrong": 86
+      },
+      "self_consistency": {
+        "auroc": 0.7667,
+        "selective_acc_auc": 0.6436,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.72
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6444
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.8367,
+        "cov@acc>=0.7": 0.6733,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.6234,
+        "acc_unsupported": 0.0656,
+        "separation": 0.5579,
+        "supported_n": 239,
+        "supported_but_wrong": 90
+      },
+      "verbalized": {
+        "auroc": 0.7833,
+        "selective_acc_auc": 0.6658,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7733
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7267
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6533
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.8333,
+        "cov@acc>=0.7": 0.67,
+        "cov@acc>=0.8": 0.1833,
+        "acc_supported": 0.7287,
+        "acc_unsupported": 0.1429,
+        "separation": 0.5859,
+        "supported_n": 188,
+        "supported_but_wrong": 51
+      },
+      "cpr+sc": {
+        "auroc": 0.7819,
+        "selective_acc_auc": 0.6614,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.76
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7267
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6489
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.8367,
+        "cov@acc>=0.7": 0.5567,
+        "cov@acc>=0.8": 0.0033,
+        "acc_supported": 0.6419,
+        "acc_unsupported": 0.0845,
+        "separation": 0.5574,
+        "supported_n": 229,
+        "supported_but_wrong": 82
+      },
+      "cpr+verb": {
+        "auroc": 0.8052,
+        "selective_acc_auc": 0.6686,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7867
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.72
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6578
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.8367,
+        "cov@acc>=0.7": 0.68,
+        "cov@acc>=0.8": 0.1833,
+        "acc_supported": 0.7196,
+        "acc_unsupported": 0.1532,
+        "separation": 0.5664,
+        "supported_n": 189,
+        "supported_but_wrong": 53
+      },
+      "sc+verb": {
+        "auroc": 0.8394,
+        "selective_acc_auc": 0.6997,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.8267
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7867
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6756
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.85,
+        "cov@acc>=0.7": 0.7067,
+        "cov@acc>=0.8": 0.2867,
+        "acc_supported": 0.6756,
+        "acc_unsupported": 0.0133,
+        "separation": 0.6622,
+        "supported_n": 225,
+        "supported_but_wrong": 73
+      },
+      "fusion_internal": {
+        "auroc": 0.8212,
+        "selective_acc_auc": 0.6753,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7467
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7733
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6711
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.85,
+        "cov@acc>=0.7": 0.67,
+        "cov@acc>=0.8": 0.0533,
+        "acc_supported": 0.7644,
+        "acc_unsupported": 0.1587,
+        "separation": 0.6056,
+        "supported_n": 174,
+        "supported_but_wrong": 41
+      },
+      "fusion_all": {
+        "auroc": 0.8226,
+        "selective_acc_auc": 0.6742,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.76
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.76
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6667
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.51
+          }
+        ],
+        "cov@acc>=0.6": 0.85,
+        "cov@acc>=0.7": 0.7067,
+        "cov@acc>=0.8": 0.0033,
+        "acc_supported": 0.7657,
+        "acc_unsupported": 0.152,
+        "separation": 0.6137,
+        "supported_n": 175,
+        "supported_but_wrong": 41
+      }
+    },
+    "bootstrap_cpr": {
+      "ref": "cpr",
+      "auroc_ci": {
+        "value_only": [
+          0.4264,
+          0.5326
+        ],
+        "cpr": [
+          0.5825,
+          0.7021
+        ],
+        "self_consistency": [
+          0.7212,
+          0.8108
+        ],
+        "verbalized": [
+          0.7321,
+          0.8305
+        ],
+        "cpr+sc": [
+          0.7276,
+          0.8319
+        ],
+        "cpr+verb": [
+          0.7511,
+          0.855
+        ],
+        "sc+verb": [
+          0.7951,
+          0.8822
+        ],
+        "fusion_internal": [
+          0.7666,
+          0.8707
+        ],
+        "fusion_all": [
+          0.7671,
+          0.872
+        ]
+      },
+      "delta_vs_cpr": {
+        "value_only": {
+          "ci95": [
+            0.0951,
+            0.2346
+          ],
+          "p_ref_better": 1.0
+        }
+      }
+    },
+    "bootstrap_fusion": {
+      "ref": "fusion_all",
+      "auroc_ci": {
+        "value_only": [
+          0.4264,
+          0.5326
+        ],
+        "cpr": [
+          0.5825,
+          0.7021
+        ],
+        "self_consistency": [
+          0.7212,
+          0.8108
+        ],
+        "verbalized": [
+          0.7321,
+          0.8305
+        ],
+        "cpr+sc": [
+          0.7276,
+          0.8319
+        ],
+        "cpr+verb": [
+          0.7511,
+          0.855
+        ],
+        "sc+verb": [
+          0.7951,
+          0.8822
+        ],
+        "fusion_internal": [
+          0.7666,
+          0.8707
+        ],
+        "fusion_all": [
+          0.7671,
+          0.872
+        ]
+      },
+      "delta_vs_fusion_all": {
+        "verbalized": {
+          "ci95": [
+            0.0023,
+            0.0764
+          ],
+          "p_ref_better": 0.9845
+        },
+        "self_consistency": {
+          "ci95": [
+            0.0134,
+            0.0989
+          ],
+          "p_ref_better": 0.996
+        },
+        "cpr": {
+          "ci95": [
+            0.1202,
+            0.2409
+          ],
+          "p_ref_better": 1.0
+        },
+        "fusion_internal": {
+          "ci95": [
+            -0.0259,
+            0.0275
+          ],
+          "p_ref_better": 0.5315
+        }
+      }
+    },
+    "overconfidence_audit": {
+      "high_model_conf_n": 150,
+      "confident_but_wrong": 32,
+      "confident_but_wrong_rate": 0.2133,
+      "cpr_auroc_within_confident": 0.5152,
+      "value_only_auroc_within_confident": 0.3392
+    },
+    "cpr_level_dist": {
+      "scaled_grounded": 7,
+      "weak_value_only": 91,
+      "cpr_derivable": 173,
+      "cpr_grounded": 22,
+      "unsupported": 7
+    }
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 300,
+    "missing": 0,
+    "base_accuracy": 0.5967,
+    "signals": {
+      "value_only": {
+        "auroc": 0.55,
+        "selective_acc_auc": 0.6219,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.6267
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6333
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.6311
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.0,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.6055,
+        "acc_unsupported": 0.3636,
+        "separation": 0.2419,
+        "supported_n": 289,
+        "supported_but_wrong": 114
+      },
+      "cpr": {
+        "auroc": 0.6902,
+        "selective_acc_auc": 0.6975,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7733
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.74
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.68
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.7233,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.6816,
+        "acc_unsupported": 0.3506,
+        "separation": 0.331,
+        "supported_n": 223,
+        "supported_but_wrong": 71
+      },
+      "self_consistency": {
+        "auroc": 0.7079,
+        "selective_acc_auc": 0.6942,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7333
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7267
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.72
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.8233,
+        "cov@acc>=0.8": 0.0033,
+        "acc_supported": 0.6426,
+        "acc_unsupported": 0.0435,
+        "separation": 0.5991,
+        "supported_n": 277,
+        "supported_but_wrong": 99
+      },
+      "verbalized": {
+        "auroc": 0.7677,
+        "selective_acc_auc": 0.7219,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.76
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.78
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.7511
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.8233,
+        "cov@acc>=0.8": 0.2,
+        "acc_supported": 0.7511,
+        "acc_unsupported": 0.1333,
+        "separation": 0.6178,
+        "supported_n": 225,
+        "supported_but_wrong": 56
+      },
+      "cpr+sc": {
+        "auroc": 0.7636,
+        "selective_acc_auc": 0.7336,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.8267
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.8
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.7111
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.7667,
+        "cov@acc>=0.8": 0.5667,
+        "acc_supported": 0.6604,
+        "acc_unsupported": 0.0625,
+        "separation": 0.5979,
+        "supported_n": 268,
+        "supported_but_wrong": 91
+      },
+      "cpr+verb": {
+        "auroc": 0.8103,
+        "selective_acc_auc": 0.7503,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.8267
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.8267
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.7511
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.84,
+        "cov@acc>=0.8": 0.59,
+        "acc_supported": 0.7511,
+        "acc_unsupported": 0.1333,
+        "separation": 0.6178,
+        "supported_n": 225,
+        "supported_but_wrong": 56
+      },
+      "sc+verb": {
+        "auroc": 0.8154,
+        "selective_acc_auc": 0.7369,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7867
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.8133
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.7511
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.8333,
+        "cov@acc>=0.8": 0.69,
+        "acc_supported": 0.6863,
+        "acc_unsupported": 0.0889,
+        "separation": 0.5974,
+        "supported_n": 255,
+        "supported_but_wrong": 80
+      },
+      "fusion_internal": {
+        "auroc": 0.7779,
+        "selective_acc_auc": 0.7197,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7333
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.7933
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.7556
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.8233,
+        "cov@acc>=0.8": 0.6833,
+        "acc_supported": 0.7647,
+        "acc_unsupported": 0.1266,
+        "separation": 0.6381,
+        "supported_n": 221,
+        "supported_but_wrong": 52
+      },
+      "fusion_all": {
+        "auroc": 0.8223,
+        "selective_acc_auc": 0.7581,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.84
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.84
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.7556
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.5967
+          }
+        ],
+        "cov@acc>=0.6": 0.9933,
+        "cov@acc>=0.7": 0.8367,
+        "cov@acc>=0.8": 0.67,
+        "acc_supported": 0.784,
+        "acc_unsupported": 0.1379,
+        "separation": 0.6461,
+        "supported_n": 213,
+        "supported_but_wrong": 46
+      }
+    },
+    "bootstrap_cpr": {
+      "ref": "cpr",
+      "auroc_ci": {
+        "value_only": [
+          0.4914,
+          0.6113
+        ],
+        "cpr": [
+          0.626,
+          0.7539
+        ],
+        "self_consistency": [
+          0.6618,
+          0.7553
+        ],
+        "verbalized": [
+          0.7188,
+          0.8166
+        ],
+        "cpr+sc": [
+          0.7078,
+          0.8196
+        ],
+        "cpr+verb": [
+          0.755,
+          0.8612
+        ],
+        "sc+verb": [
+          0.7685,
+          0.8608
+        ],
+        "fusion_internal": [
+          0.7173,
+          0.8354
+        ],
+        "fusion_all": [
+          0.7672,
+          0.8738
+        ]
+      },
+      "delta_vs_cpr": {
+        "value_only": {
+          "ci95": [
+            0.0688,
+            0.2127
+          ],
+          "p_ref_better": 0.9995
+        }
+      }
+    },
+    "bootstrap_fusion": {
+      "ref": "fusion_all",
+      "auroc_ci": {
+        "value_only": [
+          0.4914,
+          0.6113
+        ],
+        "cpr": [
+          0.626,
+          0.7539
+        ],
+        "self_consistency": [
+          0.6618,
+          0.7553
+        ],
+        "verbalized": [
+          0.7188,
+          0.8166
+        ],
+        "cpr+sc": [
+          0.7078,
+          0.8196
+        ],
+        "cpr+verb": [
+          0.755,
+          0.8612
+        ],
+        "sc+verb": [
+          0.7685,
+          0.8608
+        ],
+        "fusion_internal": [
+          0.7173,
+          0.8354
+        ],
+        "fusion_all": [
+          0.7672,
+          0.8738
+        ]
+      },
+      "delta_vs_fusion_all": {
+        "verbalized": {
+          "ci95": [
+            0.0147,
+            0.0933
+          ],
+          "p_ref_better": 0.997
+        },
+        "self_consistency": {
+          "ci95": [
+            0.0621,
+            0.1681
+          ],
+          "p_ref_better": 1.0
+        },
+        "cpr": {
+          "ci95": [
+            0.0785,
+            0.1854
+          ],
+          "p_ref_better": 1.0
+        },
+        "fusion_internal": {
+          "ci95": [
+            0.0074,
+            0.0836
+          ],
+          "p_ref_better": 0.993
+        }
+      }
+    },
+    "overconfidence_audit": {
+      "high_model_conf_n": 150,
+      "confident_but_wrong": 28,
+      "confident_but_wrong_rate": 0.1867,
+      "cpr_auroc_within_confident": 0.5334,
+      "value_only_auroc_within_confident": 0.4873
+    },
+    "cpr_level_dist": {
+      "weak_value_only": 72,
+      "cpr_derivable": 142,
+      "cpr_grounded": 78,
+      "unsupported": 5,
+      "scaled_grounded": 3
+    }
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 300,
+    "missing": 0,
+    "base_accuracy": 0.3533,
+    "signals": {
+      "value_only": {
+        "auroc": 0.5824,
+        "selective_acc_auc": 0.4011,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.44
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.42
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.3911
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.0433,
+        "cov@acc>=0.7": 0.0267,
+        "cov@acc>=0.8": 0.0233,
+        "acc_supported": 0.3688,
+        "acc_unsupported": 0.1111,
+        "separation": 0.2577,
+        "supported_n": 282,
+        "supported_but_wrong": 178
+      },
+      "cpr": {
+        "auroc": 0.6176,
+        "selective_acc_auc": 0.4194,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.5067
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.4267
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.3911
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.05,
+        "cov@acc>=0.7": 0.0,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.4277,
+        "acc_unsupported": 0.2612,
+        "separation": 0.1665,
+        "supported_n": 166,
+        "supported_but_wrong": 95
+      },
+      "self_consistency": {
+        "auroc": 0.7725,
+        "selective_acc_auc": 0.4878,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.5733
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.5667
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4578
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.2867,
+        "cov@acc>=0.7": 0.08,
+        "cov@acc>=0.8": 0.0367,
+        "acc_supported": 0.4426,
+        "acc_unsupported": 0.0308,
+        "separation": 0.4118,
+        "supported_n": 235,
+        "supported_but_wrong": 131
+      },
+      "verbalized": {
+        "auroc": 0.8542,
+        "selective_acc_auc": 0.5372,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.6933
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6533
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4489
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.5433,
+        "cov@acc>=0.7": 0.45,
+        "cov@acc>=0.8": 0.0367,
+        "acc_supported": 0.6783,
+        "acc_unsupported": 0.0573,
+        "separation": 0.621,
+        "supported_n": 143,
+        "supported_but_wrong": 46
+      },
+      "cpr+sc": {
+        "auroc": 0.7699,
+        "selective_acc_auc": 0.4883,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.6
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.5333
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4667
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.26,
+        "cov@acc>=0.7": 0.0333,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.4791,
+        "acc_unsupported": 0.0353,
+        "separation": 0.4438,
+        "supported_n": 215,
+        "supported_but_wrong": 112
+      },
+      "cpr+verb": {
+        "auroc": 0.8519,
+        "selective_acc_auc": 0.5333,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.68
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6467
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4533
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.5433,
+        "cov@acc>=0.7": 0.45,
+        "cov@acc>=0.8": 0.0367,
+        "acc_supported": 0.6809,
+        "acc_unsupported": 0.0629,
+        "separation": 0.618,
+        "supported_n": 141,
+        "supported_but_wrong": 45
+      },
+      "sc+verb": {
+        "auroc": 0.8841,
+        "selective_acc_auc": 0.5561,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.76
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6533
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4578
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.5433,
+        "cov@acc>=0.7": 0.45,
+        "cov@acc>=0.8": 0.0867,
+        "acc_supported": 0.5266,
+        "acc_unsupported": 0.0625,
+        "separation": 0.4641,
+        "supported_n": 188,
+        "supported_but_wrong": 89
+      },
+      "fusion_internal": {
+        "auroc": 0.8727,
+        "selective_acc_auc": 0.5533,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.76
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6467
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4533
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.5433,
+        "cov@acc>=0.7": 0.46,
+        "cov@acc>=0.8": 0.0667,
+        "acc_supported": 0.7176,
+        "acc_unsupported": 0.071,
+        "separation": 0.6466,
+        "supported_n": 131,
+        "supported_but_wrong": 37
+      },
+      "fusion_all": {
+        "auroc": 0.8683,
+        "selective_acc_auc": 0.5472,
+        "risk_coverage": [
+          {
+            "coverage": 0.25,
+            "accuracy": 0.7333
+          },
+          {
+            "coverage": 0.5,
+            "accuracy": 0.6533
+          },
+          {
+            "coverage": 0.75,
+            "accuracy": 0.4489
+          },
+          {
+            "coverage": 1.0,
+            "accuracy": 0.3533
+          }
+        ],
+        "cov@acc>=0.6": 0.5433,
+        "cov@acc>=0.7": 0.46,
+        "cov@acc>=0.8": 0.0,
+        "acc_supported": 0.7176,
+        "acc_unsupported": 0.071,
+        "separation": 0.6466,
+        "supported_n": 131,
+        "supported_but_wrong": 37
+      }
+    },
+    "bootstrap_cpr": {
+      "ref": "cpr",
+      "auroc_ci": {
+        "value_only": [
+          0.5261,
+          0.6453
+        ],
+        "cpr": [
+          0.5508,
+          0.6803
+        ],
+        "self_consistency": [
+          0.7305,
+          0.814
+        ],
+        "verbalized": [
+          0.8124,
+          0.8941
+        ],
+        "cpr+sc": [
+          0.7164,
+          0.8196
+        ],
+        "cpr+verb": [
+          0.8053,
+          0.897
+        ],
+        "sc+verb": [
+          0.8468,
+          0.9207
+        ],
+        "fusion_internal": [
+          0.8298,
+          0.9146
+        ],
+        "fusion_all": [
+          0.8248,
+          0.911
+        ]
+      },
+      "delta_vs_cpr": {
+        "value_only": {
+          "ci95": [
+            -0.0378,
+            0.1033
+          ],
+          "p_ref_better": 0.8235
+        }
+      }
+    },
+    "bootstrap_fusion": {
+      "ref": "fusion_all",
+      "auroc_ci": {
+        "value_only": [
+          0.5261,
+          0.6453
+        ],
+        "cpr": [
+          0.5508,
+          0.6803
+        ],
+        "self_consistency": [
+          0.7305,
+          0.814
+        ],
+        "verbalized": [
+          0.8124,
+          0.8941
+        ],
+        "cpr+sc": [
+          0.7164,
+          0.8196
+        ],
+        "cpr+verb": [
+          0.8053,
+          0.897
+        ],
+        "sc+verb": [
+          0.8468,
+          0.9207
+        ],
+        "fusion_internal": [
+          0.8298,
+          0.9146
+        ],
+        "fusion_all": [
+          0.8248,
+          0.911
+        ]
+      },
+      "delta_vs_fusion_all": {
+        "verbalized": {
+          "ci95": [
+            -0.0075,
+            0.0384
+          ],
+          "p_ref_better": 0.8865
+        },
+        "self_consistency": {
+          "ci95": [
+            0.0594,
+            0.1334
+          ],
+          "p_ref_better": 1.0
+        },
+        "cpr": {
+          "ci95": [
+            0.1858,
+            0.3199
+          ],
+          "p_ref_better": 1.0
+        },
+        "fusion_internal": {
+          "ci95": [
+            -0.0178,
+            0.0094
+          ],
+          "p_ref_better": 0.257
+        }
+      }
+    },
+    "overconfidence_audit": {
+      "high_model_conf_n": 150,
+      "confident_but_wrong": 52,
+      "confident_but_wrong_rate": 0.3467,
+      "cpr_auroc_within_confident": 0.4946,
+      "value_only_auroc_within_confident": 0.5456
+    },
+    "cpr_level_dist": {
+      "cpr_derivable": 119,
+      "weak_value_only": 122,
+      "cpr_grounded": 36,
+      "scaled_grounded": 11,
+      "unsupported": 11,
+      "no_answer": 1
+    }
+  }
+}

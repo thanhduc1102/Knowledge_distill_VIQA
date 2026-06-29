@@ -1,0 +1,50 @@
+{
+  "finqa": {
+    "dataset": "finqa",
+    "n": 300,
+    "n_wrong": 147,
+    "abstain_frac": 0.4,
+    "caught_by_cpr": 70,
+    "caught_by_verb": 99,
+    "caught_by_sc": 95,
+    "cpr_and_verb": 56,
+    "cpr_or_verb": 113,
+    "cpr_only_not_verb": 14,
+    "verb_only_not_cpr": 43,
+    "union_recall": 0.7687,
+    "verb_recall": 0.6735,
+    "cpr_marginal_recall": 0.0952
+  },
+  "convfinqa": {
+    "dataset": "convfinqa",
+    "n": 300,
+    "n_wrong": 121,
+    "abstain_frac": 0.4,
+    "caught_by_cpr": 76,
+    "caught_by_verb": 81,
+    "caught_by_sc": 69,
+    "cpr_and_verb": 56,
+    "cpr_or_verb": 101,
+    "cpr_only_not_verb": 20,
+    "verb_only_not_cpr": 25,
+    "union_recall": 0.8347,
+    "verb_recall": 0.6694,
+    "cpr_marginal_recall": 0.1653
+  },
+  "tatqa": {
+    "dataset": "tatqa",
+    "n": 300,
+    "n_wrong": 194,
+    "abstain_frac": 0.4,
+    "caught_by_cpr": 89,
+    "caught_by_verb": 115,
+    "caught_by_sc": 113,
+    "cpr_and_verb": 61,
+    "cpr_or_verb": 143,
+    "cpr_only_not_verb": 28,
+    "verb_only_not_cpr": 54,
+    "union_recall": 0.7371,
+    "verb_recall": 0.5928,
+    "cpr_marginal_recall": 0.1443
+  }
+}
