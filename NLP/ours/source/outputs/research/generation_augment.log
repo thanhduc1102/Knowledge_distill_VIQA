@@ -1,2 +1,3 @@
 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
 finqa: raw=0.51 +ledger=0.5233 +kgpath=0.38 (n=300, 268s, {'model': 'gemini-2.5-flash', 'api_calls': 600, 'cache_hits': 0})
+convfinqa: raw=0.5967 +ledger=0.59 +kgpath=0.53 (n=300, 259s, {'model': 'gemini-2.5-flash', 'api_calls': 1200, 'cache_hits': 0})
